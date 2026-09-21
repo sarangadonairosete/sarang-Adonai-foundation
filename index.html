@@ -1,0 +1,2453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ===== SEO ===== -->
+<title>Sarang Adonai Rosete Foundation Uganda | Rosete Junior School Kayunga-Wakiso | ApShule</title>
+<meta name="description" content="NGO Kayunga-Wakiso Uganda. Rosete Junior School and ApShule distance learning. Helping needy and vulnerable families across Uganda. Contact +256 731 038 702, sarangadonairosete@gmail.com">
+<meta name="keywords" content="Sarang Adonai Rosete Foundation, Rosete Junior School, Kayunga Wakiso, ApShule, Uganda NGO, distance learning Uganda, Mama Rose Nalongo, vulnerable families Uganda">
+<meta name="author" content="Sarang Adonai Rosete Foundation Uganda">
+<meta property="og:title" content="Sarang Adonai Rosete Foundation Uganda">
+<meta property="og:description" content="From one mother's struggle in Kiboga to education for a continent. Rosete Junior School & ApShule. Helping vulnerable families across Uganda.">
+<meta property="og:type" content="website">
+<link rel="icon" href="images/badge.png">
+
+<!-- ===== FONTS ===== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- ===== PAYPAL DONATE SDK ===== -->
+<script src="https://www.paypalobjects.com/donate/sdk/donate-sdk.js" charset="UTF-8"></script>
+
+<style>
+/* ============================================================
+   1. RESET & VARIABLES
+   ============================================================ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --navy:#0A1931;
+  --navy-2:#13294b;
+  --navy-3:#1d3a63;
+  --gold:#FFC947;
+  --gold-dark:#e0a92c;
+  --grey:#F5F7FB;
+  --white:#ffffff;
+  --text:#16233b;
+  --muted:#6b7280;
+  --line:#e5e9f0;
+  --radius:18px;
+  --radius-sm:10px;
+  --shadow:0 10px 30px rgba(10,25,49,.08);
+  --shadow-lg:0 20px 50px rgba(10,25,49,.15);
+  --max:1180px;
+}
+
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  color:var(--text);
+  background:var(--grey);
+  line-height:1.75;
+  font-size:16px;
+  overflow-x:hidden;
+}
+
+h1,h2,h3,h4,h5{font-family:'Poppins',sans-serif;line-height:1.22;color:var(--navy);font-weight:700}
+
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+ul{list-style:none}
+button,input,textarea,select{font:inherit;color:inherit}
+
+.container{width:100%;max-width:var(--max);margin:0 auto;padding:0 22px}
+
+/* ============================================================
+   2. TOP BAR
+   ============================================================ */
+.top-bar{
+  background:var(--navy);
+  color:#c9d4e4;
+  font-size:.8rem;
+  padding:9px 0;
+  border-bottom:1px solid rgba(255,201,71,.15);
+}
+.top-bar .container{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;
+}
+.top-bar a{color:#dbe4f0;transition:color .2s}
+.top-bar a:hover{color:var(--gold)}
+.top-bar .tb-item{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.top-bar .tb-spacer{flex:1}
+.top-bar .btn-donate-top{
+  background:var(--gold);color:var(--navy);
+  padding:6px 18px;border-radius:999px;
+  font-weight:700;font-size:.78rem;letter-spacing:.3px;
+  animation:goldPulse 2.4s infinite;
+}
+.top-bar .btn-donate-top:hover{background:#ffd76e;color:var(--navy)}
+
+/* ============================================================
+   3. HEADER / NAV
+   ============================================================ */
+.main-header{
+  position:sticky;top:0;z-index:900;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+  box-shadow:0 2px 20px rgba(10,25,49,.05);
+}
+.main-header .container{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:20px;min-height:80px;
+}
+
+.logo{display:flex;align-items:center;gap:11px;flex-shrink:0}
+.logo img{width:60px;height:60px;object-fit:contain;flex-shrink:0}
+.logo-text{display:flex;flex-direction:column;line-height:1.1}
+.logo-text strong{
+  font-family:'Poppins',sans-serif;font-weight:800;
+  font-size:1rem;color:var(--navy);letter-spacing:.2px;
+}
+.logo-text span{
+  font-size:.62rem;letter-spacing:2.2px;text-transform:uppercase;
+  color:var(--gold-dark);font-weight:700;
+}
+
+.nav{display:flex;align-items:center;gap:2px}
+.nav a{
+  font-size:.82rem;font-weight:600;color:var(--navy);
+  padding:9px 12px;border-radius:8px;position:relative;
+  transition:color .2s,background .2s;white-space:nowrap;
+}
+.nav a:hover{color:var(--gold-dark);background:rgba(255,201,71,.12)}
+.nav a.active{color:var(--gold-dark)}
+.nav a.active::after{
+  content:"";position:absolute;left:12px;right:12px;bottom:3px;
+  height:2.5px;border-radius:2px;background:var(--gold);
+}
+
+.nav-toggle{
+  display:none;background:none;border:none;cursor:pointer;
+  width:44px;height:44px;border-radius:10px;
+  align-items:center;justify-content:center;flex-direction:column;gap:5px;
+}
+.nav-toggle span{
+  display:block;width:23px;height:2.5px;background:var(--navy);
+  border-radius:2px;transition:.3s;
+}
+.nav-toggle.open span:nth-child(1){transform:translateY(7.5px) rotate(45deg)}
+.nav-toggle.open span:nth-child(2){opacity:0}
+.nav-toggle.open span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
+
+/* ============================================================
+   4. PAGE ROUTING
+   ============================================================ */
+.page{display:none}
+.page.active{display:block;animation:pageIn .45s ease}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ============================================================
+   5. BUTTONS
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  padding:14px 30px;border-radius:999px;
+  font-family:'Poppins',sans-serif;font-weight:600;font-size:.9rem;
+  border:2px solid transparent;cursor:pointer;
+  transition:transform .22s,box-shadow .22s,background .22s,color .22s;
+  text-align:center;
+}
+.btn:hover{transform:translateY(-3px)}
+.btn-gold{background:var(--gold);color:var(--navy);box-shadow:0 8px 22px rgba(255,201,71,.4)}
+.btn-gold:hover{background:#ffd76e;box-shadow:0 14px 30px rgba(255,201,71,.5)}
+.btn-navy{background:var(--navy);color:#fff;box-shadow:0 8px 22px rgba(10,25,49,.28)}
+.btn-navy:hover{background:var(--navy-3)}
+.btn-outline{border-color:rgba(255,255,255,.55);color:#fff}
+.btn-outline:hover{background:#fff;color:var(--navy);border-color:#fff}
+.btn-outline-navy{border-color:var(--navy);color:var(--navy)}
+.btn-outline-navy:hover{background:var(--navy);color:#fff}
+.btn-block{width:100%}
+.btn-pulse{animation:goldPulse 2.4s infinite}
+
+@keyframes goldPulse{
+  0%{box-shadow:0 0 0 0 rgba(255,201,71,.75)}
+  70%{box-shadow:0 0 0 18px rgba(255,201,71,0)}
+  100%{box-shadow:0 0 0 0 rgba(255,201,71,0)}
+}
+
+/* ============================================================
+   6. SECTION HELPERS
+   ============================================================ */
+.section{padding:84px 0}
+.section-sm{padding:56px 0}
+.bg-white{background:var(--white)}
+.bg-grey{background:var(--grey)}
+.bg-navy{background:var(--navy);color:#c9d4e4}
+.bg-navy h2,.bg-navy h3,.bg-navy h4{color:#fff}
+
+.eyebrow{
+  display:inline-block;font-family:'Poppins',sans-serif;
+  font-size:.72rem;font-weight:700;letter-spacing:2.6px;
+  text-transform:uppercase;color:var(--gold-dark);margin-bottom:12px;
+}
+.bg-navy .eyebrow{color:var(--gold)}
+
+.section-head{max-width:760px;margin:0 auto 52px;text-align:center}
+.section-head h2{font-size:clamp(1.7rem,3.6vw,2.5rem);margin-bottom:14px}
+.section-head p{color:var(--muted);font-size:1.02rem}
+.bg-navy .section-head p{color:#a9b8cf}
+
+.lead{font-size:1.08rem;color:var(--muted)}
+
+/* ============================================================
+   7. HERO
+   ============================================================ */
+.hero{
+  position:relative;overflow:hidden;
+  background:
+    radial-gradient(circle at 15% 20%,rgba(255,201,71,.16),transparent 45%),
+    radial-gradient(circle at 85% 85%,rgba(255,201,71,.12),transparent 45%),
+    linear-gradient(150deg,#08152a 0%,var(--navy) 45%,#13294b 100%);
+  color:#fff;padding:100px 0 90px;
+}
+.hero::after{
+  content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(circle at 50% 40%,#000 25%,transparent 78%);
+  pointer-events:none;
+}
+.hero .container{position:relative;z-index:2}
+.hero-inner{max-width:920px;margin:0 auto;text-align:center}
+
+.hero-badge{
+  display:inline-flex;align-items:center;gap:9px;
+  background:rgba(255,201,71,.13);
+  border:1px solid rgba(255,201,71,.35);
+  color:var(--gold);
+  padding:8px 20px;border-radius:999px;
+  font-size:.75rem;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;
+  margin-bottom:26px;
+}
+.hero-badge::before{
+  content:"";width:7px;height:7px;border-radius:50%;
+  background:var(--gold);animation:blink 1.6s infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+.hero h1{
+  font-size:clamp(1.85rem,5vw,3.35rem);
+  color:#fff;font-weight:800;letter-spacing:-.5px;
+  min-height:2.6em;margin-bottom:20px;
+}
+.typewriter-cursor{
+  display:inline-block;width:3px;height:.95em;
+  background:var(--gold);margin-left:5px;
+  vertical-align:-.08em;animation:blink 1s step-end infinite;
+}
+.hero-sub{
+  font-size:clamp(.98rem,2vw,1.18rem);
+  color:#b9c7dd;max-width:700px;margin:0 auto 18px;
+}
+.hero-tags{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:36px;
+}
+.hero-tags span{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.14);
+  padding:7px 16px;border-radius:999px;font-size:.8rem;font-weight:600;
+  color:#dbe4f0;
+}
+.hero-buttons{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-bottom:52px;
+}
+
+.hero-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:14px;max-width:640px;margin:0 auto;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:var(--radius);padding:24px 16px;
+  backdrop-filter:blur(8px);
+}
+.hero-stats div{text-align:center}
+.hero-stats strong{
+  display:block;font-family:'Poppins',sans-serif;font-weight:800;
+  font-size:clamp(1.4rem,3.5vw,2rem);color:var(--gold);line-height:1.1;
+}
+.hero-stats small{
+  font-size:.7rem;letter-spacing:1.4px;text-transform:uppercase;
+  color:#a9b8cf;font-weight:600;
+}
+
+/* ============================================================
+   8. COUNTERS
+   ============================================================ */
+.counters-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:22px;
+}
+.counter-card{
+  background:var(--white);border-radius:var(--radius);
+  padding:34px 20px;text-align:center;
+  box-shadow:var(--shadow);border:1px solid var(--line);
+  transition:transform .3s,box-shadow .3s;
+}
+.counter-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg)}
+.counter-num{
+  font-family:'Poppins',sans-serif;font-weight:800;
+  font-size:clamp(1.9rem,4vw,2.7rem);color:var(--navy);line-height:1;
+  display:flex;align-items:baseline;justify-content:center;gap:2px;
+}
+.counter-num .plus{color:var(--gold);font-size:.75em}
+.counter-card p{
+  margin-top:10px;font-size:.82rem;font-weight:600;
+  letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);
+}
+
+/* ============================================================
+   9. CARDS / GRIDS
+   ============================================================ */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:28px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+
+.card{
+  background:var(--white);border-radius:var(--radius);
+  padding:36px 30px;box-shadow:var(--shadow);
+  border:1px solid var(--line);
+  transition:transform .3s,box-shadow .3s,border-color .3s;
+  display:flex;flex-direction:column;
+}
+.card:hover{transform:translateY(-7px);box-shadow:var(--shadow-lg);border-color:rgba(255,201,71,.5)}
+.card h3{font-size:1.22rem;margin-bottom:12px}
+.card p{color:var(--muted);font-size:.94rem;flex:1}
+.card-link{
+  margin-top:20px;font-weight:700;color:var(--gold-dark);
+  font-size:.86rem;letter-spacing:.4px;display:inline-flex;align-items:center;gap:7px;
+}
+.card-link:hover{gap:12px;transition:gap .2s}
+
+.card-icon{
+  width:56px;height:56px;border-radius:15px;
+  background:linear-gradient(135deg,rgba(255,201,71,.25),rgba(255,201,71,.08));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;margin-bottom:20px;
+}
+
+/* Two boxes */
+.two-boxes{display:grid;grid-template-columns:repeat(2,1fr);gap:26px}
+.box-card{
+  position:relative;overflow:hidden;border-radius:var(--radius);
+  padding:44px 38px;color:#fff;
+  background:linear-gradient(145deg,var(--navy),var(--navy-3));
+  box-shadow:var(--shadow-lg);
+  transition:transform .35s;
+}
+.box-card:hover{transform:translateY(-8px)}
+.box-card.gold{
+  background:linear-gradient(145deg,#e0a92c,var(--gold));
+  color:var(--navy);
+}
+.box-card::before{
+  content:"";position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(255,255,255,.07);
+}
+.box-card .box-tag{
+  font-size:.7rem;letter-spacing:2.4px;text-transform:uppercase;
+  font-weight:700;opacity:.8;display:block;margin-bottom:14px;
+}
+.box-card h3{font-size:1.6rem;color:inherit;margin-bottom:14px}
+.box-card p{opacity:.88;font-size:.96rem;margin-bottom:24px}
+.box-card .btn{align-self:flex-start}
+
+/* ============================================================
+   10. QUOTE
+   ============================================================ */
+.quote-section{
+  background:linear-gradient(150deg,var(--navy),#0f2244);
+  color:#fff;position:relative;overflow:hidden;
+}
+.quote-section::before{
+  content:"\201C";position:absolute;top:-40px;left:20px;
+  font-family:Georgia,serif;font-size:20rem;color:rgba(255,201,71,.07);
+  line-height:1;pointer-events:none;
+}
+.quote-inner{max-width:840px;margin:0 auto;text-align:center;position:relative;z-index:2}
+.quote-inner blockquote{
+  font-family:'Poppins',sans-serif;font-weight:600;
+  font-size:clamp(1.15rem,2.6vw,1.65rem);line-height:1.6;
+  color:#fff;margin-bottom:26px;
+}
+.quote-inner cite{
+  font-style:normal;font-size:.85rem;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;color:var(--gold);
+}
+
+/* ============================================================
+   11. STORY PAGE
+   ============================================================ */
+.story-block{
+  display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;
+  margin-bottom:76px;
+}
+.story-block:last-child{margin-bottom:0}
+.story-block.reverse .story-media{order:2}
+.story-block h3{font-size:clamp(1.4rem,3vw,2rem);margin-bottom:18px}
+.story-block p{color:var(--muted);margin-bottom:16px}
+.story-block p:last-child{margin-bottom:0}
+
+.story-media{
+  border-radius:var(--radius);overflow:hidden;
+  aspect-ratio:4/3;position:relative;
+  background:linear-gradient(140deg,var(--navy),var(--navy-3));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-lg);
+}
+.story-media span{
+  font-family:'Poppins',sans-serif;font-weight:700;
+  color:rgba(255,201,71,.85);font-size:1rem;letter-spacing:3px;
+  text-transform:uppercase;text-align:center;padding:0 20px;
+}
+.story-media.gold{background:linear-gradient(140deg,#e0a92c,var(--gold))}
+.story-media.gold span{color:rgba(10,25,49,.75)}
+
+.meaning-box{
+  background:var(--white);border-left:5px solid var(--gold);
+  border-radius:var(--radius-sm);padding:26px 30px;
+  box-shadow:var(--shadow);margin-top:24px;
+}
+.meaning-box strong{color:var(--navy);font-family:'Poppins',sans-serif}
+
+/* ============================================================
+   12. AP SHULE PAGE
+   ============================================================ */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;counter-reset:step}
+.step{
+  background:var(--white);border-radius:var(--radius);padding:32px 24px;
+  border:1px solid var(--line);box-shadow:var(--shadow);
+  position:relative;transition:transform .3s;
+}
+.step:hover{transform:translateY(-6px)}
+.step-num{
+  width:46px;height:46px;border-radius:13px;
+  background:var(--navy);color:var(--gold);
+  font-family:'Poppins',sans-serif;font-weight:800;font-size:1.15rem;
+  display:flex;align-items:center;justify-content:center;margin-bottom:18px;
+}
+.step h4{font-size:1.02rem;margin-bottom:8px}
+.step p{font-size:.88rem;color:var(--muted)}
+
+.chips{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.chip{
+  background:var(--white);border:1.5px solid var(--line);
+  padding:12px 26px;border-radius:999px;
+  font-weight:700;font-size:.88rem;color:var(--navy);
+  box-shadow:0 4px 14px rgba(10,25,49,.05);
+  transition:.25s;
+}
+.chip:hover{background:var(--navy);color:var(--gold);border-color:var(--navy);transform:translateY(-3px)}
+
+/* Video placeholder */
+.video-wrap{
+  max-width:820px;margin:0 auto;border-radius:var(--radius);
+  overflow:hidden;position:relative;cursor:pointer;
+  aspect-ratio:16/9;
+  background:linear-gradient(140deg,var(--navy),var(--navy-3));
+  box-shadow:var(--shadow-lg);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .3s;
+}
+.video-wrap:hover{transform:scale(1.015)}
+.video-wrap::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 50%,rgba(255,201,71,.16),transparent 62%);
+}
+.play-btn{
+  position:relative;z-index:2;
+  width:82px;height:82px;border-radius:50%;
+  background:var(--gold);color:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.9rem;padding-left:6px;
+  box-shadow:0 0 0 0 rgba(255,201,71,.7);
+  animation:goldPulse 2.2s infinite;
+}
+.video-label{
+  position:absolute;bottom:20px;left:0;right:0;text-align:center;
+  color:#c9d4e4;font-size:.82rem;font-weight:600;letter-spacing:1.4px;
+  text-transform:uppercase;z-index:2;
+}
+
+/* Video modal */
+.video-modal{
+  position:fixed;inset:0;z-index:2000;
+  background:rgba(6,14,28,.93);
+  display:flex;align-items:center;justify-content:center;
+  padding:22px;animation:pageIn .3s ease;
+}
+.video-modal-inner{width:100%;max-width:920px;position:relative}
+.video-modal video{width:100%;border-radius:var(--radius);display:block;background:#000}
+.video-close{
+  position:absolute;top:-52px;right:0;
+  background:var(--gold);color:var(--navy);border:none;
+  width:42px;height:42px;border-radius:50%;cursor:pointer;
+  font-size:1.5rem;font-weight:700;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+}
+.video-close:hover{background:#ffd76e}
+
+/* ============================================================
+   13. GALLERY
+   ============================================================ */
+.gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.gallery-item{
+  aspect-ratio:1/1;border-radius:var(--radius-sm);overflow:hidden;
+  position:relative;cursor:pointer;
+  background:linear-gradient(140deg,var(--navy-2),var(--navy-3));
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .35s;
+}
+.gallery-item:nth-child(3n){background:linear-gradient(140deg,#e0a92c,var(--gold))}
+.gallery-item:nth-child(4n){background:linear-gradient(140deg,#1d3a63,#2a5290)}
+.gallery-item:hover{transform:scale(1.05);z-index:3}
+.gallery-item span{
+  color:rgba(255,255,255,.5);font-family:'Poppins',sans-serif;
+  font-weight:800;font-size:1.4rem;letter-spacing:2px;
+}
+.gallery-item:nth-child(3n) span{color:rgba(10,25,49,.45)}
+
+/* ============================================================
+   14. MAP
+   ============================================================ */
+.map-box{
+  border-radius:var(--radius);overflow:hidden;
+  box-shadow:var(--shadow);border:1px solid var(--line);
+  line-height:0;
+}
+.map-box iframe{width:100%;height:380px;border:0;display:block}
+
+/* ============================================================
+   15. TEAM
+   ============================================================ */
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.team-card{
+  background:var(--white);border-radius:var(--radius);
+  padding:34px 26px;text-align:center;
+  border:1px solid var(--line);box-shadow:var(--shadow);
+  transition:transform .3s,box-shadow .3s;
+}
+.team-card:hover{transform:translateY(-7px);box-shadow:var(--shadow-lg)}
+.avatar{
+  width:92px;height:92px;border-radius:50%;margin:0 auto 18px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Poppins',sans-serif;font-weight:800;font-size:1.7rem;
+  color:var(--navy);
+  background:linear-gradient(140deg,var(--gold),#ffe3a3);
+  box-shadow:0 8px 22px rgba(255,201,71,.4);
+  border:3px solid #fff;
+}
+.team-card h4{font-size:1.06rem;margin-bottom:5px}
+.team-role{
+  font-size:.72rem;font-weight:700;letter-spacing:1.6px;
+  text-transform:uppercase;color:var(--gold-dark);margin-bottom:14px;
+}
+.team-card p{font-size:.88rem;color:var(--muted);margin-bottom:16px}
+.team-contact{
+  font-size:.8rem;font-weight:600;color:var(--navy);
+  display:inline-flex;align-items:center;gap:6px;
+}
+.team-contact:hover{color:var(--gold-dark)}
+
+/* ============================================================
+   16. DONATE
+   ============================================================ */
+.donate-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;align-items:stretch}
+.donate-card{
+  background:var(--white);border-radius:var(--radius);
+  padding:42px 32px;text-align:center;
+  border:1px solid var(--line);box-shadow:var(--shadow);
+  display:flex;flex-direction:column;
+  transition:transform .3s,box-shadow .3s;
+  position:relative;
+}
+.donate-card:hover{transform:translateY(-8px);box-shadow:var(--shadow-lg)}
+.donate-card.featured{
+  background:linear-gradient(155deg,var(--navy),var(--navy-3));
+  color:#c9d4e4;border-color:var(--navy);
+  transform:scale(1.035);
+}
+.donate-card.featured:hover{transform:scale(1.035) translateY(-8px)}
+.donate-card.featured h3{color:#fff}
+.donate-card.featured .amount{color:var(--gold)}
+.donate-card.featured p{color:#a9b8cf}
+.donate-card.featured li{color:#c9d4e4}
+
+.featured-tag{
+  position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+  background:var(--gold);color:var(--navy);
+  font-size:.66rem;font-weight:800;letter-spacing:1.8px;
+  text-transform:uppercase;padding:7px 20px;border-radius:999px;
+  white-space:nowrap;
+}
+.amount{
+  font-family:'Poppins',sans-serif;font-weight:800;
+  font-size:3rem;color:var(--navy);line-height:1;margin-bottom:6px;
+}
+.amount sup{font-size:1.2rem;top:-1.1em;margin-right:2px}
+.donate-card h3{font-size:1.08rem;margin-bottom:14px}
+.donate-card > p{font-size:.9rem;color:var(--muted);margin-bottom:22px}
+.donate-card ul{text-align:left;margin-bottom:26px;flex:1}
+.donate-card li{
+  font-size:.88rem;color:var(--muted);padding:8px 0 8px 26px;
+  position:relative;
+}
+.donate-card li::before{
+  content:"✓";position:absolute;left:0;top:8px;
+  color:var(--gold-dark);font-weight:800;
+}
+
+.pay-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.pay-card{
+  background:var(--white);border-radius:var(--radius);
+  padding:30px 26px;border:1px solid var(--line);
+  box-shadow:var(--shadow);text-align:center;
+  transition:transform .3s;
+}
+.pay-card:hover{transform:translateY(-5px)}
+.pay-card .pay-icon{font-size:2rem;margin-bottom:12px}
+.pay-card h4{font-size:1rem;margin-bottom:8px}
+.pay-card p{font-size:.88rem;color:var(--muted);word-break:break-word}
+.pay-card strong{
+  display:block;color:var(--navy);font-family:'Poppins',sans-serif;
+  font-size:1.02rem;margin-top:6px;
+}
+
+.paypal-donate-wrapper{
+  display:flex;
+  justify-content:center;
+  margin:20px 0;
+}
+#paypal-donate-button-container{
+  min-height:50px;
+}
+
+/* ============================================================
+   17. CONTACT
+   ============================================================ */
+.contact-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:38px;align-items:start}
+
+.form-card{
+  background:var(--white);border-radius:var(--radius);
+  padding:42px 38px;box-shadow:var(--shadow);border:1px solid var(--line);
+}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.field{margin-bottom:18px}
+.field label{
+  display:block;font-size:.78rem;font-weight:700;
+  letter-spacing:.8px;text-transform:uppercase;
+  color:var(--navy);margin-bottom:8px;
+}
+.field input,.field textarea,.field select{
+  width:100%;padding:14px 16px;border-radius:var(--radius-sm);
+  border:1.5px solid var(--line);background:var(--grey);
+  font-size:.94rem;transition:border-color .2s,background .2s,box-shadow .2s;
+}
+.field input:focus,.field textarea:focus,.field select:focus{
+  outline:none;border-color:var(--gold);background:#fff;
+  box-shadow:0 0 0 4px rgba(255,201,71,.18);
+}
+.field textarea{resize:vertical;min-height:130px}
+
+.info-card{
+  background:var(--white);border-radius:var(--radius);
+  padding:34px 30px;box-shadow:var(--shadow);border:1px solid var(--line);
+  margin-bottom:22px;
+}
+.info-item{
+  display:flex;gap:16px;padding:16px 0;
+  border-bottom:1px solid var(--line);
+}
+.info-item:last-child{border-bottom:none;padding-bottom:0}
+.info-item:first-child{padding-top:0}
+.info-icon{
+  width:44px;height:44px;flex-shrink:0;border-radius:12px;
+  background:linear-gradient(135deg,rgba(255,201,71,.28),rgba(255,201,71,.08));
+  display:flex;align-items:center;justify-content:center;font-size:1.15rem;
+}
+.info-item h5{
+  font-family:'Poppins',sans-serif;font-size:.72rem;font-weight:700;
+  letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:3px;
+}
+.info-item p,.info-item a{font-size:.94rem;font-weight:600;color:var(--navy)}
+.info-item a:hover{color:var(--gold-dark)}
+
+/* ============================================================
+   18. TESTIMONIALS
+   ============================================================ */
+.testimonial{
+  background:var(--white);border-radius:var(--radius);
+  padding:34px 30px;border:1px solid var(--line);
+  box-shadow:var(--shadow);position:relative;
+  transition:transform .3s;
+}
+.testimonial:hover{transform:translateY(-6px)}
+.testimonial::before{
+  content:"\201C";font-family:Georgia,serif;font-size:4.6rem;
+  color:rgba(255,201,71,.35);line-height:.7;display:block;margin-bottom:6px;
+}
+.testimonial p{font-size:.94rem;color:var(--text);font-style:italic;margin-bottom:20px}
+.testimonial-author{display:flex;align-items:center;gap:13px}
+.testimonial-author .avatar{
+  width:46px;height:46px;font-size:.95rem;margin:0;
+  box-shadow:none;border-width:2px;
+}
+.testimonial-author strong{
+  display:block;font-family:'Poppins',sans-serif;
+  font-size:.9rem;color:var(--navy);
+}
+.testimonial-author small{font-size:.76rem;color:var(--muted)}
+
+/* ============================================================
+   19. CTA BAND
+   ============================================================ */
+.cta-band{
+  background:linear-gradient(135deg,#e0a92c,var(--gold));
+  padding:66px 0;text-align:center;color:var(--navy);
+}
+.cta-band h2{font-size:clamp(1.5rem,3.4vw,2.2rem);color:var(--navy);margin-bottom:14px}
+.cta-band p{max-width:620px;margin:0 auto 30px;font-size:1.02rem;color:#3b3212}
+.cta-band .btn-navy{background:var(--navy);color:#fff}
+.cta-band .btn-navy:hover{background:#13294b}
+
+/* ============================================================
+   20. FOOTER
+   ============================================================ */
+.footer{background:var(--navy);color:#a9b8cf;padding:70px 0 0;font-size:.9rem}
+.footer-grid{
+  display:grid;grid-template-columns:1.4fr 1fr 1fr 1.1fr;
+  gap:44px;padding-bottom:50px;
+}
+.footer h4{
+  color:#fff;font-size:.82rem;letter-spacing:1.8px;
+  text-transform:uppercase;margin-bottom:20px;
+}
+.footer-logo{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.footer-logo img{width:60px;height:60px;object-fit:contain}
+.footer-logo strong{
+  font-family:'Poppins',sans-serif;font-weight:800;
+  color:#fff;font-size:1rem;display:block;line-height:1.2;
+}
+.footer-logo span{
+  font-size:.62rem;letter-spacing:2px;text-transform:uppercase;
+  color:var(--gold);font-weight:700;
+}
+.footer p{margin-bottom:10px;line-height:1.7}
+.footer a{color:#a9b8cf;transition:color .2s}
+.footer a:hover{color:var(--gold)}
+.footer-links li{margin-bottom:11px}
+.footer-links a{display:inline-flex;align-items:center;gap:8px}
+.footer-links a::before{content:"›";color:var(--gold);font-weight:700}
+.footer-bottom{
+  border-top:1px solid rgba(255,255,255,.1);
+  padding:24px 0;text-align:center;font-size:.8rem;color:#7d8fa9;
+}
+.footer-bottom a{color:var(--gold)}
+
+/* ============================================================
+   21. FLOATING WHATSAPP
+   ============================================================ */
+.whatsapp-float{
+  position:fixed;bottom:24px;right:24px;z-index:1500;
+  width:60px;height:60px;border-radius:50%;
+  background:#25D366;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 10px 28px rgba(37,211,102,.45);
+  animation:floatBounce 2.6s ease-in-out infinite;
+  transition:transform .25s;
+}
+.whatsapp-float:hover{transform:scale(1.1)}
+.whatsapp-float svg{width:32px;height:32px;fill:#fff}
+@keyframes floatBounce{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-9px)}
+}
+
+/* ============================================================
+   22. FADE-UP ANIMATION
+   ============================================================ */
+.fade-up{
+  opacity:0;transform:translateY(34px);
+  transition:opacity .75s cubic-bezier(.22,.61,.36,1),transform .75s cubic-bezier(.22,.61,.36,1);
+}
+.fade-up.visible{opacity:1;transform:none}
+.fade-up.d1{transition-delay:.1s}
+.fade-up.d2{transition-delay:.2s}
+.fade-up.d3{transition-delay:.3s}
+.fade-up.d4{transition-delay:.4s}
+.fade-up.d5{transition-delay:.5s}
+
+/* ============================================================
+   23. DOCUMENTS / RESOURCES (Cloudflare R2)
+   ============================================================ */
+.doc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.doc-card{
+  background:var(--white);border-radius:var(--radius);
+  padding:32px 26px;border:1px solid var(--line);
+  box-shadow:var(--shadow);text-align:center;
+  transition:transform .3s,box-shadow .3s;
+  display:flex;flex-direction:column;
+}
+.doc-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg)}
+.doc-icon{font-size:2.4rem;margin-bottom:16px}
+.doc-card h4{font-size:1.02rem;margin-bottom:8px}
+.doc-card p{font-size:.88rem;color:var(--muted);margin-bottom:20px;flex:1}
+.doc-card .btn{font-size:.82rem;padding:11px 24px}
+
+/* ============================================================
+   24. RESPONSIVE
+   ============================================================ */
+@media (max-width:1024px){
+  .grid-4,.steps,.gallery{grid-template-columns:repeat(2,1fr)}
+  .counters-grid{grid-template-columns:repeat(2,1fr)}
+  .team-grid,.grid-3,.donate-grid,.pay-grid,.doc-grid{grid-template-columns:repeat(2,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:34px}
+  .donate-card.featured{transform:none}
+  .donate-card.featured:hover{transform:translateY(-8px)}
+}
+
+@media (max-width:900px){
+  .nav-toggle{display:flex}
+  .nav{
+    position:fixed;top:0;right:-100%;width:min(320px,86vw);height:100vh;
+    background:var(--white);flex-direction:column;align-items:stretch;
+    padding:90px 22px 30px;gap:4px;
+    box-shadow:-10px 0 40px rgba(10,25,49,.16);
+    transition:right .35s cubic-bezier(.22,.61,.36,1);
+    overflow-y:auto;z-index:950;
+  }
+  .nav.open{right:0}
+  .nav a{padding:14px 16px;font-size:.95rem;border-radius:10px}
+  .nav a.active::after{display:none}
+  .nav a.active{background:rgba(255,201,71,.16)}
+
+  .story-block{grid-template-columns:1fr;gap:30px;margin-bottom:60px}
+  .story-block.reverse .story-media{order:0}
+  .contact-grid{grid-template-columns:1fr}
+}
+
+@media (max-width:680px){
+  .section{padding:62px 0}
+  .top-bar{font-size:.74rem;padding:8px 0}
+  .top-bar .tb-spacer{display:none}
+  .top-bar .container{gap:6px 14px;justify-content:center}
+  .hero{padding:70px 0 64px}
+  .hero h1{min-height:3.4em}
+  .hero-buttons{flex-direction:column;align-items:stretch}
+  .hero-buttons .btn{width:100%}
+  .hero-stats{grid-template-columns:1fr;gap:20px}
+  .grid-2,.grid-3,.grid-4,.two-boxes,.steps,.gallery,
+  .team-grid,.donate-grid,.pay-grid,.counters-grid,.doc-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .form-card{padding:30px 22px}
+  .footer-grid{grid-template-columns:1fr;gap:30px}
+  .box-card{padding:34px 26px}
+  .whatsapp-float{width:54px;height:54px;bottom:18px;right:18px}
+  .whatsapp-float svg{width:28px;height:28px}
+  .logo-text span{display:none}
+  .logo img{width:50px;height:50px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     TOP BAR
+     ============================================================ -->
+<div class="top-bar">
+  <div class="container">
+    <span class="tb-item">📍 Kayunga-Wakiso, Uganda</span>
+    <span class="tb-item">📞 <a href="tel:+256731038702">+256 731 038 702</a></span>
+    <span class="tb-item">✉️ <a href="mailto:sarangadonairosete@gmail.com">sarangadonairosete@gmail.com</a></span>
+    <span class="tb-item">🌐 <a href="https://appshule.com" target="_blank" rel="noopener">ApShule</a></span>
+    <span class="tb-spacer"></span>
+    <a href="#donate" class="btn-donate-top" data-nav>Donate</a>
+  </div>
+</div>
+
+<!-- ============================================================
+     HEADER / NAV
+     ============================================================ -->
+<header class="main-header">
+  <div class="container">
+    <a href="#home" class="logo" data-nav>
+      <img src="images/badge.png" alt="Sarang Adonai Rosete Foundation Logo">
+      <span class="logo-text">
+        <strong>Sarang Adonai Rosete</strong>
+        <span>Foundation Uganda</span>
+      </span>
+    </a>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="nav" id="mainNav">
+      <a href="#home" data-nav class="active">Home</a>
+      <a href="#our-story" data-nav>Our Story</a>
+      <a href="#rosete-school" data-nav>Rosete School</a>
+      <a href="#apshule-project" data-nav>ApShule Project</a>
+      <a href="#impact" data-nav>Impact</a>
+      <a href="#our-team" data-nav>Our Team</a>
+      <a href="#donate" data-nav>Donate</a>
+      <a href="#contact" data-nav>Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ============================================================
+     PAGE 1 — HOME
+     ============================================================ -->
+<section class="page active" id="home">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="container">
+      <div class="hero-inner">
+        <span class="hero-badge">Kayunga-Wakiso · Uganda · Since 2018</span>
+
+        <h1><span id="typewriter"></span><span class="typewriter-cursor"></span></h1>
+
+        <p class="hero-sub">
+          Sarang Adonai Rosete Foundation — <strong>Shelter of the Lord</strong>. Building
+          <strong>Rosete Junior School</strong> and <strong>ApShule</strong> digital classrooms
+          so every Ugandan child can learn, anywhere, anytime. We also extend a hand of hope to
+          vulnerable families across the nation.
+        </p>
+
+        <div class="hero-tags">
+          <span>Rosete Junior School</span>
+          <span>ApShule Digital Classroom</span>
+          <span>Nursery – P7</span>
+          <span>Feeding Program</span>
+          <span>Vulnerable Family Support</span>
+        </div>
+
+        <div class="hero-buttons">
+          <a href="#donate" class="btn btn-gold btn-pulse" data-nav>❤ Donate Now</a>
+          <a href="tel:+256731038702" class="btn btn-outline">📞 Call +256 731 038 702</a>
+          <a href="https://appshule.com" target="_blank" rel="noopener" class="btn btn-outline">🌐 Visit ApShule</a>
+        </div>
+
+        <div class="hero-stats">
+          <div><strong>300+</strong><small>Pupils</small></div>
+          <div><strong>8</strong><small>Years</small></div>
+          <div><strong>50+</strong><small>Lessons on ApShule</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COUNTERS -->
+  <div class="section bg-white">
+    <div class="container">
+      <div class="section-head fade-up">
+        <span class="eyebrow">Our Impact So Far</span>
+        <h2>Small Rooms. Big Dreams. Real Numbers.</h2>
+        <p>Every number below represents a child, a meal, or a lesson made possible by people like you.</p>
+      </div>
+
+      <div class="counters-grid" id="homeCounters">
+        <div class="counter-card fade-up d1">
+          <div class="counter-num"><span class="counter" data-target="300">0</span><span class="plus">+</span></div>
+          <p>Pupils Enrolled</p>
+        </div>
+        <div class="counter-card fade-up d2">
+          <div class="counter-num"><span class="counter" data-target="8">0</span></div>
+          <p>Years Serving</p>
+        </div>
+        <div class="counter-card fade-up d3">
+          <div class="counter-num"><span class="counter" data-target="50">0</span><span class="plus">+</span></div>
+          <p>Lessons on ApShule</p>
+        </div>
+        <div class="counter-card fade-up d4">
+          <div class="counter-num"><span class="counter" data-target="7">0</span></div>
+          <p>Classes · Nursery to P7</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TWO BOXES -->
+  <div class="section bg-grey">
+    <div class="container">
+      <div class="section-head fade-up">
+        <span class="eyebrow">Two Arms, One Mission</span>
+        <h2>Rosete School &amp; ApShule Project</h2>
+        <p>One builds the classroom. The other takes the classroom to every home in Uganda.</p>
+      </div>
+
+      <div class="two-boxes">
+        <div class="box-card fade-up d1">
+          <span class="box-tag">On the Ground</span>
+          <h3>Rosete Junior School</h3>
+          <p>
+            Nursery to P7 in Kayunga-Wakiso, Uganda. A feeding program, low fees, and teachers
+            who know every child by name — born from one rented room.
+          </p>
+          <a href="#rosete-school" class="btn btn-gold" data-nav>Explore Rosete School →</a>
+        </div>
+
+        <div class="box-card gold fade-up d2">
+          <span class="box-tag">Online &amp; Offline</span>
+          <h3>ApShule Project</h3>
+          <p>
+            Lessons recorded by Rosete teachers, uploaded to ApShule, and watched by children
+            anywhere — 24/7, downloadable for offline learning. 10,000 UGX per term.
+          </p>
+          <a href="https://appshule.com" target="_blank" rel="noopener" class="btn btn-navy">Visit ApShule →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOUNDER QUOTE -->
+  <div class="section quote-section">
+    <div class="container">
+      <div class="quote-inner fade-up">
+        <blockquote>
+          "I was the last-born twin among eight children. My single mother rented one room —
+          and that room became our school. Today, that room is a foundation."
+        </blockquote>
+        <cite>— Founder &amp; Executive Director, Sarang Adonai Rosete Foundation</cite>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHY -->
+  <div class="section bg-white">
+    <div class="container">
+      <div class="section-head fade-up">
+        <span class="eyebrow">Why It Matters</span>
+        <h2>Education &amp; Compassion That Reaches the Last Child</h2>
+      </div>
+
+      <div class="grid-4">
+        <div class="card fade-up d1">
+          <div class="card-icon">🍲</div>
+          <h3>Feeding Program</h3>
+          <p>A hungry child cannot learn. Every pupil at Rosete receives a daily meal — often the only guaranteed meal of their day.</p>
+        </div>
+        <div class="card fade-up d2">
+          <div class="card-icon">💻</div>
+          <h3>Digital Classroom</h3>
+          <p>ApShule puts recorded lessons in every home. No internet? Download and learn offline, any time of day.</p>
+        </div>
+        <div class="card fade-up d3">
+          <div class="card-icon">🏠</div>
+          <h3>Family Support</h3>
+          <p>Helping needy and vulnerable families across Uganda with food, shelter, and essential needs beyond the classroom.</p>
+        </div>
+        <div class="card fade-up d4">
+          <div class="card-icon">🎓</div>
+          <h3>Low Fees, High Hope</h3>
+          <p>We keep fees low and bursaries open so that poverty never decides whether a child stays in school.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA BAND -->
+  <div class="cta-band">
+    <div class="container fade-up">
+      <h2>Your 15 Dollars Keeps a Child Learning for a Whole Term</h2>
+      <p>Give once, or give monthly. Every shilling goes directly to a child in Kayunga-Wakiso.</p>
+      <a href="#donate" class="btn btn-navy" data-nav>Donate Today</a>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     PAGE 2 — OUR STORY
+     ============================================================ -->
+<section class="page" id="our-story">
+
+  <div class="section bg-navy" style="padding:72px 0">
+    <div class="container" style="text-align:center">
+      <span class="eyebrow">Our Story</span>
+      <h2 style="font-size:clamp(1.8rem,4vw,2.7rem);margin-bottom:14px">
+        From One Mother's Struggle in Kiboga
+      </h2>
+      <p style="max-width:720px;margin:0 auto;color:#a9b8cf">
+        Sarang Adonai means <strong style="color:#FFC947">"Shelter of the Lord."</strong>
+        This is the story of how a single mother's sacrifice became a school, and a school became a movement to help vulnerable families across a nation.
+      </p>
+    </div>
+  </div>
+
+  <div class="section bg-white">
+    <div class="container">
+
+      <!-- Mama Rose -->
+      <div class="story-block">
+        <div class="story-media fade-up">
+          <span>Mama Rose<br>Nalongo</span>
+        </div>
+        <div class="fade-up d1">
+          <span class="eyebrow">Chapter One</span>
+          <h3>Mama Rose Nalongo</h3>
+          <p>
+            Mama Rose Nalongo was born in Kampala and raised eight children as a single mother.
+            When the city could no longer feed her family, she made a decision that would change
+            generations: she travelled to <strong>Kiboga</strong> to dig the farm.
+          </p>
+          <p>
+            She dug. She planted. She sold. And with every shilling she earned from that soil,
+            she put her children through school. She had no capital, no connections, and no safety
+            net — only an unshakeable belief that education was the one thing poverty could not take away.
+          </p>
+        </div>
+      </div>
+
+      <!-- ROSETE meaning -->
+      <div class="story-block reverse">
+        <div class="story-media gold fade-up">
+          <span>R O S E &nbsp;+&nbsp; T E</span>
+        </div>
+        <div class="fade-up d1">
+          <span class="eyebrow">Chapter Two</span>
+          <h3>The Meaning of ROSETE</h3>
+          <p>
+            The name <strong>ROSETE</strong> was not chosen at random. It is a fusion of two women
+            who shaped a family:
+          </p>
+          <div class="meaning-box">
+            <p><strong>ROSE</strong> — for Mama Rose, the mother who dug the farm.</p>
+            <p style="margin-top:8px"><strong>TE</strong> — for the grandmother, the quiet pillar behind her.</p>
+          </div>
+          <p style="margin-top:18px">
+            Every child who walks through the gates of Rosete Junior School walks into a name
+            that carries two generations of sacrifice.
+          </p>
+        </div>
+      </div>
+
+      <!-- Founder -->
+      <div class="story-block">
+        <div class="story-media fade-up">
+          <span>The Founder<br>Last-Born Twin</span>
+        </div>
+        <div class="fade-up d1">
+          <span class="eyebrow">Chapter Three</span>
+          <h3>The Last-Born Twin</h3>
+          <p>
+            The founder was the last-born twin among Mama Rose's eight children. There was never
+            enough money — but there was talent. A gifted athlete, he paid his own school fees
+            through sport.
+          </p>
+          <p>
+            Not satisfied with only surviving, he began teaching in different schools, using his
+            small earnings to support his siblings' education. He discovered something that would
+            define his life: <strong>teaching multiplies hope.</strong>
+          </p>
+        </div>
+      </div>
+
+      <!-- Rosete born -->
+      <div class="story-block reverse">
+        <div class="story-media gold fade-up">
+          <span>One Rented Room<br>Kayunga-Wakiso</span>
+        </div>
+        <div class="fade-up d1">
+          <span class="eyebrow">Chapter Four</span>
+          <h3>From One Rented Room to 300+ Pupils</h3>
+          <p>
+            In Kayunga-Wakiso, the founder rented a single room. That room became Rosete Junior
+            School — the first classroom, the first blackboard, the first pupils.
+          </p>
+          <p>
+            Today, <strong>Rosete Junior School</strong> serves <strong>300+ pupils</strong> from
+            Nursery to P7, with a feeding program and low fees. And through
+            <a href="https://appshule.com" target="_blank" rel="noopener" style="color:#e0a92c;font-weight:700">ApShule</a>,
+            those same lessons now travel far beyond Kayunga-Wakiso to children across Uganda and beyond.
+          </p>
+        </div>
+      </div>
+
+      <!-- Sarang Adonai -->
+      <div class="story-block">
+        <div class="story-media fade-up">
+          <span>Sarang Adonai<br>Shelter of the Lord</span>
+        </div>
+        <div class="fade-up d1">
+          <span class="eyebrow">Chapter Five</span>
+          <h3>Sarang Adonai — Shelter of the Lord</h3>
+          <p>
+            The foundation that holds Rosete School and ApShule together is named
+            <strong>Sarang Adonai</strong> — <em>Shelter of the Lord.</em>
+          </p>
+          <p>
+            It is a declaration that this work was never built by one person. It was sheltered,
+            protected and multiplied by God, through the hands of a mother, a grandmother, a
+            founder, and now a community of supporters around the world.
+          </p>
+        </div>
+      </div>
+
+      <!-- Beyond the Classroom -->
+      <div class="story-block reverse">
+        <div class="story-media gold fade-up">
+          <span>Beyond the<br>Classroom</span>
+        </div>
+        <div class="fade-up d1">
+          <span class="eyebrow">Chapter Six</span>
+          <h3>Helping Needy &amp; Vulnerable Families Across Uganda</h3>
+          <p>
+            While our foundation began with education, our mission quickly expanded. We realized
+            that a child cannot thrive at school if their family is struggling to survive at home.
+          </p>
+          <p>
+            Today, Sarang Adonai Rosete Foundation reaches out to <strong>needy and vulnerable
+            families across the country</strong>. We provide essential relief — food, shelter
+            support, and basic needs — to those who have nowhere else to turn. We believe in
+            being a true <em>Shelter of the Lord</em> for the most desperate among us.
+          </p>
+          <a href="#donate" class="btn btn-gold" data-nav style="margin-top:26px">Support Vulnerable Families</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="cta-band">
+    <div class="container fade-up">
+      <h2>The Story Isn't Finished</h2>
+      <p>The next chapter is written by people like you.</p>
+      <a href="#donate" class="btn btn-navy" data-nav>Support the Mission</a>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     PAGE 3 — ROSETE SCHOOL
+     ============================================================ -->
+<section class="page" id="rosete-school">
+
+  <div class="section bg-navy" style="padding:72px 0">
+    <div class="container" style="text-align:center">
+      <span class="eyebrow">Rosete Junior School</span>
+      <h2 style="font-size:clamp(1.8rem,4vw,2.7rem);margin-bottom:14px">
+        Nursery to P7 in Kayunga-Wakiso, Uganda
+      </h2>
+      <p style="max-width:720px;margin:0 auto;color:#a9b8cf">
+        A community school with a feeding program and low fees — where every child is known by name.
+      </p>
+      <div style="margin-top:32px;display:flex;flex-wrap:wrap;gap:14px;justify-content:center">
+        <a href="tel:+256731038702" class="btn btn-gold">📞 Call +256 731 038 702</a>
+        <a href="mailto:sarangadonairosete@gmail.com" class="btn btn-outline">✉️ Email the School</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick facts -->
+  <div class="section bg-white">
+    <div class="container">
+      <div class="section-head fade-up">
+        <span class="eyebrow">At a Glance</span>
+        <h2>What Rosete Junior School Offers</h2>
+      </div>
+
+      <div class="grid-4">
+        <div class="card fade-up d1">
+          <div class="card-icon">📚</div>
+          <h3>Nursery – P7</h3>
+          <p>Full primary education cycle, from the youngest learners to Primary Seven candidates.</p>
+        </div>
+        <div class="card fade-up d2">
+          <div class="card-icon">🍲</div>
+          <h3>Feeding Program</h3>
+          <p>A daily meal for every pupil — because no child learns on an empty stomach.</p>
+        </div>
+        <div class="card fade-up d3">
+          <div class="card-icon">💰</div>
+          <h3>Low Fees</h3>
+          <p>Deliberately affordable fees, with bursaries available for the most vulnerable children.</p>
+        </div>
+        <div class="card fade-up d4">
+          <div class="card-icon">📍</div>
+          <h3>Kayunga-Wakiso</h3>
+          <p>Located in Kayunga-Wakiso, Uganda — at the heart of the community it serves.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activities & Events -->
+  <div class="section bg-grey">
+    <div class="container">
+      <div class="section-head fade-up">
+        <span class="eyebrow">School Life</span>
+        <h2>Activities &amp; Events at Rosete</h2>
+        <p>From birthday celebrations to sports days — every moment matters.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card fade-up d1" style="padding:0; overflow:hidden;">
+          <div style="height:220px; background:linear-gradient(135deg, #0A1931, #1d3a63); display:flex; align-items:center; justify-content:center; color:#FFC947; font-size:2rem;">
+            🎂
+          </div>
+          <div style="padding:24px;">
+            <h3 style="font-size:1.1rem;">Birthday Celebrations</h3>
+            <p style="font-size:.9rem;">Every child gets a special meal and a song on their birthday. No one is forgotten.</p>
+          </div>
+        </div>
+
+        <div class="card fade-up d2" style="padding:0; overflow:hidden;">
+          <div style="height:220px; background:linear-gradient(135deg, #e0a92c, #FFC947); display:flex; align-items:center; justify-content:center; color:#0A1931; font-size:2rem;">
+            ⚽
+          </div>
+          <div style="padding:24px;">
+            <h3 style="font-size:1.1rem;">Sports &amp; Athletics</h3>
+            <p style="font-size:.9rem;">Just like our founder, our pupils discover their talents on the field.</p>
+          </div>
+        </div>
+
+        <div class="card fade-up d3" style="padding:0; overflow:hidden;">
+          <div style="height:220px; background:linear-gradient(135deg, #1d3a63, #2a5290); display:flex; align-items:center; justify-content:center; color:#FFC947; font-size:2rem;">
+            🍲
+          </div>
+          <div style="padding:24px;">
+            <h3 style="font-size:1.1rem;">Feeding Program</h3>
+            <p style="font-size:.9rem;">Sharing a daily meal together builds community and keeps minds focused.</p>
+          </div>
+        </div>
+
+        <div class="card fade-up d1" style="padding:0; overflow:hidden;">
+          <div style="height:220px; background:linear-gradient(135deg, #0A1931, #1d3a63); display:flex; align-items:center; justify-content:center; color:#FFC947; font-size:2rem;">
+            📚
+          </div>
+          <div style="padding:24px;">
+            <h3 style="font-size:1.1rem;">Reading Club</h3>
+            <p style="font-size:.9rem;">Pupils gather to read stories and build confidence in English.</p>
+          </div>
+        </div>
+
+        <div class="card fade-up d2" style="padding:0; overflow:hidden;">
+          <div style="height:220px; background:linear-gradient(135deg, #e0a92c, #FFC947); display:flex; align-items:center; justify-content:center; color:#0A1931; font-size:2rem;">
+            🎨
+          </div>
+          <div style="padding:24px;">
+            <h3 style="font-size:1.1rem;">Creative Arts</h3>
+            <p style="font-size:.9rem;">Drawing, music, and dance help our children express themselves.</p>
+          </div>
+        </div>
+
+        <div class="card fade-up d3" style="padding:0; overflow:hidden;">
+          <div style="height:220px; background:linear-gradient(135deg, #1d3a63, #2a5290); display:flex; align-items:center; justify-content:center; color:#FFC947; font-size:2rem;">
+            🙏
+          </div>
+          <div style="padding:24px;">
+            <h3 style="font-size:1.1rem;">Prayer &amp; Assembly</h3>
+            <p style="font-size:.9rem;">We start each day together, grounded in faith and community.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gallery -->
+  <div class="section bg-white">
+    <div class="container">
+      <div class="section-head fade-up">
+        <span class="eyebrow">Gallery</span>
+        <h2>Life at Rosete</h2>
+        <p>Moments from our classrooms, our compound, and our children.</p>
+      </div>
+
+      <div class="gallery">
+        <div class="gallery-item fade-up"><span>01</span></div>
+        <div class="gallery-item fade-up d1"><span>02</span></div>
+        <div class="gallery-item fade-up d2"><span>03</span></div>
+        <div class="gallery-item fade-up d3"><span>04</span></div>
+        <div class="gallery-item fade-up"><span>05</span></div>
+        <div class="gallery-item fade-up d1"><span>06</span></div>
+        <div class="gallery-item fade-up d2"><span>07</span></div>
+        <div class="gallery-item fade-up d3"><span>08</span></div>
+        <div class="gallery-item fade-up"><span>09</span></div>
+        <div class="gallery-item fade-up d1"><span>10</span></div>
+        <div class="gallery-item fade-up d2"><span>11</span></div>
+        <div class="gallery-item fade-up d3"><span>12</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map + Contact -->
+  <div class="section bg-grey">
+    <div class="container">
+      <div class="section-head fade-up">
+        <span class="eyebrow">Visit Us</span>
+        <h2>Find Rosete Junior School</h2>
+        <p>Kayunga-Wakiso, Uganda · Mon–Sat, 8:00am – 5:00pm</p>
+      </div>
+
+      <div class="map-box fade-up" style="margin-bottom:36px">
+        <iframe
+          src="https://www.google.com/maps?q=Kayunga,%20Uganda&output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Map of Kayunga-Wakiso, Uganda"></iframe>
+      </div>
+
+      <div class="grid-3">
+        <div class="card fade-up d1">
+          <div class="card-icon">📞</div>
+          <h3>Phone</h3>
+          <p><a href="tel:+256731038702" style="color:#e0a92c;font-weight:700">+256 731 038 702</a></p>
+        </div>
+        <div class="card fade-up d2">
+          <div class="card-icon">✉️</div>
+          <h3>Email</h3>
+          <p><a href="mailto:sarangadonairosete@gmail.com" style="color:#e0a92c;font-weight:700;word-break:break-all">sarangadonairosete@gmail.com</a></p>
+        </div>
+        <div class="card fade-up d3">
+          <div class="card-icon">💬</div>
+          <h3>WhatsApp</h3>
+          <p><a href="https://wa.me/256731038702" target="_blank" rel="noopener" style="color:#e0a92c;font-weight:700">Chat with us now</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-band">
+    <div class="container fade-up">
+      <h2>45 Dollars Feeds a Child at Rosete for a Month</h2>
+      <p>Help us keep the kitchen open and the classrooms full.</p>
+      <a href="#donate" class="btn btn-navy" data-nav>Donate to Rosete</a>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     PAGE 4 — APSHULE PROJECT
+     ============================================================ -->
+<section class="page" id="apshule-project">
+
+  <div class="section bg-navy" style="padding:72px 0">
+    <div class="container" style="text-align:center">
+      <span class="eyebrow">The ApShule Project</span>
+      <h2 style="font-size:clamp(1.8rem,4vw,2.7rem);margin-bottom:14px">
+        ApShule Distance Learning — Digital Classroom
+      </h2>
+      <p style="max-width:760px;margin:0 auto 32px;color:#a9b8cf">
+        Lessons recorded by Rosete teachers in Kayunga-Wakiso, uploaded to ApShule,
+        and available to any child, anywhere — 24/7, online or offline.
+      </p>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center">
+        <a href="https://appshule.com" target="_blank" rel="noopener" class="btn btn-gold btn-pulse">🌐 Go to ApShule</a>
+        <a href="tel:+256731038702" class="btn btn-outline">📞 Call +256 731 038 702</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- What is ApShule -->
+  <div class="section bg-white">
+    <div class="container">
+      <div class="section-head fade-up">
+        <span class="eyebrow">What Is ApShule?</span>
+        <h2>A Classroom That Fits in Your Pocket</h2>
+        <p>
+          ApShule is our digital classroom platform. Every lesson is recorded by real Rosete
+          teachers, uploaded to <a href="https://appshule.com" target="_blank" rel="noopener" style="color:#e0a92c;font-weight:700">appshule.com</a>,
+          and made available to children everywhere.
+        </p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card fade-up d1">
+          <div class="card-icon">🕐</div>
+          <h3>Available 24/7</h3>
+          <p>Learning doesn't stop when school closes. Children can watch lessons any hour, any day.</p>
+        </div>
+        <div class="card fade-up d2">
+          <div class="card-icon">💵</div>
+          <h3>10,000 UGX per Term</h3>
+          <p>A fraction of private tuition. One small termly fee unlocks the whole library.</p>
+        </div>
+        <div class="card fade-up d3">
+          <div class="card-icon">⬇️</div>
+          <h3>Offline Download</h3>
+          <p>No data? No problem. Lessons can be downloaded and watched completely offline.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="section bg-grey">
+    <div class="container">
+      <div class="section-head fade-up">
+        <span class="eyebrow">How It Works</span>
+        <h2>From Kayunga-Wakiso to Any Home in Four Steps</h2>
+      </div>
+
+      <div class="steps">
+        <div class="step fade-up d1">
+          <div class="step-num">1</div>
+          <h4>Record</h4>
+          <p>Rosete teachers record lessons in Kayunga-Wakiso, using the same syllabus they teach in class.</p>
+        </div>
+        <div class="step fade-up d2">
+          <div class="step-num">2</div>
+          <h4>Upload</h4>
+          <p>Lessons are uploaded to <a href="https://appshule.com" target="_blank" rel="noopener" style="color:#e0a92c;font-weight:700">appshule.com</a> by our ApShule Tech Lead.</p>
+        </div>
+        <div class="step fade-up d3">
+          <div class="step-num">3</div>
+          <h4>Watch</h4>
+          <p>The child logs in and watches the lesson — at home, at a neighbour's, or at school.</p>
+        </div>
+        <div class="step fade-up d4">
+          <div class="step-num">4</div>
+          <h4>Learn Offline</h4>
+          <p>Downloaded lessons play without internet, so learning continues even where data is scarce.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subjects -->
+  <div class="section bg-white">
+    <div class="container">
+      <div class="section-head fade-up">
+        <span class="eyebrow">Curriculum</span>
+        <h2>Subjects &amp; Classes Covered</h2>
+        <p>Primary One to Primary Seven — the full Ugandan primary syllabus.</p>
+      </div>
+
+      <div class="chips fade-up" style="margin-bottom:38px">
+        <span class="chip">Mathematics</span>
+        <span class="chip">English</span>
+        <span class="chip">Science</span>
+        <span class="chip">Social Studies (SST)</span>
+      </div>
+
+      <div class="chips fade-up d1">
+        <span class="chip">P1</span>
+        <span class="chip">P2</span>
+        <span class="chip">P3</span>
+        <span class="chip">P4</span>
+        <span class="chip">P5</span>
+        <span class="chip">P6</span>
+        <span class="chip">P7</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video demo -->
+  <div class="section bg-navy">
+    <div class="container">
+      <div class="section-head fade-up">
+        <span class="eyebrow">See It in Action</span>
+        <h2>ApShule Demo</h2>
+        <p>Watch how a recorded lesson reaches a child's screen.</p>
+      </div>
+
+      <div class="video-wrap fade-up" id="videoTrigger" role="button" tabindex="0" aria-label="Play ApShule demo video">
+        <div class="play-btn">▶</div>
+        <span class="video-label">ApShule Demo · Click to Play</span>
+      </div>
+
+      <div style="text-align:center;margin-top:40px">
+        <a href="https://appshule.com" target="_blank" rel="noopener" class="btn btn-gold">Start Learning on ApShule →</a>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     PAGE 5 — IMPACT
+     ============================================================ -->
+<section class="page" id="impact">
+
+  <div class="section bg-navy" style="padding:72px 0">
+    <div class="container" style="text-align:center">
+      <span class="eyebrow">Our Impact</span>
+      <h2 style="font-size:clamp(1.8rem,4vw,2.7rem);margin-bottom:14px">
+        What Your Support Has Built
+      </h2>
+      <p style="max-width:720px;margin:0 auto;color:#a9b8cf">
+        Meals served, bursaries given, lessons watched, and vulnerable families supported — measured in lives changed, not statistics.
+      </p>
+    </div>
+  </div>
+
+  <!-- Counters -->
+  <div class="section bg-white">
+    <div class="container">
+      <div class="counters-grid" style="grid-template-columns:repeat(5,1fr)">
+        <div class="counter-card fade-up d1">
+          <div class="counter-num"><span class="counter" data-target="300">0</span><span class="plus">+</span></div>
+          <p>Pupils Enrolled</p>
+        </div>
+        <div class="counter-card fade-up d2">
+          <div class="counter-num"><span class="counter" data-target="120000">0</span><span class="plus">+</span></div>
+          <p>Meals Served</p>
+        </div>
+        <div class="counter-card fade-up d3">
+          <div class="counter-num"><span class="counter" data-target="85">0</span><span class="plus">+</span></div>
+          <p>Bursaries Given</p>
+        </div>
+        <div class="counter-card fade-up d4">
+          <div class="counter-num"><span class="counter" data-target="50">0</span><span class="plus">+</span></div>
+          <p>Lessons on ApShule</p>
+        </div>
+        <div class="counter-card fade-up d5">
+          <div class="counter-num"><span class="counter" data-target="120">0</span><span class="plus">+</span></div>
+          <p>Families Supported</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="section bg-grey">
+    <div class="container">
+      <div class="section-head fade-up">
+        <span class="eyebrow">Testimonials</span>
+        <h2>Voices from Our Community</h2>
+      </div>
+
+      <div class="grid-3">
+        <div class="testimonial fade-up d1">
+          <p>"My daughter used to walk two hours to the next school. Now she learns at Rosete and eats a meal every day. I have never seen her so happy."</p>
+          <div class="testimonial-author">
+            <div class="avatar">N</div>
+            <div>
+              <strong>Nakato Sarah</strong>
+              <small>Parent, Kayunga-Wakiso</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial fade-up d2">
+          <p>"I downloaded the ApShule lessons on my phone. Even when there is no network at home, I can still study Mathematics at night."</p>
+          <div class="testimonial-author">
+            <div class="avatar">M</div>
+            <div>
+              <strong>Mukisa Daniel</strong>
+              <small>P7 Pupil</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial fade-up d3">
+          <p>"As a teacher, recording for ApShule changed how I teach. I now know my lessons are reaching children far beyond my classroom."</p>
+          <div class="testimonial-author">
+            <div class="avatar">A</div>
+            <div>
+              <strong>Teacher Aisha</strong>
+              <small>Rosete Junior School</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial fade-up d1">
+          <p>"Mama Rose dug a farm so her children could study. Now that same sacrifice is educating hundreds of children. That is a legacy."</p>
+          <div class="testimonial-author">
+            <div class="avatar">J</div>
+            <div>
+              <strong>John Ssekandi</strong>
+              <small>Board Member</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial fade-up d2">
+          <p>"We paid low fees and my son still got a quality education. The feeding program meant I did not have to choose between food and school."</p>
+          <div class="testimonial-author">
+            <div class="avatar">G</div>
+            <div>
+              <strong>Grace Namuli</strong>
+              <small>Parent</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial fade-up d3">
+          <p>"ApShule is proof that a small school in Kayunga-Wakiso can teach the whole country. This is the future of Ugandan education."</p>
+          <div class="testimonial-author">
+            <div class="avatar">P</div>
+            <div>
+              <strong>Patrick Otim</strong>
+              <small>Education Partner</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial fade-up d1">
+          <p>"When my husband passed away, we had nothing. Sarang Adonai stepped in and helped us with food and school fees for my children. They gave us hope."</p>
+          <div class="testimonial-author">
+            <div class="avatar">R</div>
+            <div>
+              <strong>Rebecca Auma</strong>
+              <small>Beneficiary Family</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial fade-up d2">
+          <p>"I was living on the streets of Kampala. The foundation found me a place to sleep and paid for my vocational training. Today I have a job."</p>
+          <div class="testimonial-author">
+            <div class="avatar">S</div>
+            <div>
+              <strong>Samuel K.</strong>
+              <small>Vulnerable Youth Supported</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial fade-up d3">
+          <p>"The foundation doesn't just talk about helping people. They come to the villages. They bring food. They bring hope. They are the hands and feet of God."</p>
+          <div class="testimonial-author">
+            <div class="avatar">E</div>
+            <div>
+              <strong>Elder Moses</strong>
+              <small>Community Leader</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-band">
+    <div class="container fade-up">
+      <h2>Help Us Reach 500 Pupils and 500 Families</h2>
+      <p>Every donation moves a child one step further from poverty and one step closer to a future.</p>
+      <a href="#donate" class="btn btn-navy" data-nav>Make an Impact</a>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     PAGE 6 — OUR TEAM
+     ============================================================ -->
+<section class="page" id="our-team">
+
+  <div class="section bg-navy" style="padding:72px 0">
+    <div class="container" style="text-align:center">
+      <span class="eyebrow">Our Team</span>
+      <h2 style="font-size:clamp(1.8rem,4vw,2.7rem);margin-bottom:14px">
+        Our Leadership — 7 People Building Mama Rose's Dream
+      </h2>
+      <p style="max-width:720px;margin:0 auto;color:#a9b8cf">
+        Seven people. One vision. A foundation held together by faith, family and service.
+      </p>
+    </div>
+  </div>
+
+  <div class="section bg-white">
+    <div class="container">
+      <div class="team-grid">
+
+        <div class="team-card fade-up d1">
+          <div class="avatar">F</div>
+          <h4>YOUR NAME</h4>
+          <div class="team-role">Founder &amp; Executive Director</div>
+          <p>CEO of the Foundation, Rosete Junior School and the ApShule Project. Last-born twin, athlete and teacher.</p>
+          <a href="tel:+256731038702" class="team-contact">📞 +256 731 038 702</a>
+        </div>
+
+        <div class="team-card fade-up d2">
+          <div class="avatar">C</div>
+          <h4>WIFE NAME</h4>
+          <div class="team-role">Co-Founder &amp; Administrator</div>
+          <p>Oversees administration, child welfare and safeguarding across Rosete and the Foundation.</p>
+          <a href="tel:+256731038702" class="team-contact">📞 +256 731 038 702</a>
+        </div>
+
+        <div class="team-card fade-up d3">
+          <div class="avatar">M</div>
+          <h4>Mama Rose Nalongo</h4>
+          <div class="team-role">Honorary Patron</div>
+          <p>The inspiration behind it all. The mother who dug the farm in Kiboga. ROSE + TE.</p>
+          <a href="#our-story" class="team-contact" data-nav>📖 Read Her Story</a>
+        </div>
+
+        <div class="team-card fade-up d1">
+          <div class="avatar">B</div>
+          <h4>CHAIR NAME</h4>
+          <div class="team-role">Board Chairperson</div>
+          <p>Provides governance, oversight and accountability for the Foundation's board.</p>
+          <a href="tel:+256731038702" class="team-contact">📞 +256 731 038 702</a>
+        </div>
+
+        <div class="team-card fade-up d2">
+          <div class="avatar">T</div>
+          <h4>TREASURER NAME</h4>
+          <div class="team-role">Treasurer &amp; Finance Officer</div>
+          <p>Manages all finances including MTN, Airtel and PayPal contributions and reporting.</p>
+          <a href="mailto:sarangadonairosete@gmail.com" class="team-contact">✉️ sarangadonairosete@gmail.com</a>
+        </div>
+
+        <div class="team-card fade-up d3">
+          <div class="avatar">H</div>
+          <h4>HEADTEACHER NAME</h4>
+          <div class="team-role">Headteacher, Rosete Junior School</div>
+          <p>Leads teaching and learning at Rosete Junior School, Kayunga-Wakiso.</p>
+          <a href="tel:+256731038702" class="team-contact">📞 +256 731 038 702</a>
+        </div>
+
+        <div class="team-card fade-up d1">
+          <div class="avatar">A</div>
+          <h4>YOUTH NAME</h4>
+          <div class="team-role">ApShule Tech Lead</div>
+          <p>Records and uploads all lessons to <a href="https://appshule.com" target="_blank" rel="noopener" style="color:#e0a92c;font-weight:700">appshule.com</a> and manages the digital classroom.</p>
+          <a href="https://appshule.com" target="_blank" rel="noopener" class="team-contact">🌐 appshule.com</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-band">
+    <div class="container fade-up">
+      <h2>Want to Join the Team?</h2>
+      <p>We welcome volunteers, teachers, tech contributors and partners.</p>
+      <a href="#contact" class="btn btn-navy" data-nav>Get in Touch</a>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     PAGE 7 — DONATE
+     ============================================================ -->
+<section class="page" id="donate">
+
+  <div class="section bg-navy" style="padding:72px 0">
+    <div class="container" style="text-align:center">
+      <span class="eyebrow">Donate</span>
+      <h2 style="font-size:clamp(1.8rem,4vw,2.7rem);margin-bottom:14px">
+        Give a Child a Term of Learning
+      </h2>
+      <p style="max-width:720px;margin:0 auto;color:#a9b8cf">
+        Choose an amount below. Every shilling goes directly to children and vulnerable families in Kayunga-Wakiso, Uganda.
+      </p>
+    </div>
+  </div>
+
+  <!-- Donation tiers -->
+  <div class="section bg-white">
+    <div class="container">
+      <div class="donate-grid">
+
+        <div class="donate-card fade-up d1">
+          <div class="amount"><sup>$</sup>15</div>
+          <h3>ApShule Term</h3>
+          <p>Sponsor one child's full term on the ApShule digital classroom.</p>
+          <ul>
+            <li>Full term access to appshule.com</li>
+            <li>All P1–P7 subjects</li>
+            <li>Offline lesson downloads</li>
+          </ul>
+          <a href="https://appshule.com" target="_blank" rel="noopener" class="btn btn-outline-navy btn-block">Give $15</a>
+        </div>
+
+        <div class="donate-card featured fade-up d2">
+          <span class="featured-tag">Most Needed</span>
+          <div class="amount"><sup>$</sup>45</div>
+          <h3>Rosete Feeding — One Month</h3>
+          <p>Feed one child at Rosete Junior School for a full month.</p>
+          <ul>
+            <li>Daily school meal</li>
+            <li>Keeps a child in class</li>
+            <li>Supports local kitchen staff</li>
+          </ul>
+          <a href="tel:+256731038702" class="btn btn-gold btn-block btn-pulse">Give $45</a>
+        </div>
+
+        <div class="donate-card fade-up d3">
+          <div class="amount"><sup>$</sup>200</div>
+          <h3>Record 20 Lessons</h3>
+          <p>Fund the recording and upload of 20 full lessons to ApShule.</p>
+          <ul>
+            <li>20 recorded lessons</li>
+            <li>Reaches thousands of children</li>
+            <li>Available forever on appshule.com</li>
+          </ul>
+          <a href="mailto:sarangadonairosete@gmail.com?subject=Donation%20-%20Record%2020%20Lessons" class="btn btn-outline-navy btn-block">Give $200</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment methods -->
+  <div class="section bg-grey">
+    <div class="container">
+      <div class="section-head fade-up">
+        <span class="eyebrow">Payment Methods</span>
+        <h2>How to Send Your Donation</h2>
+        <p>Mobile Money and PayPal. Please use the reference "Donation" and send us a message after giving.</p>
+      </div>
+
+      <div class="pay-grid">
+        <div class="pay-card fade-up d1">
+          <div class="pay-icon">📱</div>
+          <h4>MTN Mobile Money</h4>
+          <p>Account Name</p>
+          <strong>Sarang Adonai Rosete Foundation</strong>
+          <p style="margin-top:10px">Number</p>
+          <strong>+256 731 038 702</strong>
+        </div>
+
+        <div class="pay-card fade-up d2">
+          <div class="pay-icon">📶</div>
+          <h4>Airtel Money</h4>
+          <p>Account Name</p>
+          <strong>Sarang Adonai Rosete Foundation</strong>
+          <p style="margin-top:10px">Number</p>
+          <strong>+256 731 038 702</strong>
+        </div>
+
+        <!-- PayPal Donate Button (SDK) -->
+        <div class="pay-card fade-up d3" style="grid-column: span 1;">
+          <div class="pay-icon">💳</div>
+          <h4>Donate with PayPal</h4>
+          <p style="margin-bottom:12px;">Click the button below to give securely.</p>
+          <div class="paypal-donate-wrapper">
+            <div id="paypal-donate-button-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:44px" class="fade-up">
+        <p style="color:#6b7280;margin-bottom:20px">
+          After donating, please send your confirmation to <strong>+256 731 038 702</strong> so we can thank you personally.
+        </p>
+        <a href="https://wa.me/256731038702?text=Hello%2C%20I%20would%20like%20to%20donate%20to%20Sarang%20Adonai%20Rosete%20Foundation"
+           target="_blank" rel="noopener" class="btn btn-gold btn-pulse">💬 Confirm via WhatsApp</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Documents & Resources (Cloudflare R2) -->
+  <div class="section bg-white">
+    <div class="container">
+      <div class="section-head fade-up">
+        <span class="eyebrow">Transparency</span>
+        <h2>Documents &amp; Resources</h2>
+        <p>Download our reports, newsletters and school documents. All files are hosted securely on Cloudflare R2.</p>
+      </div>
+
+      <div class="doc-grid">
+        <div class="doc-card fade-up d1">
+          <div class="doc-icon">📄</div>
+          <h4>Annual Report 2025</h4>
+          <p>Our full annual report detailing impact, finances and plans for the year ahead.</p>
+          <a href="https://pub-your-bucket-id.r2.dev/annual-report-2025.pdf" target="_blank" rel="noopener" class="btn btn-outline-navy">Download PDF</a>
+        </div>
+
+        <div class="doc-card fade-up d2">
+          <div class="doc-icon">📄</div>
+          <h4>School Newsletter</h4>
+          <p>Quarterly newsletter with stories, photos and updates from Rosete Junior School.</p>
+          <a href="https://pub-your-bucket-id.r2.dev/newsletter-q1-2026.pdf" target="_blank" rel="noopener" class="btn btn-outline-navy">Download PDF</a>
+        </div>
+
+        <div class="doc-card fade-up d3">
+          <div class="doc-icon">📄</div>
+          <h4>Financial Statement</h4>
+          <p>Summary of donations received and expenses for the current financial year.</p>
+          <a href="https://pub-your-bucket-id.r2.dev/financial-statement-2025.pdf" target="_blank" rel="noopener" class="btn btn-outline-navy">Download PDF</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-band">
+    <div class="container fade-up">
+      <h2>Transparency Is Our Promise</h2>
+      <p>Every donation is recorded, receipted and reported. Contact our Treasurer for details.</p>
+      <a href="mailto:sarangadonairosete@gmail.com" class="btn btn-navy">Email the Treasurer</a>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     PAGE 8 — CONTACT
+     ============================================================ -->
+<section class="page" id="contact">
+
+  <div class="section bg-navy" style="padding:72px 0">
+    <div class="container" style="text-align:center">
+      <span class="eyebrow">Contact Us</span>
+      <h2 style="font-size:clamp(1.8rem,4vw,2.7rem);margin-bottom:14px">
+        We'd Love to Hear From You
+      </h2>
+      <p style="max-width:720px;margin:0 auto;color:#a9b8cf">
+        Whether you want to donate, volunteer, partner, or enrol a child — reach out today.
+      </p>
+    </div>
+  </div>
+
+  <div class="section bg-white">
+    <div class="container">
+      <div class="contact-grid">
+
+        <!-- FORM -->
+        <div class="form-card fade-up">
+          <h3 style="margin-bottom:8px">Send Us a Message</h3>
+          <p style="color:#6b7280;font-size:.92rem;margin-bottom:28px">
+            Fill in the form and we'll get back to you within 24 hours.
+          </p>
+
+          <form action="https://formsubmit.co/sarangadonairosete@gmail.com" method="POST">
+            <input type="hidden" name="_subject" value="New message from Sarang Adonai Rosete website">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_template" value="table">
+
+            <div class="form-row">
+              <div class="field">
+                <label for="name">Name *</label>
+                <input type="text" id="name" name="name" placeholder="Your full name" required>
+              </div>
+              <div class="field">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email" placeholder="you@example.com" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="field">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone" placeholder="+256 ...">
+              </div>
+              <div class="field">
+                <label for="subject">Subject</label>
+                <select id="subject" name="subject">
+                  <option>General Enquiry</option>
+                  <option>Donation</option>
+                  <option>School Enrolment</option>
+                  <option>ApShule Support</option>
+                  <option>Volunteering</option>
+                  <option>Partnership</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="message">Message *</label>
+              <textarea id="message" name="message" placeholder="How can we help you?" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-gold btn-block btn-pulse">Send Message</button>
+          </form>
+        </div>
+
+        <!-- INFO -->
+        <div>
+          <div class="info-card fade-up d1">
+            <div class="info-item">
+              <div class="info-icon">📍</div>
+              <div>
+                <h5>Location</h5>
+                <p>Kayunga-Wakiso, Uganda</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">📞</div>
+              <div>
+                <h5>Phone — Click to Call</h5>
+                <a href="tel:+256731038702">+256 731 038 702</a>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">💬</div>
+              <div>
+                <h5>WhatsApp</h5>
+                <a href="https://wa.me/256731038702" target="_blank" rel="noopener">+256 731 038 702</a>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">✉️</div>
+              <div>
+                <h5>Email</h5>
+                <a href="mailto:sarangadonairosete@gmail.com" style="word-break:break-all">sarangadonairosete@gmail.com</a>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">🌐</div>
+              <div>
+                <h5>EdTech Platform</h5>
+                <a href="https://appshule.com" target="_blank" rel="noopener">appshule.com</a>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">🕐</div>
+              <div>
+                <h5>Office Hours</h5>
+                <p>Monday – Saturday<br>8:00am – 5:00pm</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="map-box fade-up d2">
+            <iframe
+              src="https://www.google.com/maps?q=Kayunga,%20Uganda&output=embed"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              title="Map of Kayunga-Wakiso, Uganda"
+              style="height:300px"></iframe>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</main>
+
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+
+      <div>
+        <div class="footer-logo">
+          <img src="images/badge.png" alt="Sarang Adonai Rosete Foundation Logo">
+          <span>
+            <strong>Sarang Adonai Rosete</strong>
+            <span>Foundation Uganda</span>
+          </span>
+        </div>
+        <p>
+          <strong style="color:#fff">Our Mission:</strong> To shelter, feed and educate every child
+          in Uganda — in the classroom and in the digital classroom — while extending a hand of relief
+          to the most vulnerable families across the country, so that no one is left behind
+          because of poverty or distance.
+        </p>
+      </div>
+
+      <div>
+        <h4>Contact</h4>
+        <p>Kayunga-Wakiso, Uganda</p>
+        <p><a href="tel:+256731038702">+256 731 038 702</a></p>
+        <p><a href="mailto:sarangadonairosete@gmail.com" style="word-break:break-all">sarangadonairosete@gmail.com</a></p>
+        <p><a href="https://appshule.com" target="_blank" rel="noopener">appshule.com</a></p>
+        <p>Mon – Sat, 8:00am – 5:00pm</p>
+      </div>
+
+      <div>
+        <h4>Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="#home" data-nav>Home</a></li>
+          <li><a href="#our-story" data-nav>Our Story</a></li>
+          <li><a href="#rosete-school" data-nav>Rosete School</a></li>
+          <li><a href="#apshule-project" data-nav>ApShule Project</a></li>
+          <li><a href="#impact" data-nav>Impact</a></li>
+          <li><a href="#our-team" data-nav>Our Team</a></li>
+          <li><a href="#contact" data-nav>Contact</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Donate</h4>
+        <p><strong style="color:#FFC947">MTN:</strong><br>+256 731 038 702</p>
+        <p><strong style="color:#FFC947">Airtel:</strong><br>+256 731 038 702</p>
+        <p><strong style="color:#FFC947">PayPal:</strong><br><span style="word-break:break-all">sarangadonairosete@gmail.com</span></p>
+        <a href="#donate" class="btn btn-gold" data-nav style="margin-top:16px;padding:11px 24px;font-size:.84rem">Donate Now</a>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      © 2026 <strong style="color:#fff">Sarang Adonai Rosete Foundation Uganda</strong> ·
+      Rosete Junior School · Kayunga-Wakiso ·
+      EdTech <a href="https://appshule.com" target="_blank" rel="noopener">ApShule</a>
+      <br style="margin-bottom:6px">
+      <span style="font-size:.75rem">Shelter of the Lord, Hope for Everyone · All rights reserved</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================
+     FLOATING WHATSAPP
+     ============================================================ -->
+<a href="https://wa.me/256731038702?text=Hello%20Sarang%20Adonai%20Rosete%20Foundation"
+   class="whatsapp-float" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+    <path d="M16 0C7.2 0 0 7.2 0 16c0 2.8.7 5.5 2.1 7.9L0 32l8.3-2.2c2.3 1.3 4.9 1.9 7.7 1.9 8.8 0 16-7.2 16-16S24.8 0 16 0zm0 29.2c-2.5 0-4.9-.7-7-1.9l-.5-.3-4.9 1.3 1.3-4.8-.3-.5c-1.3-2.2-2-4.6-2-7.2C2.6 8.6 8.6 2.6 16 2.6S29.4 8.6 29.4 16 23.4 29.2 16 29.2zm7.3-9.9c-.4-.2-2.4-1.2-2.7-1.3-.4-.1-.6-.2-.9.2-.3.4-1 1.3-1.3 1.6-.2.3-.5.3-.9.1-.4-.2-1.7-.6-3.2-2-1.2-1.1-2-2.4-2.2-2.8-.2-.4 0-.6.2-.8.2-.2.4-.5.6-.7.2-.2.3-.4.4-.6.1-.2.1-.5 0-.7-.2-.2-.9-2.1-1.2-2.9-.3-.8-.6-.7-.9-.7h-.7c-.2 0-.6.1-.9.4-.3.4-1.2 1.2-1.2 2.9s1.2 3.3 1.4 3.6c.2.2 2.4 3.7 5.9 5.2.8.4 1.5.6 2 .7.8.3 1.6.2 2.2.1.7-.1 2.1-.9 2.4-1.7.3-.8.3-1.5.2-1.7-.1-.2-.3-.3-.7-.4z"/>
+  </svg>
+</a>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- 1. ROUTER ---------- */
+  var pages = document.querySelectorAll('.page');
+  var navLinks = document.querySelectorAll('[data-nav]');
+  var mainNav = document.getElementById('mainNav');
+  var navToggle = document.getElementById('navToggle');
+
+  function getHash() {
+    var h = window.location.hash.replace('#', '');
+    return document.getElementById(h) && document.getElementById(h).classList.contains('page') ? h : 'home';
+  }
+
+  function route() {
+    var current = getHash();
+
+    pages.forEach(function (p) {
+      p.classList.toggle('active', p.id === current);
+    });
+
+    navLinks.forEach(function (l) {
+      if (l.classList.contains('nav-link')) {
+        l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+      }
+    });
+
+    document.querySelectorAll('.nav a').forEach(function (a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+
+    document.title = ({
+      home: 'Sarang Adonai Rosete Foundation Uganda | Rosete Junior School Kayunga-Wakiso | ApShule',
+      'our-story': 'Our Story | Sarang Adonai Rosete Foundation Uganda',
+      'rosete-school': 'Rosete Junior School | Kayunga-Wakiso Uganda',
+      'apshule-project': 'ApShule Project | Digital Classroom Uganda',
+      impact: 'Our Impact | Sarang Adonai Rosete Foundation Uganda',
+      'our-team': 'Our Team | Sarang Adonai Rosete Foundation Uganda',
+      donate: 'Donate | Sarang Adonai Rosete Foundation Uganda',
+      contact: 'Contact Us | Sarang Adonai Rosete Foundation Uganda'
+    })[current] || 'Sarang Adonai Rosete Foundation Uganda';
+
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    revealActivePage();
+    closeMenu();
+  }
+
+  window.addEventListener('hashchange', route);
+
+  /* ---------- 2. MOBILE MENU ---------- */
+  function closeMenu() {
+    mainNav.classList.remove('open');
+    navToggle.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
+  }
+
+  navToggle.addEventListener('click', function () {
+    var isOpen = mainNav.classList.toggle('open');
+    navToggle.classList.toggle('open', isOpen);
+    navToggle.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  document.addEventListener('click', function (e) {
+    if (mainNav.classList.contains('open') &&
+        !mainNav.contains(e.target) &&
+        !navToggle.contains(e.target)) {
+      closeMenu();
+    }
+  });
+
+  /* ---------- 3. TYPEWRITER ---------- */
+  var twText = "From One Mother's Struggle in Kiboga to Education for a Continent";
+  var twEl = document.getElementById('typewriter');
+  var twIndex = 0;
+
+  function typeWriter() {
+    if (!twEl) return;
+    if (twIndex < twText.length) {
+      twEl.textContent += twText.charAt(twIndex);
+      twIndex++;
+      setTimeout(typeWriter, 42);
+    }
+  }
+
+  /* ---------- 4. COUNTERS ---------- */
+  function animateCounter(el) {
+    if (el.dataset.done === '1') return;
+    el.dataset.done = '1';
+
+    var target = parseInt(el.getAttribute('data-target'), 10) || 0;
+    var duration = 1800;
+    var start = null;
+
+    function step(ts) {
+      if (!start) start = ts;
+      var progress = Math.min((ts - start) / duration, 1);
+      var eased = 1 - (1 - progress) * (1 - progress);
+      el.textContent = Math.floor(eased * target).toLocaleString();
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = target.toLocaleString();
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* ---------- 5. SCROLL REVEAL + COUNTERS OBSERVER ---------- */
+  var fadeObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        fadeObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  var counterObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.counter').forEach(animateCounter);
+        counterObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.35 });
+
+  function initObservers() {
+    document.querySelectorAll('.fade-up:not(.visible)').forEach(function (el) {
+      fadeObserver.observe(el);
+    });
+    document.querySelectorAll('.counters-grid').forEach(function (el) {
+      counterObserver.observe(el);
+    });
+  }
+
+  function revealActivePage() {
+    requestAnimationFrame(function () {
+      var active = document.querySelector('.page.active');
+      if (!active) return;
+      active.querySelectorAll('.fade-up').forEach(function (el) {
+        var rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) {
+          el.classList.add('visible');
+        } else {
+          fadeObserver.observe(el);
+        }
+      });
+      active.querySelectorAll('.counters-grid').forEach(function (el) {
+        counterObserver.observe(el);
+      });
+    });
+  }
+
+  /* ---------- 6. VIDEO POPUP ---------- */
+  var videoTrigger = document.getElementById('videoTrigger');
+
+  function openVideo() {
+    var modal = document.createElement('div');
+    modal.className = 'video-modal';
+    modal.innerHTML =
+      '<div class="video-modal-inner">' +
+        '<button class="video-close" aria-label="Close video">&times;</button>' +
+        '<video controls autoplay playsinline>' +
+          '<source src="assets/video-placeholder.mp4" type="video/mp4">' +
+          'Your browser does not support the video tag.' +
+        '</video>' +
+      '</div>';
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+
+    function close() {
+      modal.remove();
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', onKey);
+    }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+
+    modal.querySelector('.video-close').addEventListener('click', close);
+    modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
+    document.addEventListener('keydown', onKey);
+  }
+
+  if (videoTrigger) {
+    videoTrigger.addEventListener('click', openVideo);
+    videoTrigger.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openVideo(); }
+    });
+  }
+
+  /* ---------- 7. PAYPAL DONATE BUTTON ---------- */
+  if (window.PayPal && document.getElementById('paypal-donate-button-container')) {
+    PayPal.Donation.Button({
+      env: 'production',
+      hosted_button_id: 'YOUR_HOSTED_BUTTON_ID',
+      // business: 'sarangadonairosete@gmail.com',
+      image: {
+        src: 'https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif',
+        title: 'PayPal - The safer, easier way to pay online!',
+        alt: 'Donate with PayPal button'
+      },
+      onComplete: function (params) {
+        console.log('Donation complete:', params);
+      }
+    }).render('#paypal-donate-button-container');
+  }
+
+  /* ---------- 8. SMOOTH ANCHOR HANDLING ---------- */
+  document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+    link.addEventListener('click', function () {
+      var target = link.getAttribute('href').replace('#', '');
+      if (document.getElementById(target)) {
+        if (window.location.hash === '#' + target) {
+          route();
+        } else {
+          window.location.hash = target;
+        }
+      }
+    });
+  });
+
+  /* ---------- 9. INIT ---------- */
+  window.addEventListener('load', function () {
+    route();
+    typeWriter();
+    initObservers();
+  });
+
+  if (document.readyState === 'complete') {
+    route();
+    typeWriter();
+    initObservers();
+  }
+
+})();
+</script>
+
+</body>
+</html>
