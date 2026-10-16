@@ -1,0 +1,39 @@
+In repo sarangadonairosete/sarang-Adonai-foundation, Worker sarangadonai-api.sarangadonairosete.workers.dev, D1 sarangadonai-db, R2 sarangadonai-media, Account 11ddfb70aee484e62f0ad6d5d4e4d6d5:
+
+FULL YOUTUBE UNLISTED VIDEO SYSTEM - Channel sarangadonairosete@gmail.com Handle @sarangadonairosetefoundation Test video https://youtu.be/l8n-W-Rutds ID l8n-W-Rutds:
+
+1. D1 sarangadonai-db: Add columns to all 5 tables (media, staff, events, students, families):
+   youtube_url TEXT, youtube_id TEXT, visibility TEXT DEFAULT 'unlisted', media_type TEXT DEFAULT 'youtube'
+   Run: ALTER TABLE media ADD COLUMN youtube_url TEXT; ALTER TABLE media ADD COLUMN youtube_id TEXT; ALTER TABLE media ADD COLUMN visibility TEXT DEFAULT 'unlisted'; Same for staff, events, students, families.
+
+2. Worker sarangadonai-api.sarangadonairosete.workers.dev:
+   - Update all POST/PUT routes to accept youtube_url, extract youtube_id function: extract from youtu.be/l8n-W-Rutds, youtube.com/watch?v=l8n-W-Rutds, youtube.com/embed/l8n-W-Rutds -> returns l8n-W-Rutds
+   - Save both youtube_url and youtube_id
+   - Update all GET to return youtube fields
+   - Keep R2 for thumbnail photos only, no video upload needed
+   - Ensure CORS https://sarangadonairosete.github.io
+   - Deploy
+
+3. Admin Pages (admin/upload.html, admin/staff.html, admin/events.html, admin/students.html, admin/families.html):
+   - Keep Thumbnail Photo file input (R2 upload)
+   - ADD: YouTube Link input type=url placeholder "https://youtu.be/l8n-W-Rutds" 
+   - ADD: Visibility dropdown: unlisted (Website Only - default) | public (YouTube Searchable)
+   - Live iframe preview when YouTube ID detected: <iframe src="https://www.youtube.com/embed/{ID}?rel=0&modestbranding=1" width="100%" height="200">
+   - Hint text: "1. Upload to YouTube app as UNLISTED 2. Add to Playlist 3. Copy link 4. Paste here"
+   - Test with https://youtu.be/l8n-W-Rutds - must show preview
+
+4. Public Pages (index.html, gallery.html, events.html, students.html, families.html):
+   - If youtube_id exists: Render <iframe width="100%" height="315" src="https://www.youtube.com/embed/{youtube_id}?rel=0&modestbranding=1&showinfo=0" frameborder="0" allowfullscreen></iframe>
+   - gallery.html: Grid with play icon overlay, click opens modal video player, show your test video l8n-W-Rutds as first item if no data
+   - families.html: Large video player on top, story text below, donor button below video
+   - events.html: Separate upcoming vs past, show video teaser
+   - index.html: Add "Latest Videos" section - 6 latest videos from all tables, auto-show l8n-W-Rutds as first demo
+   - Footer: Add YouTube link https://www.youtube.com/@sarangadonairosetefoundation with icon, text "@sarangadonairosetefoundation"
+
+5. Seed: Insert test row into media table: title="Welcome to Sarang Adonai", youtube_id="l8n-W-Rutds", youtube_url="https://youtu.be/l8n-W-Rutds", visibility="unlisted", media_type="youtube" so site shows video immediately after deploy
+
+6. Push all to main branch, deploy Worker, verify:
+   https://sarangadonairosete.github.io/sarang-Adonai-foundation/gallery.html shows video l8n-W-Rutds playing
+   Footer shows https://www.youtube.com/@sarangadonairosetefoundation
+
+Use ADMIN_PASSWORD from secrets.
