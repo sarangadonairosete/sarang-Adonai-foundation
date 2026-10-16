@@ -53,6 +53,7 @@
     const pastList = document.getElementById("past-list");
     const pastEmpty = document.getElementById("past-empty");
     let countdownTimer;
+    let allEvents = null;
 
     function eventCard(event) {
       const card = document.createElement("article");
@@ -119,13 +120,11 @@
       nextEvent.replaceChildren(message);
     }
 
-    async function fetchEvents(status, type) {
-      const params = new URLSearchParams({ status });
-      if (type) params.set("type", type);
+    async function fetchEvents() {
       let lastError;
       for (let attempt = 0; attempt < 2; attempt++) {
         try {
-          const response = await fetch(`${API_BASE}/api/events?${params}`, {
+          const response = await fetch(`${API_BASE}/api/events`, {
             headers: { Accept: "application/json" },
             cache: "no-store"
           });
@@ -141,34 +140,42 @@
       throw lastError;
     }
 
-    async function loadUpcoming() {
+    function renderPast() {
+      if (!allEvents) return;
+      const type = document.getElementById("past-type").value;
+      const past = allEvents.filter(event => event.status === "past" && (!type || event.event_type === type));
+      past.sort((a, b) => String(b.event_date).localeCompare(String(a.event_date)));
+      pastList.replaceChildren(...past.map(eventCard));
+      pastEmpty.textContent = "No past activities match this filter.";
+      pastEmpty.hidden = past.length > 0;
+    }
+
+    async function loadEvents() {
+      upcomingEmpty.hidden = false;
+      upcomingEmpty.textContent = "Loading events…";
+      pastEmpty.hidden = false;
+      pastEmpty.textContent = "Loading past activities…";
       try {
-        const events = await fetchEvents("upcoming");
-        setCountdown(events[0]);
-        upcomingList.replaceChildren(...events.map(eventCard));
-        upcomingEmpty.hidden = events.length > 0;
+        allEvents = await fetchEvents();
+        const upcoming = allEvents.filter(event => event.status === "upcoming");
+        setCountdown(upcoming[0]);
+        upcomingList.replaceChildren(...upcoming.map(eventCard));
+        upcomingEmpty.textContent = "No upcoming events have been published yet.";
+        upcomingEmpty.hidden = upcoming.length > 0;
+        renderPast();
       } catch {
+        allEvents = null;
         setCountdownUnavailable();
         upcomingEmpty.hidden = false;
         upcomingEmpty.textContent = "Upcoming events are temporarily unavailable.";
-      }
-    }
-
-    async function loadPast() {
-      pastEmpty.textContent = "No past activities match this filter.";
-      try {
-        const events = await fetchEvents("past", document.getElementById("past-type").value);
-        pastList.replaceChildren(...events.map(eventCard));
-        pastEmpty.hidden = events.length > 0;
-      } catch {
+        pastList.replaceChildren();
         pastEmpty.hidden = false;
         pastEmpty.textContent = "Past activities are temporarily unavailable.";
       }
     }
 
-    document.getElementById("past-type").addEventListener("change", loadPast);
-    loadUpcoming();
-    loadPast();
+    document.getElementById("past-type").addEventListener("change", renderPast);
+    loadEvents();
   </script>
 </body>
 </html>
