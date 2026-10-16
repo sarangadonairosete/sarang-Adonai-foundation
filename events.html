@@ -112,13 +112,33 @@
       countdownTimer = setInterval(update, 60000);
     }
 
+    function setCountdownUnavailable() {
+      if (countdownTimer) clearInterval(countdownTimer);
+      const message = document.createElement("strong");
+      message.textContent = "Upcoming events are temporarily unavailable.";
+      nextEvent.replaceChildren(message);
+    }
+
     async function fetchEvents(status, type) {
       const params = new URLSearchParams({ status });
       if (type) params.set("type", type);
-      const response = await fetch(`${API_BASE}/api/events?${params}`, { headers: { Accept: "application/json" } });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Events could not be loaded.");
-      return Array.isArray(data.events) ? data.events : [];
+      let lastError;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const response = await fetch(`${API_BASE}/api/events?${params}`, {
+            headers: { Accept: "application/json" },
+            cache: "no-store"
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || "Events could not be loaded.");
+          if (!Array.isArray(data.events)) throw new Error("The events response was incomplete.");
+          return data.events;
+        } catch (error) {
+          lastError = error;
+          if (attempt === 0) await new Promise(resolve => setTimeout(resolve, 400));
+        }
+      }
+      throw lastError;
     }
 
     async function loadUpcoming() {
@@ -128,7 +148,7 @@
         upcomingList.replaceChildren(...events.map(eventCard));
         upcomingEmpty.hidden = events.length > 0;
       } catch {
-        setCountdown(null);
+        setCountdownUnavailable();
         upcomingEmpty.hidden = false;
         upcomingEmpty.textContent = "Upcoming events are temporarily unavailable.";
       }
