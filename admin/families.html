@@ -40,9 +40,21 @@
             </select>
           </div>
         </div>
-        <label for="photo">Family photo <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+        <label for="photo">Family thumbnail photo <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
         <input id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif">
         <p class="hint">JPEG, PNG, WebP, GIF, or AVIF. Maximum 25 MB. Leave empty during edits to keep the current photo.</p>
+        <div class="youtube-field">
+          <label for="youtube_url">YouTube link <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+          <input id="youtube_url" name="youtube_url" type="url" placeholder="https://youtu.be/l8n-W-Rutds">
+          <p class="hint">1. Upload to YouTube app as UNLISTED 2. Add to Playlist 3. Copy link 4. Paste here</p>
+          <label for="visibility">Visibility</label>
+          <select id="visibility" name="visibility">
+            <option value="unlisted" selected>Unlisted (Website Only - default)</option>
+            <option value="public">Public (YouTube Searchable)</option>
+          </select>
+          <p class="hint">Change the video's actual privacy setting in YouTube; this selection is saved as website metadata.</p>
+          <div class="youtube-preview" hidden></div>
+        </div>
         <label for="story">Story / need description</label><textarea id="story" name="story" rows="4" maxlength="3000"></textarea>
         <label for="support_status">Support status</label>
         <select id="support_status" name="support_status" required>
@@ -72,13 +84,14 @@
     </section>
     <footer class="footer-row"><span>Sarang Adonai Rosete Foundation Uganda</span><a href="../index.html">Return to website</a></footer>
   </main>
+  <script src="youtube-fields.js"></script>
   <script>
     window.RECORDS_CONFIG = {
       resource: "families",
       collectionKey: "families",
       titleField: "family_name",
       imageField: "photo_url",
-      fields: ["family_name", "village", "district", "members_count", "need_type", "story", "support_status", "contact_info", "public_approved", "photo"],
+      fields: ["family_name", "village", "district", "members_count", "need_type", "story", "support_status", "contact_info", "public_approved", "photo", "youtube_url", "visibility"],
       subtitle: item => `${item.village || ""}${item.district ? `, ${item.district}` : ""} · ${(item.support_status || "").replaceAll("_", " ")}`,
       summary: item => [
         `${item.members_count || 0} members · ${(item.need_type || "").replaceAll("_", " ")}`,

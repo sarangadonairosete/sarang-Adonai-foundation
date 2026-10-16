@@ -25,6 +25,7 @@
     button{border:0;border-radius:999px;padding:11px 19px;background:var(--gold);color:var(--navy);font:700 .9rem Poppins,sans-serif;cursor:pointer}
     button:disabled{opacity:.6;cursor:wait}.primary{margin-top:22px;padding:13px 23px}.secondary{background:#eef2f7}.danger{background:#fff0f2;color:var(--red)}
     .message{display:none;margin-top:16px;padding:12px 15px;border-radius:10px;font-size:.9rem}.message.visible{display:block}.message.error{background:#fff0f2;color:var(--red)}.message.success{background:#edf9f1;color:var(--green)}
+    .youtube-preview{margin:12px 0}.youtube-preview[hidden]{display:none}.youtube-preview iframe{display:block;max-width:100%;border:0;border-radius:12px}
     .preview{display:none;align-items:center;gap:12px;margin-top:10px;color:var(--muted);font-size:.84rem}.preview.visible{display:flex}.preview img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
     .list-section{margin-top:34px}.list-section h2{font-size:1.35rem;margin:0 0 14px}.staff-list{display:grid;gap:12px}.staff-card{display:grid;grid-template-columns:76px 1fr auto;align-items:center;gap:16px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff}
     .staff-card img{width:76px;height:76px;object-fit:cover;border-radius:50%;background:#eef2f7}.staff-card h3{margin:0;color:var(--navy);font:700 1rem Poppins,sans-serif}.staff-card .role{color:#a87b10;font-size:.76rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin:2px 0 5px}.staff-card p{margin:0;color:var(--muted);font-size:.86rem;white-space:pre-wrap}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.actions button{padding:9px 14px}
@@ -56,10 +57,22 @@
             <input id="role" name="role" maxlength="120" placeholder="Director, Teacher, Caregiver" required>
           </div>
         </div>
-        <label for="photo">Photo file</label>
+        <label for="photo">Thumbnail photo file</label>
         <input id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif">
-        <p class="hint" id="photo-hint">JPEG, PNG, WebP, GIF, or AVIF. Maximum 25 MB. Choose a photo when adding a profile; during edits, leave it empty to keep the current photo.</p>
+        <p class="hint" id="photo-hint">Thumbnail photo in R2, optional when a YouTube link is provided. Maximum 25 MB. During edits, leave it empty to keep the current photo.</p>
         <div class="preview" id="photo-preview"><img id="preview-image" alt="Staff photo preview"><span id="preview-label"></span></div>
+        <div class="youtube-field">
+          <label for="youtube_url">YouTube link <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+          <input id="youtube_url" name="youtube_url" type="url" placeholder="https://youtu.be/l8n-W-Rutds">
+          <p class="hint">1. Upload to YouTube app as UNLISTED 2. Add to Playlist 3. Copy link 4. Paste here</p>
+          <label for="visibility">Visibility</label>
+          <select id="visibility" name="visibility">
+            <option value="unlisted" selected>Unlisted (Website Only - default)</option>
+            <option value="public">Public (YouTube Searchable)</option>
+          </select>
+          <p class="hint">Change the video's actual privacy setting in YouTube; this selection is saved as website metadata.</p>
+          <div class="youtube-preview" hidden></div>
+        </div>
         <label for="bio">Bio / Description <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
         <textarea id="bio" name="bio" rows="4" maxlength="2000" placeholder="Share a short description of this person's work"></textarea>
         <button class="primary" id="save-button" type="submit">Add staff member</button>
@@ -75,6 +88,7 @@
     </section>
     <footer><div class="footer-row"><span>Sarang Adonai Rosete Foundation Uganda</span><a href="../index.html">Return to website</a></div></footer>
   </main>
+  <script src="youtube-fields.js"></script>
   <script>
     const API_BASE = "https://sarangadonai-api.sarangadonairosete.workers.dev";
     const form = document.getElementById("staff-form");
@@ -83,6 +97,8 @@
     const roleInput = document.getElementById("role");
     const photoInput = document.getElementById("photo");
     const bioInput = document.getElementById("bio");
+    const youtubeInput = document.getElementById("youtube_url");
+    const visibilityInput = document.getElementById("visibility");
     const saveButton = document.getElementById("save-button");
     const cancelButton = document.getElementById("cancel-button");
     const formMessage = document.getElementById("form-message");
@@ -119,12 +135,13 @@
     function cancelEdit() {
       editingId = null;
       form.reset();
-      photoInput.required = true;
+      photoInput.required = false;
       saveButton.textContent = "Add staff member";
       cancelButton.hidden = true;
       formMessage.className = "message";
       resetPreviewUrl();
       showPreview("", "");
+      window.refreshYouTubePreviews();
     }
 
     function editStaff(person) {
@@ -132,6 +149,8 @@
       nameInput.value = person.name || "";
       roleInput.value = person.role || "";
       bioInput.value = person.bio || "";
+      youtubeInput.value = person.youtube_url || "";
+      visibilityInput.value = person.visibility || "unlisted";
       photoInput.value = "";
       photoInput.required = false;
       saveButton.textContent = "Save changes";
@@ -139,6 +158,7 @@
       formMessage.className = "message";
       resetPreviewUrl();
       showPreview(person.photo_url, `${person.name || "Staff member"} — current photo`);
+      window.refreshYouTubePreviews();
       form.scrollIntoView({ behavior: "smooth", block: "start" });
       nameInput.focus({ preventScroll: true });
     }
@@ -234,6 +254,11 @@
       event.preventDefault();
       formMessage.className = "message";
       const file = photoInput.files[0];
+      const youtubeId = window.getYouTubeVideoId(youtubeInput.value);
+      if (!file && !editingId && !youtubeId) {
+        showFormMessage("Choose a thumbnail photo or enter a valid YouTube video link.", "error");
+        return;
+      }
       if (file && file.size > 25 * 1024 * 1024) {
         showFormMessage("Choose an image smaller than 25 MB.", "error");
         return;
@@ -243,6 +268,8 @@
       payload.append("name", nameInput.value);
       payload.append("role", roleInput.value);
       payload.append("bio", bioInput.value);
+      payload.append("youtube_url", youtubeInput.value.trim());
+      payload.append("visibility", visibilityInput.value);
       if (file) payload.append("photo", file, file.name);
 
       saveButton.disabled = true;

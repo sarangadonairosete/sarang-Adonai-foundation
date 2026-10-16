@@ -23,6 +23,9 @@ input[type=file]{padding:10px}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
 .field-row.three{grid-template-columns:repeat(3,1fr)}
 .hint{font-size:.8rem;color:var(--muted);margin:6px 0 0}
+.youtube-preview{margin:12px 0}
+.youtube-preview[hidden]{display:none}
+.youtube-preview iframe{display:block;max-width:100%;border:0;border-radius:12px}
 .check-row{display:flex;align-items:flex-start;gap:10px;margin-top:18px;color:var(--ink);font-size:.88rem}
 .check-row input{width:auto;margin:5px 0 0;accent-color:#b38312}
 button{border:0;border-radius:999px;padding:11px 19px;background:var(--gold);color:var(--navy);font:700 .9rem Poppins,sans-serif;cursor:pointer}

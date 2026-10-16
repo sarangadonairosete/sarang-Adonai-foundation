@@ -44,9 +44,21 @@
         </div>
         <label for="description">Description</label>
         <textarea id="description" name="description" rows="3" maxlength="3000"></textarea>
-        <label for="image">Event photo <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+        <label for="image">Event thumbnail photo <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
         <input id="image" name="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif">
         <p class="hint">JPEG, PNG, WebP, GIF, or AVIF. Maximum 25 MB. Leave empty during editing to keep the existing photo.</p>
+        <div class="youtube-field">
+          <label for="youtube_url">YouTube link <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+          <input id="youtube_url" name="youtube_url" type="url" placeholder="https://youtu.be/l8n-W-Rutds">
+          <p class="hint">1. Upload to YouTube app as UNLISTED 2. Add to Playlist 3. Copy link 4. Paste here</p>
+          <label for="visibility">Visibility</label>
+          <select id="visibility" name="visibility">
+            <option value="unlisted" selected>Unlisted (Website Only - default)</option>
+            <option value="public">Public (YouTube Searchable)</option>
+          </select>
+          <p class="hint">Change the video's actual privacy setting in YouTube; this selection is saved as website metadata.</p>
+          <div class="youtube-preview" hidden></div>
+        </div>
         <label class="check-row"><input type="checkbox" name="public_approved" value="1"><span>Approved for public listing. Confirm that any identifiable people in the event description or photo may be shown publicly.</span></label>
         <button class="primary" id="save-button" type="submit">Add event</button>
         <button class="secondary" id="cancel-button" type="button" hidden>Cancel edit</button>
@@ -72,13 +84,14 @@
     </section>
     <footer class="footer-row"><span>Sarang Adonai Rosete Foundation Uganda</span><a href="../index.html">Return to website</a></footer>
   </main>
+  <script src="youtube-fields.js"></script>
   <script>
     window.RECORDS_CONFIG = {
       resource: "events",
       collectionKey: "events",
       titleField: "title",
       imageField: "image_url",
-      fields: ["title", "event_type", "event_date", "location", "description", "public_approved", "image"],
+      fields: ["title", "event_type", "event_date", "location", "description", "public_approved", "image", "youtube_url", "visibility"],
       subtitle: item => `${item.event_date || ""} · ${(item.event_type || "").replaceAll("_", " ")}`,
       summary: item => [item.location, item.description].filter(Boolean).join("\n"),
       createLabel: "Add event"

@@ -1,0 +1,1 @@
+- [Public consent policy](public-consent.md) — Student and family names, photos, and stories require both consent and admin approval before public display.

@@ -41,9 +41,21 @@
           <div><label for="year">Year</label><input id="year" name="year" type="number" min="2000" max="2100" required></div>
           <div><label for="performance">Performance remark</label><select id="performance" name="performance" required><option value="">Choose a remark</option><option>Excellent</option><option>Good</option><option>Needs Support</option></select></div>
         </div>
-        <label for="photo">Student photo</label>
+        <label for="photo">Student thumbnail photo</label>
         <input id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif">
         <p class="hint">JPEG, PNG, WebP, GIF, or AVIF. Maximum 25 MB. A photo is required for new records; leave empty during edits to keep the current photo.</p>
+        <div class="youtube-field">
+          <label for="youtube_url">YouTube link <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+          <input id="youtube_url" name="youtube_url" type="url" placeholder="https://youtu.be/l8n-W-Rutds">
+          <p class="hint">1. Upload to YouTube app as UNLISTED 2. Add to Playlist 3. Copy link 4. Paste here</p>
+          <label for="visibility">Visibility</label>
+          <select id="visibility" name="visibility">
+            <option value="unlisted" selected>Unlisted (Website Only - default)</option>
+            <option value="public">Public (YouTube Searchable)</option>
+          </select>
+          <p class="hint">Change the video's actual privacy setting in YouTube; this selection is saved as website metadata.</p>
+          <div class="youtube-preview" hidden></div>
+        </div>
         <label>Subject scores (0–100)</label>
         <div class="field-row">
           <div><label for="score_math">Math</label><input id="score_math" name="score_math" data-score type="number" min="0" max="100" step="0.1" required></div>
@@ -78,6 +90,7 @@
     </section>
     <footer class="footer-row"><span>Sarang Adonai Rosete Foundation Uganda</span><a href="../index.html">Return to website</a></footer>
   </main>
+  <script src="youtube-fields.js"></script>
   <script>
     const scoreKeys = ["math", "english", "science", "sst"];
     function updateAverage() {
@@ -95,7 +108,7 @@
       titleField: "name",
       imageField: "photo_url",
       listMode: "table",
-      fields: ["name", "class", "age", "term", "year", "performance", "score_math", "score_english", "score_science", "score_sst", "story", "public_approved", "photo"],
+      fields: ["name", "class", "age", "term", "year", "performance", "score_math", "score_english", "score_science", "score_sst", "story", "public_approved", "photo", "youtube_url", "visibility"],
       tableColumns: [
         { key: "class" },
         { key: "average_score", value: item => Number(item.average_score || 0).toFixed(1) },

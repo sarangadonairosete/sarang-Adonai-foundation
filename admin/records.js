@@ -30,6 +30,7 @@
       else field.value = values[fieldName] ?? "";
     }
     for (const field of form.querySelectorAll('input[type="file"]')) field.value = "";
+    if (window.refreshYouTubePreviews) window.refreshYouTubePreviews();
     saveButton.textContent = "Save changes";
     cancelButton.hidden = false;
     formMessage.className = "message";

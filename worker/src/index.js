@@ -103,6 +103,37 @@ async function getGallery(request, env) {
   return json(request, env, { groups: [...groups.values()] });
 }
 
+async function getLatestVideos(request, env, url) {
+  const requested = Number(url.searchParams.get("limit") || 6);
+  if (!Number.isInteger(requested) || requested < 1 || requested > 12) {
+    return json(request, env, { error: "Limit must be between 1 and 12." }, 400);
+  }
+  const withVideos = "youtube_id IS NOT NULL AND TRIM(youtube_id) <> ''";
+  const [media, staff, events, students, families] = await Promise.all([
+    env.DB.prepare(`SELECT id, COALESCE(NULLIF(caption, ''), NULLIF(filename, ''), 'Foundation video') AS title, youtube_url, youtube_id, visibility, media_type, public_url AS thumbnail_url, created_at FROM media WHERE ${withVideos}`).all(),
+    env.DB.prepare(`SELECT id, name AS title, youtube_url, youtube_id, visibility, media_type, photo_url AS thumbnail_url, created_at FROM staff WHERE ${withVideos}`).all(),
+    env.DB.prepare(`SELECT id, title, youtube_url, youtube_id, visibility, media_type, image_url AS thumbnail_url, created_at FROM events WHERE public_approved = 1 AND ${withVideos}`).all(),
+    env.DB.prepare(`SELECT id, name AS title, youtube_url, youtube_id, visibility, media_type, photo_url AS thumbnail_url, created_at FROM students WHERE public_approved = 1 AND ${withVideos}`).all(),
+    env.DB.prepare(`SELECT id, family_name AS title, youtube_url, youtube_id, visibility, media_type, photo_url AS thumbnail_url, created_at FROM families WHERE public_approved = 1 AND ${withVideos}`).all(),
+  ]);
+  const videos = [
+    ...(media.results || []).map(item => ({ ...item, source_type: "media" })),
+    ...(staff.results || []).map(item => ({ ...item, source_type: "staff" })),
+    ...(events.results || []).map(item => ({ ...item, source_type: "event" })),
+    ...(students.results || []).map(item => ({ ...item, source_type: "student" })),
+    ...(families.results || []).map(item => ({ ...item, source_type: "family" })),
+  ];
+  videos.sort((left, right) => Date.parse(right.created_at || 0) - Date.parse(left.created_at || 0));
+  return json(request, env, {
+    videos: videos.slice(0, requested).map(item => ({
+      ...item,
+      youtube_url: item.youtube_url || `https://youtu.be/${item.youtube_id}`,
+      visibility: item.visibility || "unlisted",
+      media_type: "youtube",
+    })),
+  });
+}
+
 async function uploadMedia(request, env) {
   const password = request.headers.get("X-Admin-Password") || "";
   if (!(await passwordMatches(password, env.ADMIN_PASSWORD))) {
@@ -166,7 +197,7 @@ async function uploadMedia(request, env) {
     item: {
       id,
       public_url: publicUrl,
-      filename: file.name.slice(0, 255),
+      filename: hasFile ? file.name.slice(0, 255) : "",
       date,
       year,
       month,
@@ -329,13 +360,17 @@ function staffRecord(row) {
     role: row.role,
     photo_url: row.photo_url,
     bio: row.bio || "",
+    youtube_url: row.youtube_url || "",
+    youtube_id: row.youtube_id || "",
+    visibility: row.visibility || "unlisted",
+    media_type: row.youtube_id ? "youtube" : (row.media_type || "photo"),
     created_at: row.created_at,
   };
 }
 
 async function getStaff(request, env) {
   const result = await env.DB.prepare(
-    "SELECT id, name, role, photo_url, bio, created_at FROM staff ORDER BY created_at ASC, name COLLATE NOCASE ASC",
+    "SELECT id, name, role, photo_url, bio, youtube_url, youtube_id, visibility, media_type, created_at FROM staff ORDER BY created_at ASC, name COLLATE NOCASE ASC",
   ).all();
   return json(request, env, { staff: (result.results || []).map(staffRecord) });
 }
@@ -377,35 +412,44 @@ async function createStaff(request, env) {
 
   const { form } = parsed;
   const { name, role, bio } = staffFields(form);
+  const videos = youtubeFields(form);
+  if (videos.error) return json(request, env, { error: videos.error }, 400);
   const photo = form.get("photo");
-  const photoError = validStaffPhoto(photo);
-  if (photoError) return json(request, env, { error: photoError }, 400);
+  const hasPhoto = photo instanceof File && photo.size > 0;
+  if (hasPhoto) {
+    const photoError = validStaffPhoto(photo);
+    if (photoError) return json(request, env, { error: photoError }, 400);
+  } else if (!videos.youtube_id) {
+    return json(request, env, { error: "Choose a staff photo or add a YouTube video." }, 400);
+  }
   if (!name || !role) {
     return json(request, env, { error: "Enter both a staff name and role." }, 400);
   }
 
   const id = crypto.randomUUID();
-  const filename = safeFilename(photo.name);
-  const key = `staff/${id}-${crypto.randomUUID()}-${filename}`;
-  const photoUrl = `${env.R2_PUBLIC_BASE_URL.replace(/\/+$/, "")}/${key}`;
+  const filename = hasPhoto ? safeFilename(photo.name) : "";
+  const key = hasPhoto ? `staff/${id}-${crypto.randomUUID()}-${filename}` : null;
+  const photoUrl = key ? `${env.R2_PUBLIC_BASE_URL.replace(/\/+$/, "")}/${key}` : "";
 
   try {
-    await env.MEDIA.put(key, photo.stream(), {
-      httpMetadata: {
-        contentType: photo.type,
-        cacheControl: "public, max-age=31536000, immutable",
-      },
-    });
+    if (key) {
+      await env.MEDIA.put(key, photo.stream(), {
+        httpMetadata: {
+          contentType: photo.type,
+          cacheControl: "public, max-age=31536000, immutable",
+        },
+      });
+    }
     await env.DB.prepare(
-      "INSERT INTO staff (id, name, role, photo_url, bio, created_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
-    ).bind(id, name, role, photoUrl, bio).run();
+      "INSERT INTO staff (id, name, role, photo_url, bio, youtube_url, youtube_id, visibility, media_type, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
+    ).bind(id, name, role, photoUrl, bio, videos.youtube_url, videos.youtube_id, videos.visibility, videos.media_type).run();
   } catch {
-    await env.MEDIA.delete(key).catch(() => {});
+    if (key) await env.MEDIA.delete(key).catch(() => {});
     return json(request, env, { error: "The staff profile could not be saved. Please retry." }, 500);
   }
 
   return json(request, env, {
-    staff: { id, name, role, photo_url: photoUrl, bio },
+    staff: { id, name, role, photo_url: photoUrl, bio, ...videos },
   }, 201);
 }
 
@@ -419,7 +463,7 @@ async function updateStaff(request, env, id) {
   }
 
   const existing = await env.DB.prepare(
-    "SELECT id, name, role, photo_url, bio, created_at FROM staff WHERE id = ?",
+    "SELECT id, name, role, photo_url, bio, youtube_url, youtube_id, visibility, media_type, created_at FROM staff WHERE id = ?",
   ).bind(id).first();
   if (!existing) return json(request, env, { error: "Staff profile not found." }, 404);
 
@@ -431,12 +475,17 @@ async function updateStaff(request, env, id) {
   }
 
   const { name, role, bio } = staffFields(form);
+  const videos = youtubeFields(form, existing);
+  if (videos.error) return json(request, env, { error: videos.error }, 400);
   if (!name || !role) {
     return json(request, env, { error: "Enter both a staff name and role." }, 400);
   }
 
   const photo = form.get("photo");
   const hasPhoto = photo instanceof File && photo.size > 0;
+  if (!hasPhoto && !existing.photo_url && !videos.youtube_id) {
+    return json(request, env, { error: "Choose a staff photo or add a YouTube video." }, 400);
+  }
   if (hasPhoto) {
     const photoError = validStaffPhoto(photo);
     if (photoError) return json(request, env, { error: photoError }, 400);
@@ -462,8 +511,8 @@ async function updateStaff(request, env, id) {
 
   try {
     await env.DB.prepare(
-      "UPDATE staff SET name = ?, role = ?, photo_url = ?, bio = ? WHERE id = ?",
-    ).bind(name, role, photoUrl, bio, id).run();
+      "UPDATE staff SET name = ?, role = ?, photo_url = ?, bio = ?, youtube_url = ?, youtube_id = ?, visibility = ?, media_type = ? WHERE id = ?",
+    ).bind(name, role, photoUrl, bio, videos.youtube_url, videos.youtube_id, videos.visibility, videos.media_type, id).run();
   } catch {
     if (newKey) await env.MEDIA.delete(newKey).catch(() => {});
     return json(request, env, { error: "The staff profile could not be updated. Please retry." }, 500);
@@ -481,6 +530,7 @@ async function updateStaff(request, env, id) {
       role,
       photo_url: photoUrl,
       bio,
+      ...videos,
       created_at: existing.created_at,
     },
   });
@@ -501,10 +551,9 @@ async function deleteStaff(request, env, id) {
   if (!existing) return json(request, env, { error: "Staff profile not found." }, 404);
 
   const key = staffObjectKey(existing.photo_url, env);
-  if (!key) return json(request, env, { error: "Stored staff photo path is invalid." }, 500);
 
   try {
-    await env.MEDIA.delete(key);
+    if (key) await env.MEDIA.delete(key);
     await env.DB.prepare("DELETE FROM staff WHERE id = ?").bind(id).run();
   } catch {
     return json(request, env, { error: "The staff profile could not be deleted." }, 500);
@@ -537,9 +586,12 @@ export default {
       if (request.method === "GET" && path === "/gallery") {
         return await getGallery(request, env);
       }
+      if (request.method === "GET" && path === "/api/videos") {
+        return await getLatestVideos(request, env, url);
+      }
       if (request.method === "GET" && path === "/api/media") {
         const result = await env.DB.prepare(
-          "SELECT id, public_url, filename, date, year, month, day, caption, created_at FROM media ORDER BY date DESC, created_at DESC",
+          "SELECT id, public_url, filename, date, year, month, day, caption, youtube_url, youtube_id, visibility, media_type, created_at FROM media ORDER BY date DESC, created_at DESC",
         ).all();
         return json(request, env, { media: (result.results || []).map(row => imageObject(request, env, row)) });
       }

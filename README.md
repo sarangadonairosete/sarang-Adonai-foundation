@@ -38,6 +38,7 @@ If the Worker code changes after the secret is added, deploy it again with `npm 
 - `DELETE /media/:id` — authenticated removal (`X-Admin-Password`)
 - `GET /api/media` — public flat media list
 - `POST /api/media`, `PUT /api/media/:id`, `DELETE /api/media/:id` — authenticated media management
+- `GET /api/videos?limit=6` — latest videos across public media, staff, and consent-approved events, students, and families
 - `GET /api/staff` — public staff directory
 - `POST /api/staff` — authenticated staff profile creation and photo upload (`X-Admin-Password`)
 - `PUT /api/staff/:id` — authenticated staff profile update; photo replacement is optional (`X-Admin-Password`)
@@ -49,8 +50,8 @@ If the Worker code changes after the secret is added, deploy it again with `npm 
 - `GET /api/families?village=Buwama&status=urgent_need` — consent-approved public family listings
 - `POST /api/families`, `PUT /api/families/:id`, `DELETE /api/families/:id` — authenticated family management
 
-Apply the database schema with `npx wrangler d1 execute sarangadonai-db --remote --file=worker/schema.sql --config=worker/wrangler.toml`. It creates missing tables without changing existing data.
+Apply the database schema with `npx wrangler d1 execute sarangadonai-db --remote --file=worker/schema.sql --config=worker/wrangler.toml`. It creates missing tables without changing existing data. For an existing database, apply `worker/migrations/001_youtube_fields.sql` once, then seed the demo video with `worker/migrations/002_seed_youtube_demo.sql`.
 
-Image uploads accept JPEG, PNG, WebP, GIF, or AVIF images up to 25 MB and use the `gallery/`, `staff/`, `events/`, `students/`, or `families/` R2 prefixes. R2 public access is enabled for image delivery; all writes and deletes require the Worker password.
+Image uploads accept JPEG, PNG, WebP, GIF, or AVIF images up to 25 MB and use the `gallery/`, `staff/`, `events/`, `students/`, or `families/` R2 prefixes. YouTube links accept youtu.be and youtube.com watch, embed, shorts, and live URLs; their IDs and visibility are saved on the related record. R2 is for thumbnail photos only. R2 public access is enabled for image delivery; all writes and deletes require the Worker password.
 
 Student, family, and event records are private by default. Public APIs return only records with `public_approved = 1`. Family `contact_info` is returned only to authenticated admin list requests and is never included in public responses.
