@@ -1,0 +1,24 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "Official website for Sarang Adonai Rosete Foundation Uganda",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sarangadonairosete/sarang-Adonai-foundation.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/sarangadonairosete/sarang-Adonai-foundation/issues"
+  },
+  "homepage": "https://github.com/sarangadonairosete/sarang-Adonai-foundation#readme",
+  "dependencies": {
+    "wrangler": "^4.151.1"
+  }
+}
