@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Student learning highlights | Sarang Adonai Rosete Foundation</title>
+  <link rel="icon" href="images/badge.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="public-data.css">
+</head>
+<body>
+  <header><div class="container bar">
+    <a class="brand" href="index.html"><img src="images/badge.jpg" alt=""><div><strong>Sarang Adonai Rosete</strong><span>Foundation Uganda</span></div></a>
+    <nav class="navlinks" aria-label="Foundation pages"><a href="index.html">Home</a><a href="events.html">Events</a><a href="families.html">Families</a><a href="gallery.html">Gallery</a></nav>
+  </div></header>
+  <section class="hero"><div class="container">
+    <span class="eyebrow">Learning at Rosete</span>
+    <h1>Our Students</h1>
+    <p>Celebrate progress, effort, and the promise of every learner.</p>
+  </div></section>
+  <main class="container">
+    <p class="note">Student names, photos, scores, and stories appear only when consent is confirmed and a staff member approves public display.</p>
+    <section class="stats" aria-label="Student performance statistics">
+      <div class="stat"><strong id="student-total">—</strong><span>Approved student profiles</span></div>
+      <div class="stat"><strong id="student-average">—</strong><span>Average score</span></div>
+      <div class="stat"><strong id="student-top-count">—</strong><span>Top performers (80+)</span></div>
+    </section>
+    <section class="section">
+      <div class="section-title"><div><h2>Top performers</h2><p>Highlights for approved student profiles scoring 80 or higher.</p></div></div>
+      <div class="grid" id="top-grid"></div>
+      <p class="empty" id="top-empty" hidden>No approved top-performer profiles are available yet.</p>
+    </section>
+    <section class="section">
+      <div class="section-title"><div><h2>Student profiles</h2><p>Filter by class and school year.</p></div></div>
+      <div class="filters">
+        <label>Class
+          <select id="class-filter"><option value="">All classes</option><option>P1</option><option>P2</option><option>P3</option><option>P4</option><option>P5</option><option>P6</option><option>P7</option><option>S1</option><option>S2</option><option>S3</option><option>S4</option><option>S5</option><option>S6</option></select>
+        </label>
+        <label>Year<select id="year-filter"><option value="">All years</option></select></label>
+      </div>
+      <div class="grid" id="student-grid"></div>
+      <p class="empty" id="student-empty" hidden>No approved student profiles match these filters.</p>
+    </section>
+  </main>
+  <footer><div class="container footer-row"><span>© 2026 Sarang Adonai Rosete Foundation Uganda</span><a href="index.html#donate">Support our work</a></div></footer>
+  <script>
+    const API_BASE = "https://sarangadonai-api.sarangadonairosete.workers.dev";
+    const grid = document.getElementById("student-grid");
+    const topGrid = document.getElementById("top-grid");
+    const empty = document.getElementById("student-empty");
+    const topEmpty = document.getElementById("top-empty");
+    let allApprovedStudents = [];
+
+    function studentCard(student) {
+      const card = document.createElement("article");
+      card.className = "card";
+      if (student.photo_url) {
+        const photo = document.createElement("img");
+        photo.src = student.photo_url;
+        photo.alt = `${student.name || "Student"} portrait`;
+        photo.loading = "lazy";
+        photo.onerror = () => { photo.hidden = true; };
+        card.appendChild(photo);
+      }
+      const body = document.createElement("div");
+      body.className = "card-body";
+      const name = document.createElement("h3");
+      name.textContent = student.name || "";
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = `${student.class || ""} · ${student.term || ""} ${student.year || ""} · Average ${Number(student.average_score || 0).toFixed(1)}`;
+      body.append(name, meta);
+      const subjectLine = Object.entries(student.subjects || {})
+        .map(([subject, score]) => `${subject.toUpperCase()}: ${score}`).join(" · ");
+      if (subjectLine) {
+        const scores = document.createElement("p");
+        scores.textContent = subjectLine;
+        body.appendChild(scores);
+      }
+      if (student.performance) {
+        const performance = document.createElement("span");
+        performance.className = "badge supported";
+        performance.textContent = student.performance;
+        body.appendChild(performance);
+      }
+      if (student.story) {
+        const story = document.createElement("p");
+        story.textContent = student.story;
+        body.appendChild(story);
+      }
+      card.appendChild(body);
+      return card;
+    }
+
+    function setStats(students) {
+      document.getElementById("student-total").textContent = String(students.length);
+      const average = students.length
+        ? students.reduce((sum, student) => sum + Number(student.average_score || 0), 0) / students.length
+        : 0;
+      document.getElementById("student-average").textContent = students.length ? average.toFixed(1) : "—";
+      document.getElementById("student-top-count").textContent = String(students.filter(student => Number(student.average_score) >= 80).length);
+    }
+
+    async function fetchStudents(params = new URLSearchParams()) {
+      const response = await fetch(`${API_BASE}/api/students${params.size ? `?${params}` : ""}`, {
+        headers: { Accept: "application/json" }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Student profiles could not be loaded.");
+      return Array.isArray(data.students) ? data.students : [];
+    }
+
+    async function loadFiltered() {
+      const params = new URLSearchParams();
+      const className = document.getElementById("class-filter").value;
+      const year = document.getElementById("year-filter").value;
+      if (className) params.set("class", className);
+      if (year) params.set("year", year);
+      try {
+        const students = await fetchStudents(params);
+        grid.replaceChildren(...students.map(studentCard));
+        empty.hidden = students.length > 0;
+        setStats(students);
+      } catch {
+        grid.replaceChildren();
+        empty.hidden = false;
+        empty.textContent = "Student profiles are temporarily unavailable.";
+        setStats([]);
+      }
+    }
+
+    async function init() {
+      try {
+        allApprovedStudents = await fetchStudents();
+        const years = [...new Set(allApprovedStudents.map(student => String(student.year)).filter(Boolean))].sort().reverse();
+        const yearFilter = document.getElementById("year-filter");
+        years.forEach(year => {
+          const option = document.createElement("option");
+          option.value = year;
+          option.textContent = year;
+          yearFilter.appendChild(option);
+        });
+        const top = await fetchStudents(new URLSearchParams({ top: "10" }));
+        const performers = top.filter(student => Number(student.average_score) >= 80).slice(0, 3);
+        topGrid.replaceChildren(...performers.map(studentCard));
+        topEmpty.hidden = performers.length > 0;
+        setStats(allApprovedStudents);
+        await loadFiltered();
+      } catch {
+        topEmpty.hidden = false;
+        topEmpty.textContent = "Student profiles are temporarily unavailable.";
+        empty.hidden = false;
+        empty.textContent = "Student profiles are temporarily unavailable.";
+      }
+    }
+
+    document.getElementById("class-filter").addEventListener("change", loadFiltered);
+    document.getElementById("year-filter").addEventListener("change", loadFiltered);
+    init();
+  </script>
+</body>
+</html>

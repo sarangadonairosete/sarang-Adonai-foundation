@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Family support | Sarang Adonai Rosete Foundation</title>
+  <link rel="icon" href="images/badge.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="public-data.css">
+</head>
+<body>
+  <header><div class="container bar">
+    <a class="brand" href="index.html"><img src="images/badge.jpg" alt=""><div><strong>Sarang Adonai Rosete</strong><span>Foundation Uganda</span></div></a>
+    <nav class="navlinks" aria-label="Foundation pages"><a href="index.html">Home</a><a href="events.html">Events</a><a href="students.html">Students</a><a href="gallery.html">Gallery</a></nav>
+  </div></header>
+  <section class="hero"><div class="container">
+    <span class="eyebrow">Community care</span>
+    <h1>Families We Support</h1>
+    <p>Learn about approved community support needs and how you can help.</p>
+  </div></section>
+  <main class="container">
+    <p class="note">Only family records with confirmed consent and staff approval are shown. Private contact details and precise household directions are never displayed publicly.</p>
+    <section class="stats" aria-label="Family support statistics">
+      <div class="stat"><strong id="family-total">—</strong><span>Approved family profiles</span></div>
+      <div class="stat"><strong id="family-supported">—</strong><span>Supported or partly supported</span></div>
+      <div class="stat"><strong id="family-urgent">—</strong><span>Urgent needs</span></div>
+    </section>
+    <section class="section">
+      <div class="section-title"><div><h2>Find a community</h2><p>Filter approved listings by village and support status.</p></div></div>
+      <div class="filters">
+        <label>Village<select id="village-filter"><option value="">All villages</option></select></label>
+        <label>Support status
+          <select id="status-filter"><option value="">All statuses</option><option value="urgent_need">Urgent need</option><option value="partially_supported">Partially supported</option><option value="fully_supported">Fully supported</option></select>
+        </label>
+      </div>
+      <div class="map-box" id="map-box" hidden>
+        <iframe id="village-map" title="Approximate map for the selected village" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+      <div class="grid" id="family-grid"></div>
+      <p class="empty" id="family-empty" hidden>No approved family listings match these filters.</p>
+    </section>
+  </main>
+  <footer><div class="container footer-row"><span>© 2026 Sarang Adonai Rosete Foundation Uganda</span><a href="index.html#donate">Support a family</a></div></footer>
+  <script>
+    const API_BASE = "https://sarangadonai-api.sarangadonairosete.workers.dev";
+    const familyGrid = document.getElementById("family-grid");
+    const familyEmpty = document.getElementById("family-empty");
+    let approvedFamilies = [];
+
+    const needLabels = {
+      orphaned_children: "Orphaned children",
+      widowed: "Widowed",
+      elderly: "Elderly",
+      disabled: "Disabled",
+      extreme_poverty: "Extreme poverty",
+      other: "Other"
+    };
+    const supportLabels = {
+      urgent_need: "Urgent need",
+      partially_supported: "Partially supported",
+      fully_supported: "Fully supported"
+    };
+    const badgeClasses = {
+      urgent_need: "urgent",
+      partially_supported: "partial",
+      fully_supported: "supported"
+    };
+
+    function updateStats(families) {
+      document.getElementById("family-total").textContent = String(families.length);
+      document.getElementById("family-supported").textContent = String(families.filter(item => item.support_status !== "urgent_need").length);
+      document.getElementById("family-urgent").textContent = String(families.filter(item => item.support_status === "urgent_need").length);
+    }
+
+    function familyCard(family) {
+      const card = document.createElement("article");
+      card.className = "card";
+      if (family.photo_url) {
+        const image = document.createElement("img");
+        image.src = family.photo_url;
+        image.alt = `${family.family_name || "Family"} photo`;
+        image.loading = "lazy";
+        image.onerror = () => { image.hidden = true; };
+        card.appendChild(image);
+      }
+      const body = document.createElement("div");
+      body.className = "card-body";
+      const name = document.createElement("h3");
+      name.textContent = family.family_name || "";
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = `${family.village || ""}${family.district ? `, ${family.district}` : ""} · ${family.members_count || 0} members`;
+      const need = document.createElement("p");
+      need.textContent = `Need: ${needLabels[family.need_type] || "Other"}`;
+      const status = document.createElement("span");
+      status.className = `badge ${badgeClasses[family.support_status] || "partial"}`;
+      status.textContent = supportLabels[family.support_status] || "Support status";
+      body.append(name, meta, need, status);
+      if (family.story) {
+        const story = document.createElement("p");
+        story.textContent = family.story;
+        body.appendChild(story);
+      }
+      const support = document.createElement("a");
+      support.className = "support-link";
+      support.href = "index.html#donate";
+      support.textContent = "Donate / support";
+      body.appendChild(support);
+      card.appendChild(body);
+      return card;
+    }
+
+    function updateMap(village) {
+      const mapBox = document.getElementById("map-box");
+      if (!village) {
+        mapBox.hidden = true;
+        return;
+      }
+      const example = approvedFamilies.find(item => item.village === village);
+      if (!example) {
+        mapBox.hidden = true;
+        return;
+      }
+      const place = [example.village, example.district, "Uganda"].filter(Boolean).join(", ");
+      document.getElementById("village-map").src = `https://www.google.com/maps?q=${encodeURIComponent(place)}&output=embed`;
+      mapBox.hidden = false;
+    }
+
+    async function fetchFamilies(params = new URLSearchParams()) {
+      const response = await fetch(`${API_BASE}/api/families${params.toString() ? `?${params}` : ""}`, {
+        headers: { Accept: "application/json" }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Family listings could not be loaded.");
+      return Array.isArray(data.families) ? data.families : [];
+    }
+
+    async function loadFamilies() {
+      const params = new URLSearchParams();
+      const village = document.getElementById("village-filter").value;
+      const status = document.getElementById("status-filter").value;
+      if (village) params.set("village", village);
+      if (status) params.set("status", status);
+      updateMap(village);
+      try {
+        const families = await fetchFamilies(params);
+        familyGrid.replaceChildren(...families.map(familyCard));
+        familyEmpty.hidden = families.length > 0;
+        familyEmpty.textContent = "No approved family listings match these filters.";
+      } catch {
+        familyGrid.replaceChildren();
+        familyEmpty.hidden = false;
+        familyEmpty.textContent = "Family listings are temporarily unavailable.";
+      }
+    }
+
+    async function init() {
+      try {
+        approvedFamilies = await fetchFamilies();
+        updateStats(approvedFamilies);
+        const villages = [...new Set(approvedFamilies.map(item => item.village).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+        const filter = document.getElementById("village-filter");
+        villages.forEach(village => {
+          const option = document.createElement("option");
+          option.value = village;
+          option.textContent = village;
+          filter.appendChild(option);
+        });
+        await loadFamilies();
+      } catch {
+        updateStats([]);
+        familyEmpty.hidden = false;
+        familyEmpty.textContent = "Family listings are temporarily unavailable.";
+      }
+    }
+
+    document.getElementById("village-filter").addEventListener("change", loadFamilies);
+    document.getElementById("status-filter").addEventListener("change", loadFamilies);
+    init();
+  </script>
+</body>
+</html>

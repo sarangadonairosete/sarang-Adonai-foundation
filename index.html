@@ -524,6 +524,20 @@ button,input,textarea,select{font:inherit;color:inherit}
   color:#fff;font-family:'Poppins',sans-serif;
   font-weight:600;font-size:.72rem;letter-spacing:.2px;line-height:1.35;
 }
+.home-preview-section{margin-top:42px}
+.home-preview-heading{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:14px}
+.home-preview-heading h3{margin:0;color:var(--navy);font-size:1.2rem}
+.home-preview-heading a{color:var(--gold-dark);font-weight:700;font-size:.86rem}
+.home-preview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.home-preview-card{display:block;overflow:hidden;background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);transition:transform .25s}
+.home-preview-card:hover{transform:translateY(-4px)}
+.home-preview-card img{display:block;width:100%;height:170px;object-fit:cover;background:#e8edf5}
+.home-preview-body{padding:16px}
+.home-preview-body h4{margin:0 0 4px;color:var(--navy);font:700 .98rem 'Poppins',sans-serif}
+.home-preview-body p{margin:6px 0 0;color:var(--muted);font-size:.84rem}
+.home-preview-status{margin:8px 0 0;color:var(--muted);font-size:.85rem}
+@media(max-width:760px){.home-preview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.home-preview-grid{grid-template-columns:1fr}}
 
 /* ============================================================
    14. MAP
@@ -1390,6 +1404,32 @@ button,input,textarea,select{font:inherit;color:inherit}
     </div>
   </div>
 
+  <!-- Events, student and family previews (only consent-approved records are returned by the API) -->
+  <div class="section bg-grey">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Community updates</span>
+        <h2>What's happening at Rosete</h2>
+        <p>Approved updates from our events, students, and community support work.</p>
+      </div>
+      <div class="home-preview-section">
+        <div class="home-preview-heading"><h3>Upcoming events</h3><a href="events.html">All events →</a></div>
+        <div class="home-preview-grid" id="homeEvents"></div>
+        <p class="home-preview-status" id="homeEventsStatus">Loading events…</p>
+      </div>
+      <div class="home-preview-section">
+        <div class="home-preview-heading"><h3>Top students</h3><a href="students.html">Student highlights →</a></div>
+        <div class="home-preview-grid" id="homeStudents"></div>
+        <p class="home-preview-status" id="homeStudentsStatus">Loading student highlights…</p>
+      </div>
+      <div class="home-preview-section">
+        <div class="home-preview-heading"><h3>Families needing support</h3><a href="families.html">Support families →</a></div>
+        <div class="home-preview-grid" id="homeFamilies"></div>
+        <p class="home-preview-status" id="homeFamiliesStatus">Loading family updates…</p>
+      </div>
+    </div>
+  </div>
+
   <!-- Map + Contact -->
   <div class="section bg-grey">
     <div class="container">
@@ -2115,6 +2155,9 @@ button,input,textarea,select{font:inherit;color:inherit}
           <li><a href="#impact" data-nav>Impact</a></li>
           <li><a href="#our-team" data-nav>Our Team</a></li>
           <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="events.html">Events</a></li>
+          <li><a href="students.html">Students</a></li>
+          <li><a href="families.html">Families</a></li>
           <li><a href="#contact" data-nav>Contact</a></li>
         </ul>
       </div>
@@ -2494,6 +2537,71 @@ button,input,textarea,select{font:inherit;color:inherit}
     .catch(function () {
       status.textContent = 'Staff profiles are temporarily unavailable.';
     });
+})();
+</script>
+
+<script>
+(function () {
+  var api = 'https://sarangadonai-api.sarangadonairosete.workers.dev/api/';
+
+  function card(item, kind) {
+    var page = {event: 'events.html', student: 'students.html', family: 'families.html'}[kind];
+    var link = document.createElement('a');
+    link.className = 'home-preview-card';
+    link.href = page;
+    var imageUrl = kind === 'event' ? item.image_url : (kind === 'student' ? item.photo_url : item.photo_url);
+    if (imageUrl) {
+      var image = document.createElement('img');
+      image.src = imageUrl;
+      image.alt = kind === 'event' ? 'Event photo' : (kind === 'student' ? 'Student portrait' : 'Family photo');
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      link.appendChild(image);
+    }
+    var body = document.createElement('div');
+    body.className = 'home-preview-body';
+    var title = document.createElement('h4');
+    title.textContent = kind === 'event' ? (item.title || '')
+      : kind === 'student' ? (item.name || '')
+      : (item.family_name || '');
+    var meta = document.createElement('p');
+    if (kind === 'event') {
+      meta.textContent = [item.event_date, (item.event_type || '').replaceAll('_', ' '), item.location].filter(Boolean).join(' · ');
+    } else if (kind === 'student') {
+      meta.textContent = `${item.class || ''} · Average ${Number(item.average_score || 0).toFixed(1)}`;
+    } else {
+      meta.textContent = `${item.village || ''} · ${(item.support_status || '').replaceAll('_', ' ')}`;
+    }
+    body.append(title, meta);
+    if (kind === 'family' && item.story) {
+      var story = document.createElement('p');
+      story.textContent = item.story;
+      body.appendChild(story);
+    }
+    link.appendChild(body);
+    return link;
+  }
+
+  function load(endpoint, key, kind, gridId, statusId, emptyText) {
+    var grid = document.getElementById(gridId);
+    var status = document.getElementById(statusId);
+    fetch(api + endpoint, {headers: {Accept: 'application/json'}})
+      .then(function (response) {
+        if (!response.ok) throw new Error('Request failed');
+        return response.json();
+      })
+      .then(function (data) {
+        var items = Array.isArray(data[key]) ? data[key].slice(0, 3) : [];
+        grid.replaceChildren();
+        items.forEach(function (item) { grid.appendChild(card(item, kind)); });
+        status.textContent = items.length ? '' : emptyText;
+      })
+      .catch(function () { status.textContent = 'This section is temporarily unavailable.'; });
+  }
+
+  load('events?status=upcoming', 'events', 'event', 'homeEvents', 'homeEventsStatus', 'No upcoming events have been published yet.');
+  load('students?top=10', 'students', 'student', 'homeStudents', 'homeStudentsStatus', 'Student highlights will appear here when approved.');
+  load('families?status=urgent_need', 'families', 'family', 'homeFamilies', 'homeFamiliesStatus', 'No urgent family listings are currently published.');
 })();
 </script>
 

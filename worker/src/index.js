@@ -264,7 +264,9 @@ async function updateMedia(request, env, id) {
       const oldUrl = new URL(existing.public_url);
       const baseUrl = new URL(env.R2_PUBLIC_BASE_URL);
       const oldKey = decodeURIComponent(oldUrl.pathname.replace(/^\/+/, ""));
-      if (oldUrl.origin === baseUrl.origin) {
+      const validOldKey = /^\d{4}\/\d{2}\/\d{2}\/[0-9a-f-]{36}-[A-Za-z0-9._-]+$/i.test(oldKey)
+        || /^gallery\/[0-9a-f-]{36}-[0-9a-f-]{36}-[A-Za-z0-9._-]+$/i.test(oldKey);
+      if (oldUrl.origin === baseUrl.origin && validOldKey) {
         await env.MEDIA.delete(oldKey).catch(() => {});
       }
     } catch {}

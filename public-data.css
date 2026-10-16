@@ -1,0 +1,52 @@
+:root{--navy:#0a1931;--navy2:#13294b;--gold:#ffc947;--paper:#f5f7fb;--ink:#16233b;--muted:#6b7280;--line:#e3e9f1;--red:#a61b36;--green:#146c43}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 Inter,system-ui,sans-serif}
+a{color:inherit;text-decoration:none}
+.container{width:min(1120px,calc(100% - 36px));margin:auto}
+header{background:#fff;border-bottom:1px solid var(--line)}
+.bar{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand img{width:48px;height:48px;object-fit:contain}
+.brand strong{font:800 .98rem Poppins,sans-serif;color:var(--navy)}
+.brand span{display:block;color:#b38312;font-size:.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.navlinks{display:flex;gap:18px;flex-wrap:wrap;font-size:.92rem;font-weight:600}
+.hero{background:var(--navy);color:#fff;padding:64px 0 58px}
+.eyebrow{color:var(--gold);font-size:.73rem;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+h1,h2,h3{font-family:Poppins,sans-serif}
+h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.12;margin:10px 0 12px}
+.hero p{color:#cbd5e1;max-width:760px;margin:0}
+main{padding:36px 0 76px}
+.section{margin:0 0 38px}
+.section-title{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.section-title h2{margin:0;color:var(--navy);font-size:1.55rem}
+.section-title p{margin:4px 0 0;color:var(--muted)}
+.note{background:#fff8e4;border:1px solid #f3df9e;border-radius:12px;padding:12px 15px;color:#6f5410;font-size:.87rem;margin:0 0 22px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center}
+.stat strong{display:block;color:var(--navy);font:800 1.65rem Poppins,sans-serif}
+.stat span{color:var(--muted);font-size:.83rem}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 12px 34px #0a19310b}
+.card img{width:100%;height:220px;object-fit:cover;background:#e8edf5;display:block}
+.card-body{padding:18px}
+.card h3{font-size:1.06rem;margin:0 0 4px;color:var(--navy)}
+.meta{color:#9a7112;font-size:.76rem;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin:0 0 10px}
+.card p{color:var(--muted);font-size:.9rem;margin:8px 0;white-space:pre-wrap}
+.badge{display:inline-block;border-radius:999px;padding:4px 10px;font-size:.73rem;font-weight:800}
+.badge.urgent{background:#fff0f2;color:var(--red)}
+.badge.partial{background:#fff6df;color:#8c6500}
+.badge.supported{background:#edf9f1;color:var(--green)}
+.filters{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:20px}
+.filters label{display:grid;gap:5px;color:var(--navy);font-size:.83rem;font-weight:700}
+.filters select,.filters input{min-width:180px;border:1px solid #cbd5e1;border-radius:10px;padding:10px 12px;background:#fff;color:var(--ink);font:inherit}
+.empty{background:#fff;border:1px dashed #cbd5e1;border-radius:14px;padding:24px;text-align:center;color:var(--muted)}
+.countdown{background:linear-gradient(135deg,#fff,#fff9e8);border:1px solid #f3df9e;border-radius:16px;padding:20px 22px;margin:0 0 28px}
+.countdown strong{display:block;font:800 1.1rem Poppins,sans-serif;color:var(--navy)}
+.countdown span{color:#8c6500;font-weight:700}
+.map-box{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;margin:0 0 22px}
+.map-box iframe{width:100%;height:280px;display:block;border:0}
+.support-link{display:inline-block;background:var(--gold);color:var(--navy);font:700 .88rem Poppins,sans-serif;padding:10px 16px;border-radius:999px;margin-top:8px}
+footer{background:var(--navy);color:#cbd5e1;padding:22px 0;font-size:.84rem}
+.footer-row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{padding:48px 0}.stats{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.bar{min-height:68px;align-items:flex-start;padding:12px 0}.brand img{width:42px;height:42px}.brand strong{font-size:.87rem}.navlinks{flex-direction:column;gap:3px;text-align:right;font-size:.84rem}.card img{height:210px}}

@@ -8,7 +8,7 @@ const CLASSES = new Set([
   "P1", "P2", "P3", "P4", "P5", "P6", "P7",
   "S1", "S2", "S3", "S4", "S5", "S6",
 ]);
-const TERMS = new Set(["Term 1", "Term 2", "Term 3"]);
+const TERMS = new Set(["Term1", "Term2", "Term3"]);
 const PERFORMANCE = new Set(["Excellent", "Good", "Needs Support"]);
 const NEED_TYPES = new Set([
   "orphaned_children", "widowed", "elderly", "disabled", "extreme_poverty", "other",

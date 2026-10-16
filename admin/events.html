@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Manage events | Sarang Adonai Rosete Foundation</title>
+  <link rel="icon" href="../images/badge.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="records.css">
+</head>
+<body>
+  <header><div class="container bar">
+    <a class="brand" href="../index.html"><img src="../images/badge.jpg" alt=""><div><strong>Sarang Adonai Rosete</strong><span>Foundation Uganda</span></div></a>
+    <nav class="top-links" aria-label="Admin pages"><a href="staff.html">Staff</a><a href="students.html">Students</a><a href="families.html">Families</a><a href="../events.html">Public events</a></nav>
+  </div></header>
+  <main class="container">
+    <section class="panel">
+      <span class="eyebrow">Staff access</span>
+      <h1>Manage events</h1>
+      <p class="intro">Add birthdays, graduations, programs, and other foundation activities.</p>
+      <form id="record-form">
+        <label for="password">Admin password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <div class="field-row">
+          <div><label for="title">Event title</label><input id="title" name="title" maxlength="180" required></div>
+          <div>
+            <label for="event_type">Event type</label>
+            <select id="event_type" name="event_type" required>
+              <option value="">Choose a type</option>
+              <option value="birthday">Birthday</option><option value="graduation">Graduation</option>
+              <option value="feeding_program">Feeding program</option><option value="outreach">Outreach</option>
+              <option value="church_service">Church service</option><option value="sports">Sports</option>
+              <option value="education">Education</option><option value="health_camp">Health camp</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div><label for="event_date">Event date</label><input id="event_date" name="event_date" type="date" required></div>
+          <div><label for="location">Location</label><input id="location" name="location" maxlength="240"></div>
+        </div>
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="3" maxlength="3000"></textarea>
+        <label for="image">Event photo <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+        <input id="image" name="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif">
+        <p class="hint">JPEG, PNG, WebP, GIF, or AVIF. Maximum 25 MB. Leave empty during editing to keep the existing photo.</p>
+        <label class="check-row"><input type="checkbox" name="public_approved" value="1"><span>Approved for public listing. Confirm that any identifiable people in the event description or photo may be shown publicly.</span></label>
+        <button class="primary" id="save-button" type="submit">Add event</button>
+        <button class="secondary" id="cancel-button" type="button" hidden>Cancel edit</button>
+        <div id="form-message" class="message" role="status" aria-live="polite"></div>
+      </form>
+      <section class="list-section" aria-labelledby="records-title">
+        <h2 id="records-title">Events</h2>
+        <form id="filter-form" class="filter-row">
+          <select name="status" aria-label="Filter by event status">
+            <option value="">All dates</option><option value="upcoming">Upcoming</option><option value="past">Past</option>
+          </select>
+          <select name="type" aria-label="Filter by event type">
+            <option value="">All event types</option><option value="birthday">Birthday</option><option value="graduation">Graduation</option>
+            <option value="feeding_program">Feeding program</option><option value="outreach">Outreach</option>
+            <option value="church_service">Church service</option><option value="sports">Sports</option>
+            <option value="education">Education</option><option value="health_camp">Health camp</option><option value="other">Other</option>
+          </select>
+          <button class="secondary" id="load-records-button" type="button">Load records</button>
+        </form>
+        <p id="list-status" role="status" aria-live="polite">Enter the admin password, then choose Load records.</p>
+        <div id="records-list" class="records-list"></div>
+      </section>
+    </section>
+    <footer class="footer-row"><span>Sarang Adonai Rosete Foundation Uganda</span><a href="../index.html">Return to website</a></footer>
+  </main>
+  <script>
+    window.RECORDS_CONFIG = {
+      resource: "events",
+      collectionKey: "events",
+      titleField: "title",
+      imageField: "image_url",
+      fields: ["title", "event_type", "event_date", "location", "description", "public_approved", "image"],
+      subtitle: item => `${item.event_date || ""} · ${(item.event_type || "").replaceAll("_", " ")}`,
+      summary: item => [item.location, item.description].filter(Boolean).join("\n"),
+      createLabel: "Add event"
+    };
+  </script>
+  <script src="records.js"></script>
+</body>
+</html>

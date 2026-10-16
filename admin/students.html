@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Manage student records | Sarang Adonai Rosete Foundation</title>
+  <link rel="icon" href="../images/badge.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="records.css">
+</head>
+<body>
+  <header><div class="container bar">
+    <a class="brand" href="../index.html"><img src="../images/badge.jpg" alt=""><div><strong>Sarang Adonai Rosete</strong><span>Foundation Uganda</span></div></a>
+    <nav class="top-links" aria-label="Admin pages"><a href="staff.html">Staff</a><a href="events.html">Events</a><a href="families.html">Families</a><a href="../students.html">Public students</a></nav>
+  </div></header>
+  <main class="container">
+    <section class="panel">
+      <span class="eyebrow">Staff access</span>
+      <h1>Manage student records</h1>
+      <p class="intro">Enter term scores and choose whether an approved profile may appear on the public student page.</p>
+      <form id="record-form">
+        <label for="password">Admin password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <div class="field-row three">
+          <div><label for="name">Student name</label><input id="name" name="name" maxlength="120" required></div>
+          <div>
+            <label for="class">Class</label>
+            <select id="class" name="class" required>
+              <option value="">Choose a class</option>
+              <option>P1</option><option>P2</option><option>P3</option><option>P4</option><option>P5</option><option>P6</option><option>P7</option>
+              <option>S1</option><option>S2</option><option>S3</option><option>S4</option><option>S5</option><option>S6</option>
+            </select>
+          </div>
+          <div><label for="age">Age</label><input id="age" name="age" type="number" min="3" max="25" step="1"></div>
+        </div>
+        <div class="field-row three">
+          <div><label for="term">Term</label><select id="term" name="term" required><option value="">Choose a term</option><option value="Term1">Term 1</option><option value="Term2">Term 2</option><option value="Term3">Term 3</option></select></div>
+          <div><label for="year">Year</label><input id="year" name="year" type="number" min="2000" max="2100" required></div>
+          <div><label for="performance">Performance remark</label><select id="performance" name="performance" required><option value="">Choose a remark</option><option>Excellent</option><option>Good</option><option>Needs Support</option></select></div>
+        </div>
+        <label for="photo">Student photo</label>
+        <input id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif">
+        <p class="hint">JPEG, PNG, WebP, GIF, or AVIF. Maximum 25 MB. A photo is required for new records; leave empty during edits to keep the current photo.</p>
+        <label>Subject scores (0–100)</label>
+        <div class="field-row">
+          <div><label for="score_math">Math</label><input id="score_math" name="score_math" data-score type="number" min="0" max="100" step="0.1" required></div>
+          <div><label for="score_english">English</label><input id="score_english" name="score_english" data-score type="number" min="0" max="100" step="0.1" required></div>
+        </div>
+        <div class="field-row">
+          <div><label for="score_science">Science</label><input id="score_science" name="score_science" data-score type="number" min="0" max="100" step="0.1" required></div>
+          <div><label for="score_sst">SST</label><input id="score_sst" name="score_sst" data-score type="number" min="0" max="100" step="0.1" required></div>
+        </div>
+        <p class="average-output">Average: <output id="average-preview">—</output></p>
+        <label for="story">Story / background</label><textarea id="story" name="story" rows="3" maxlength="3000"></textarea>
+        <label class="check-row"><input type="checkbox" name="public_approved" value="1"><span>Consent is confirmed and this student profile is approved for public display. Names, photos, class, scores, and story will be visible.</span></label>
+        <button class="primary" id="save-button" type="submit">Add student</button>
+        <button class="secondary" id="cancel-button" type="button" hidden>Cancel edit</button>
+        <div id="form-message" class="message" role="status" aria-live="polite"></div>
+      </form>
+      <section class="list-section" aria-labelledby="records-title">
+        <h2 id="records-title">Student records</h2>
+        <form id="filter-form" class="filter-row">
+          <select name="class" aria-label="Filter by class"><option value="">All classes</option><option>P1</option><option>P2</option><option>P3</option><option>P4</option><option>P5</option><option>P6</option><option>P7</option><option>S1</option><option>S2</option><option>S3</option><option>S4</option><option>S5</option><option>S6</option></select>
+          <input name="year" type="number" min="2000" max="2100" aria-label="Filter by year" placeholder="All years">
+          <button class="secondary" id="load-records-button" type="button">Load records</button>
+        </form>
+        <p id="list-status" role="status" aria-live="polite">Enter the admin password, then choose Load records.</p>
+        <div class="table-wrap">
+          <table class="records-table">
+            <thead><tr><th>Photo</th><th>Student</th><th>Class</th><th>Average</th><th>Performance</th><th>Actions</th></tr></thead>
+            <tbody id="records-list"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+    <footer class="footer-row"><span>Sarang Adonai Rosete Foundation Uganda</span><a href="../index.html">Return to website</a></footer>
+  </main>
+  <script>
+    const scoreKeys = ["math", "english", "science", "sst"];
+    function updateAverage() {
+      const rawValues = scoreKeys.map(key => document.getElementById(`score_${key}`).value);
+      const values = rawValues.map(Number);
+      const output = document.getElementById("average-preview");
+      output.textContent = rawValues.every(value => value !== "")
+        && values.every(Number.isFinite) && values.every(value => value >= 0 && value <= 100)
+        ? (values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(1)
+        : "—";
+    }
+    window.RECORDS_CONFIG = {
+      resource: "students",
+      collectionKey: "students",
+      titleField: "name",
+      imageField: "photo_url",
+      listMode: "table",
+      fields: ["name", "class", "age", "term", "year", "performance", "score_math", "score_english", "score_science", "score_sst", "story", "public_approved", "photo"],
+      tableColumns: [
+        { key: "class" },
+        { key: "average_score", value: item => Number(item.average_score || 0).toFixed(1) },
+        { key: "performance" }
+      ],
+      subtitle: item => `${item.class || ""} · ${item.term || ""} ${item.year || ""}`,
+      summary: item => `Average ${Number(item.average_score || 0).toFixed(1)} · ${item.story || ""}`,
+      toForm: item => ({
+        ...item,
+        score_math: item.subjects?.math,
+        score_english: item.subjects?.english,
+        score_science: item.subjects?.science,
+        score_sst: item.subjects?.sst
+      }),
+      serialize: (form, payload) => {
+        const subjects = {};
+        for (const key of scoreKeys) {
+          subjects[key] = Number(form.elements.namedItem(`score_${key}`).value);
+          payload.delete(`score_${key}`);
+        }
+        payload.set("subjects", JSON.stringify(subjects));
+      },
+      createLabel: "Add student",
+      onInit: form => {
+        form.elements.namedItem("year").value = String(new Date().getFullYear());
+        form.querySelectorAll("[data-score]").forEach(input => input.addEventListener("input", updateAverage));
+        updateAverage();
+      },
+      afterReset: updateAverage
+    };
+  </script>
+  <script src="records.js"></script>
+</body>
+</html>

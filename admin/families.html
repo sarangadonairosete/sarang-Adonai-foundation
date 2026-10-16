@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Manage family support records | Sarang Adonai Rosete Foundation</title>
+  <link rel="icon" href="../images/badge.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="records.css">
+</head>
+<body>
+  <header><div class="container bar">
+    <a class="brand" href="../index.html"><img src="../images/badge.jpg" alt=""><div><strong>Sarang Adonai Rosete</strong><span>Foundation Uganda</span></div></a>
+    <nav class="top-links" aria-label="Admin pages"><a href="staff.html">Staff</a><a href="events.html">Events</a><a href="students.html">Students</a><a href="../families.html">Public families</a></nav>
+  </div></header>
+  <main class="container">
+    <section class="panel">
+      <span class="eyebrow">Staff access</span>
+      <h1>Manage family support records</h1>
+      <p class="intro">Record household needs and support status. Contact and precise location notes remain private to staff.</p>
+      <form id="record-form">
+        <label for="password">Admin password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <div class="field-row">
+          <div><label for="family_name">Family name</label><input id="family_name" name="family_name" maxlength="160" required></div>
+          <div><label for="village">Village</label><input id="village" name="village" maxlength="120" required></div>
+        </div>
+        <div class="field-row three">
+          <div><label for="district">District</label><input id="district" name="district" maxlength="120" required></div>
+          <div><label for="members_count">Members count</label><input id="members_count" name="members_count" type="number" min="1" max="100" step="1" required></div>
+          <div>
+            <label for="need_type">Need type</label>
+            <select id="need_type" name="need_type" required>
+              <option value="">Choose a need</option><option value="orphaned_children">Orphaned children</option>
+              <option value="widowed">Widowed</option><option value="elderly">Elderly</option>
+              <option value="disabled">Disabled</option><option value="extreme_poverty">Extreme poverty</option><option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <label for="photo">Family photo <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+        <input id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif">
+        <p class="hint">JPEG, PNG, WebP, GIF, or AVIF. Maximum 25 MB. Leave empty during edits to keep the current photo.</p>
+        <label for="story">Story / need description</label><textarea id="story" name="story" rows="4" maxlength="3000"></textarea>
+        <label for="support_status">Support status</label>
+        <select id="support_status" name="support_status" required>
+          <option value="">Choose a status</option><option value="urgent_need">Urgent need</option>
+          <option value="partially_supported">Partially supported</option><option value="fully_supported">Fully supported</option>
+        </select>
+        <label for="contact_info">Private contact / location information</label>
+        <textarea id="contact_info" name="contact_info" rows="2" maxlength="500" placeholder="Keep exact directions and contact details for staff use only"></textarea>
+        <label class="check-row"><input type="checkbox" name="public_approved" value="1"><span>Consent is confirmed and this family profile is approved for public display. Name, photo, village, need status, and story may be shown. Contact information will remain private.</span></label>
+        <button class="primary" id="save-button" type="submit">Add family record</button>
+        <button class="secondary" id="cancel-button" type="button" hidden>Cancel edit</button>
+        <div id="form-message" class="message" role="status" aria-live="polite"></div>
+      </form>
+      <section class="list-section" aria-labelledby="records-title">
+        <h2 id="records-title">Family records</h2>
+        <form id="filter-form" class="filter-row">
+          <input name="village" maxlength="120" aria-label="Filter by village" placeholder="All villages">
+          <select name="status" aria-label="Filter by support status">
+            <option value="">All support statuses</option><option value="urgent_need">Urgent need</option>
+            <option value="partially_supported">Partially supported</option><option value="fully_supported">Fully supported</option>
+          </select>
+          <button class="secondary" id="load-records-button" type="button">Load records</button>
+        </form>
+        <p id="list-status" role="status" aria-live="polite">Enter the admin password, then choose Load records.</p>
+        <div id="records-list" class="records-list"></div>
+      </section>
+    </section>
+    <footer class="footer-row"><span>Sarang Adonai Rosete Foundation Uganda</span><a href="../index.html">Return to website</a></footer>
+  </main>
+  <script>
+    window.RECORDS_CONFIG = {
+      resource: "families",
+      collectionKey: "families",
+      titleField: "family_name",
+      imageField: "photo_url",
+      fields: ["family_name", "village", "district", "members_count", "need_type", "story", "support_status", "contact_info", "public_approved", "photo"],
+      subtitle: item => `${item.village || ""}${item.district ? `, ${item.district}` : ""} · ${(item.support_status || "").replaceAll("_", " ")}`,
+      summary: item => [
+        `${item.members_count || 0} members · ${(item.need_type || "").replaceAll("_", " ")}`,
+        item.story,
+        item.contact_info ? `Private contact/location: ${item.contact_info}` : ""
+      ].filter(Boolean).join("\n"),
+      createLabel: "Add family record"
+    };
+  </script>
+  <script src="records.js"></script>
+</body>
+</html>

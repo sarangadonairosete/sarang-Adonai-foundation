@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Events and activities | Sarang Adonai Rosete Foundation</title>
+  <link rel="icon" href="images/badge.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="public-data.css">
+</head>
+<body>
+  <header><div class="container bar">
+    <a class="brand" href="index.html"><img src="images/badge.jpg" alt=""><div><strong>Sarang Adonai Rosete</strong><span>Foundation Uganda</span></div></a>
+    <nav class="navlinks" aria-label="Foundation pages"><a href="index.html">Home</a><a href="students.html">Students</a><a href="families.html">Families</a><a href="gallery.html">Gallery</a></nav>
+  </div></header>
+  <section class="hero"><div class="container">
+    <span class="eyebrow">What's happening</span>
+    <h1>Events and Activities</h1>
+    <p>Join our school and community for learning, celebration, service, and outreach.</p>
+  </div></section>
+  <main class="container">
+    <p class="note">Only events approved by foundation staff are shown here. Photos or descriptions identifying children are published only with consent.</p>
+    <section class="section" aria-labelledby="upcoming-title">
+      <div class="section-title"><div><h2 id="upcoming-title">Upcoming events</h2><p>Find a date to join us.</p></div></div>
+      <div class="countdown" id="next-event" aria-live="polite"><strong>Loading upcoming events…</strong></div>
+      <div class="grid" id="upcoming-list"></div>
+      <p class="empty" id="upcoming-empty" hidden>No upcoming events have been published yet.</p>
+    </section>
+    <section class="section" aria-labelledby="past-title">
+      <div class="section-title"><div><h2 id="past-title">Past activities</h2><p>Browse activities by type.</p></div></div>
+      <div class="filters">
+        <label>Activity type
+          <select id="past-type">
+            <option value="">All types</option><option value="birthday">Birthday</option><option value="graduation">Graduation</option>
+            <option value="feeding_program">Feeding program</option><option value="outreach">Outreach</option>
+            <option value="church_service">Church service</option><option value="sports">Sports</option>
+            <option value="education">Education</option><option value="health_camp">Health camp</option><option value="other">Other</option>
+          </select>
+        </label>
+      </div>
+      <div class="grid" id="past-list"></div>
+      <p class="empty" id="past-empty" hidden>No past activities match this filter.</p>
+    </section>
+  </main>
+  <footer><div class="container footer-row"><span>© 2026 Sarang Adonai Rosete Foundation Uganda</span><a href="index.html#donate">Support our work</a></div></footer>
+  <script>
+    const API_BASE = "https://sarangadonai-api.sarangadonairosete.workers.dev";
+    const upcomingList = document.getElementById("upcoming-list");
+    const upcomingEmpty = document.getElementById("upcoming-empty");
+    const nextEvent = document.getElementById("next-event");
+    const pastList = document.getElementById("past-list");
+    const pastEmpty = document.getElementById("past-empty");
+    let countdownTimer;
+
+    function eventCard(event) {
+      const card = document.createElement("article");
+      card.className = "card";
+      if (event.image_url) {
+        const image = document.createElement("img");
+        image.src = event.image_url;
+        image.alt = event.title ? `${event.title} event photo` : "Foundation event";
+        image.loading = "lazy";
+        image.onerror = () => { image.hidden = true; };
+        card.appendChild(image);
+      }
+      const body = document.createElement("div");
+      body.className = "card-body";
+      const title = document.createElement("h3");
+      title.textContent = event.title || "";
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = `${event.event_date || ""} · ${(event.event_type || "").replaceAll("_", " ")}`;
+      body.append(title, meta);
+      if (event.location) {
+        const location = document.createElement("p");
+        location.textContent = event.location;
+        body.appendChild(location);
+      }
+      if (event.description) {
+        const description = document.createElement("p");
+        description.textContent = event.description;
+        body.appendChild(description);
+      }
+      card.appendChild(body);
+      return card;
+    }
+
+    function setCountdown(event) {
+      if (countdownTimer) clearInterval(countdownTimer);
+      if (!event) {
+        nextEvent.innerHTML = "<strong>No upcoming event is scheduled.</strong>";
+        return;
+      }
+      const title = document.createElement("strong");
+      title.textContent = `Next: ${event.title}`;
+      const countdown = document.createElement("span");
+      nextEvent.replaceChildren(title, document.createElement("br"), countdown);
+      function update() {
+        const target = new Date(`${event.event_date}T00:00:00`);
+        const distance = target.getTime() - Date.now();
+        if (distance <= 0) {
+          countdown.textContent = "Today";
+          return;
+        }
+        const days = Math.floor(distance / 86400000);
+        const hours = Math.floor((distance % 86400000) / 3600000);
+        countdown.textContent = `${event.event_date} · ${days} day${days === 1 ? "" : "s"} and ${hours} hour${hours === 1 ? "" : "s"} to go`;
+      }
+      update();
+      countdownTimer = setInterval(update, 60000);
+    }
+
+    async function fetchEvents(status, type) {
+      const params = new URLSearchParams({ status });
+      if (type) params.set("type", type);
+      const response = await fetch(`${API_BASE}/api/events?${params}`, { headers: { Accept: "application/json" } });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Events could not be loaded.");
+      return Array.isArray(data.events) ? data.events : [];
+    }
+
+    async function loadUpcoming() {
+      try {
+        const events = await fetchEvents("upcoming");
+        setCountdown(events[0]);
+        upcomingList.replaceChildren(...events.map(eventCard));
+        upcomingEmpty.hidden = events.length > 0;
+      } catch {
+        setCountdown(null);
+        upcomingEmpty.hidden = false;
+        upcomingEmpty.textContent = "Upcoming events are temporarily unavailable.";
+      }
+    }
+
+    async function loadPast() {
+      pastEmpty.textContent = "No past activities match this filter.";
+      try {
+        const events = await fetchEvents("past", document.getElementById("past-type").value);
+        pastList.replaceChildren(...events.map(eventCard));
+        pastEmpty.hidden = events.length > 0;
+      } catch {
+        pastEmpty.hidden = false;
+        pastEmpty.textContent = "Past activities are temporarily unavailable.";
+      }
+    }
+
+    document.getElementById("past-type").addEventListener("change", loadPast);
+    loadUpcoming();
+    loadPast();
+  </script>
+</body>
+</html>

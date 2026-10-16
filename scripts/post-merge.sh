@@ -7,6 +7,12 @@ elif [[ -f package.json ]]; then
   npm install --no-audit --no-fund
 fi
 
-if [[ -f worker/src/index.js ]]; then
-  node --check worker/src/index.js
+if [[ -d worker/src ]]; then
+  for source in worker/src/*.js; do
+    [[ -f "$source" ]] && node --check "$source"
+  done
+fi
+
+if [[ -f admin/records.js ]]; then
+  node --check admin/records.js
 fi
