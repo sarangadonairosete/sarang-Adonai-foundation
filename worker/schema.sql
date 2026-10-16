@@ -7,7 +7,11 @@ CREATE TABLE IF NOT EXISTS media (
   month TEXT,
   day TEXT,
   caption TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  youtube_url TEXT,
+  youtube_id TEXT,
+  visibility TEXT DEFAULT 'unlisted',
+  media_type TEXT DEFAULT 'youtube'
 );
 
 CREATE TABLE IF NOT EXISTS staff (
@@ -16,7 +20,11 @@ CREATE TABLE IF NOT EXISTS staff (
   role TEXT,
   photo_url TEXT,
   bio TEXT,
-  created_at DATETIME
+  created_at DATETIME,
+  youtube_url TEXT,
+  youtube_id TEXT,
+  visibility TEXT DEFAULT 'unlisted',
+  media_type TEXT DEFAULT 'youtube'
 );
 
 CREATE TABLE IF NOT EXISTS events (
@@ -29,7 +37,11 @@ CREATE TABLE IF NOT EXISTS events (
   image_url TEXT,
   status TEXT,
   created_at DATETIME,
-  public_approved INTEGER NOT NULL DEFAULT 0
+  public_approved INTEGER NOT NULL DEFAULT 0,
+  youtube_url TEXT,
+  youtube_id TEXT,
+  visibility TEXT DEFAULT 'unlisted',
+  media_type TEXT DEFAULT 'youtube'
 );
 
 CREATE TABLE IF NOT EXISTS students (
@@ -45,7 +57,11 @@ CREATE TABLE IF NOT EXISTS students (
   average_score REAL,
   story TEXT,
   created_at DATETIME,
-  public_approved INTEGER NOT NULL DEFAULT 0
+  public_approved INTEGER NOT NULL DEFAULT 0,
+  youtube_url TEXT,
+  youtube_id TEXT,
+  visibility TEXT DEFAULT 'unlisted',
+  media_type TEXT DEFAULT 'youtube'
 );
 
 CREATE TABLE IF NOT EXISTS families (
@@ -60,5 +76,9 @@ CREATE TABLE IF NOT EXISTS families (
   support_status TEXT,
   contact_info TEXT,
   created_at DATETIME,
-  public_approved INTEGER NOT NULL DEFAULT 0
+  public_approved INTEGER NOT NULL DEFAULT 0,
+  youtube_url TEXT,
+  youtube_id TEXT,
+  visibility TEXT DEFAULT 'unlisted',
+  media_type TEXT DEFAULT 'youtube'
 );

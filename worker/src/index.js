@@ -1,4 +1,5 @@
 import { handleManagementRequest } from "./management.js";
+import { youtubeFields } from "./youtube.js";
 
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -65,20 +66,24 @@ function validDate(value) {
 function imageObject(request, env, item) {
   return {
     id: item.id,
-    public_url: item.public_url,
+    public_url: item.public_url || "",
     filename: item.filename,
     date: item.date,
     year: item.year,
     month: item.month,
     day: item.day,
     caption: item.caption || "",
+    youtube_url: item.youtube_url || "",
+    youtube_id: item.youtube_id || "",
+    visibility: item.visibility || "unlisted",
+    media_type: item.youtube_id ? "youtube" : (item.media_type || "photo"),
     created_at: item.created_at,
   };
 }
 
 async function getGallery(request, env) {
   const result = await env.DB.prepare(
-    "SELECT id, public_url, filename, date, year, month, day, caption, created_at FROM media ORDER BY date DESC, created_at DESC",
+    "SELECT id, public_url, filename, date, year, month, day, caption, youtube_url, youtube_id, visibility, media_type, created_at FROM media ORDER BY date DESC, created_at DESC",
   ).all();
   const groups = new Map();
 
@@ -114,38 +119,46 @@ async function uploadMedia(request, env) {
   const file = form.get("file");
   const caption = String(form.get("caption") || "").trim().slice(0, 500);
   const date = String(form.get("date") || "");
+  const videos = youtubeFields(form);
+  if (videos.error) return json(request, env, { error: videos.error }, 400);
 
-  if (!(file instanceof File)) return json(request, env, { error: "Choose an image to upload." }, 400);
-  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+  const hasFile = file instanceof File && file.size > 0;
+  if (!hasFile && !videos.youtube_id) {
+    return json(request, env, { error: "Add either a photo or a YouTube link." }, 400);
+  }
+  if (hasFile && !ALLOWED_IMAGE_TYPES.has(file.type)) {
     return json(request, env, { error: "Use a JPEG, PNG, WebP, GIF, or AVIF image." }, 415);
   }
-  if (file.size < 1 || file.size > MAX_UPLOAD_BYTES) {
+  if (hasFile && (file.size < 1 || file.size > MAX_UPLOAD_BYTES)) {
     return json(request, env, { error: "Images must be smaller than 25 MB." }, 413);
   }
   if (!validDate(date)) return json(request, env, { error: "Choose a valid date." }, 400);
 
   const [year, month, day] = date.split("-");
   const id = crypto.randomUUID();
-  const filename = safeFilename(file.name);
-  const key = `gallery/${id}-${crypto.randomUUID()}-${filename}`;
-  const publicUrl = `${env.R2_PUBLIC_BASE_URL.replace(/\/+$/, "")}/${key}`;
+  const filename = hasFile ? safeFilename(file.name) : "";
+  const key = hasFile ? `gallery/${id}-${crypto.randomUUID()}-${filename}` : null;
+  const publicUrl = key ? `${env.R2_PUBLIC_BASE_URL.replace(/\/+$/, "")}/${key}` : "";
 
   try {
-    await env.MEDIA.put(key, file.stream(), {
-      httpMetadata: {
-        contentType: file.type,
-        cacheControl: "public, max-age=31536000, immutable",
-      },
-      customMetadata: { date, caption },
-    });
+    if (key) {
+      await env.MEDIA.put(key, file.stream(), {
+        httpMetadata: {
+          contentType: file.type,
+          cacheControl: "public, max-age=31536000, immutable",
+        },
+        customMetadata: { date, caption },
+      });
+    }
 
     await env.DB.prepare(
-      "INSERT INTO media (id, public_url, filename, date, year, month, day, caption) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO media (id, public_url, filename, date, year, month, day, caption, youtube_url, youtube_id, visibility, media_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
-      .bind(id, publicUrl, file.name.slice(0, 255), date, year, month, day, caption)
+      .bind(id, publicUrl || null, hasFile ? file.name.slice(0, 255) : "", date, year, month, day, caption,
+        videos.youtube_url, videos.youtube_id, videos.visibility, videos.media_type)
       .run();
   } catch {
-    await env.MEDIA.delete(key).catch(() => {});
+    if (key) await env.MEDIA.delete(key).catch(() => {});
     return json(request, env, { error: "The image could not be saved. Please retry." }, 500);
   }
 
@@ -159,6 +172,7 @@ async function uploadMedia(request, env) {
       month,
       day,
       caption,
+      ...videos,
     },
   }, 201);
 }
@@ -175,27 +189,27 @@ async function deleteMedia(request, env, id) {
   ).bind(id).first();
   if (!row) return json(request, env, { error: "Media item not found." }, 404);
 
-  let objectUrl;
-  let publicBase;
   try {
-    objectUrl = new URL(row.public_url);
-    publicBase = new URL(env.R2_PUBLIC_BASE_URL);
-  } catch {
-    return json(request, env, { error: "Stored media URL is invalid." }, 500);
-  }
-  if (objectUrl.origin !== publicBase.origin) {
-    return json(request, env, { error: "Stored media URL does not match the configured bucket." }, 500);
-  }
-
-  const key = decodeURIComponent(objectUrl.pathname.replace(/^\/+/, ""));
-  const legacyGalleryKey = /^\d{4}\/\d{2}\/\d{2}\/[0-9a-f-]{36}-[A-Za-z0-9._-]+$/i.test(key);
-  const currentGalleryKey = /^gallery\/[0-9a-f-]{36}-[0-9a-f-]{36}-[A-Za-z0-9._-]+$/i.test(key);
-  if (!legacyGalleryKey && !currentGalleryKey) {
-    return json(request, env, { error: "Stored object path is invalid." }, 500);
-  }
-
-  try {
-    await env.MEDIA.delete(key);
+    if (row.public_url) {
+      let objectUrl;
+      let publicBase;
+      try {
+        objectUrl = new URL(row.public_url);
+        publicBase = new URL(env.R2_PUBLIC_BASE_URL);
+      } catch {
+        return json(request, env, { error: "Stored media URL is invalid." }, 500);
+      }
+      if (objectUrl.origin !== publicBase.origin) {
+        return json(request, env, { error: "Stored media URL does not match the configured bucket." }, 500);
+      }
+      const key = decodeURIComponent(objectUrl.pathname.replace(/^\/+/, ""));
+      const legacyGalleryKey = /^\d{4}\/\d{2}\/\d{2}\/[0-9a-f-]{36}-[A-Za-z0-9._-]+$/i.test(key);
+      const currentGalleryKey = /^gallery\/[0-9a-f-]{36}-[0-9a-f-]{36}-[A-Za-z0-9._-]+$/i.test(key);
+      if (!legacyGalleryKey && !currentGalleryKey) {
+        return json(request, env, { error: "Stored object path is invalid." }, 500);
+      }
+      await env.MEDIA.delete(key);
+    }
     await env.DB.prepare("DELETE FROM media WHERE id = ?").bind(id).run();
   } catch {
     return json(request, env, { error: "The media item could not be deleted." }, 500);
@@ -211,7 +225,7 @@ async function updateMedia(request, env, id) {
   }
   if (!/^[0-9a-f-]{36}$/i.test(id)) return json(request, env, { error: "Invalid media ID." }, 400);
   const existing = await env.DB.prepare(
-    "SELECT id, public_url, filename, date, year, month, day, caption, created_at FROM media WHERE id = ?",
+    "SELECT id, public_url, filename, date, year, month, day, caption, youtube_url, youtube_id, visibility, media_type, created_at FROM media WHERE id = ?",
   ).bind(id).first();
   if (!existing) return json(request, env, { error: "Media item not found." }, 404);
 
@@ -224,9 +238,14 @@ async function updateMedia(request, env, id) {
   const date = String(form.get("date") || existing.date);
   const caption = String(form.get("caption") ?? existing.caption ?? "").trim().slice(0, 500);
   if (!validDate(date)) return json(request, env, { error: "Choose a valid date." }, 400);
+  const videos = youtubeFields(form, existing);
+  if (videos.error) return json(request, env, { error: videos.error }, 400);
 
   const file = form.get("file");
   const hasFile = file instanceof File && file.size > 0;
+  if (!hasFile && !videos.youtube_id && !existing.public_url) {
+    return json(request, env, { error: "Add either a photo or a YouTube link." }, 400);
+  }
   if (hasFile && !ALLOWED_IMAGE_TYPES.has(file.type)) {
     return json(request, env, { error: "Use a JPEG, PNG, WebP, GIF, or AVIF image." }, 415);
   }
@@ -236,7 +255,7 @@ async function updateMedia(request, env, id) {
 
   const [year, month, day] = date.split("-");
   let newKey = null;
-  let publicUrl = existing.public_url;
+  let publicUrl = existing.public_url || "";
   let filename = existing.filename;
   try {
     if (hasFile) {
@@ -252,8 +271,9 @@ async function updateMedia(request, env, id) {
       });
     }
     await env.DB.prepare(
-      "UPDATE media SET public_url = ?, filename = ?, date = ?, year = ?, month = ?, day = ?, caption = ? WHERE id = ?",
-    ).bind(publicUrl, filename, date, year, month, day, caption, id).run();
+      "UPDATE media SET public_url = ?, filename = ?, date = ?, year = ?, month = ?, day = ?, caption = ?, youtube_url = ?, youtube_id = ?, visibility = ?, media_type = ? WHERE id = ?",
+    ).bind(publicUrl || null, filename, date, year, month, day, caption, videos.youtube_url,
+      videos.youtube_id, videos.visibility, videos.media_type, id).run();
   } catch {
     if (newKey) await env.MEDIA.delete(newKey).catch(() => {});
     return json(request, env, { error: "The media item could not be updated." }, 500);
@@ -274,6 +294,7 @@ async function updateMedia(request, env, id) {
   return json(request, env, {
     item: imageObject(request, env, {
       id, public_url: publicUrl, filename, date, year, month, day, caption,
+      ...videos,
       created_at: existing.created_at,
     }),
   });
