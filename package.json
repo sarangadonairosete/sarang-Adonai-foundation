@@ -1,10 +1,11 @@
 {
-  "name": "workspace",
+  "name": "sarang-adonai-foundation",
   "version": "1.0.0",
   "description": "Official website for Sarang Adonai Rosete Foundation Uganda",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "worker:dev": "wrangler dev --config worker/wrangler.toml",
+    "worker:deploy": "wrangler deploy --config worker/wrangler.toml"
   },
   "repository": {
     "type": "git",
@@ -13,7 +14,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/sarangadonairosete/sarang-Adonai-foundation/issues"
   },

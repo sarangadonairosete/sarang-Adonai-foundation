@@ -1,0 +1,18 @@
+name = "sarangadonai-api"
+main = "src/index.js"
+compatibility_date = "2026-10-16"
+workers_dev = true
+account_id = "11ddfb70aee484e62f0ad6d5d4e4d6d5"
+
+[vars]
+ALLOWED_ORIGIN = "https://sarangadonairosete.github.io"
+R2_PUBLIC_BASE_URL = "https://pub-599b5447fc10492fb841a9623dece690.r2.dev"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "sarangadonai-media"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sarangadonai-db"
+database_id = "d2822682-1416-4171-b3b6-890545edc0e8"

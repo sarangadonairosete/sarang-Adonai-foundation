@@ -514,14 +514,16 @@ button,input,textarea,select{font:inherit;color:inherit}
   display:flex;align-items:center;justify-content:center;
   transition:transform .35s;
 }
+.gallery-item img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .gallery-item:nth-child(3n){background:linear-gradient(140deg,#e0a92c,var(--gold))}
 .gallery-item:nth-child(4n){background:linear-gradient(140deg,#1d3a63,#2a5290)}
 .gallery-item:hover{transform:scale(1.05);z-index:3}
 .gallery-item span{
-  color:rgba(255,255,255,.5);font-family:'Poppins',sans-serif;
-  font-weight:800;font-size:1.4rem;letter-spacing:2px;
+  position:absolute;left:0;right:0;bottom:0;padding:22px 10px 9px;
+  background:linear-gradient(transparent,rgba(0,0,0,.78));
+  color:#fff;font-family:'Poppins',sans-serif;
+  font-weight:600;font-size:.72rem;letter-spacing:.2px;line-height:1.35;
 }
-.gallery-item:nth-child(3n) span{color:rgba(10,25,49,.45)}
 
 /* ============================================================
    14. MAP
@@ -906,6 +908,7 @@ button,input,textarea,select{font:inherit;color:inherit}
       <a href="#apshule-project" data-nav>ApShule Project</a>
       <a href="#impact" data-nav>Impact</a>
       <a href="#our-team" data-nav>Our Team</a>
+      <a href="gallery.html">Gallery</a>
       <a href="#donate" data-nav>Donate</a>
       <a href="#contact" data-nav>Contact</a>
     </nav>
@@ -1377,19 +1380,10 @@ button,input,textarea,select{font:inherit;color:inherit}
         <p>Moments from our classrooms, our compound, and our children.</p>
       </div>
 
-      <div class="gallery">
-        <div class="gallery-item fade-up"><span>01</span></div>
-        <div class="gallery-item fade-up d1"><span>02</span></div>
-        <div class="gallery-item fade-up d2"><span>03</span></div>
-        <div class="gallery-item fade-up d3"><span>04</span></div>
-        <div class="gallery-item fade-up"><span>05</span></div>
-        <div class="gallery-item fade-up d1"><span>06</span></div>
-        <div class="gallery-item fade-up d2"><span>07</span></div>
-        <div class="gallery-item fade-up d3"><span>08</span></div>
-        <div class="gallery-item fade-up"><span>09</span></div>
-        <div class="gallery-item fade-up d1"><span>10</span></div>
-        <div class="gallery-item fade-up d2"><span>11</span></div>
-        <div class="gallery-item fade-up d3"><span>12</span></div>
+      <div class="gallery" id="homeGallery" aria-live="polite"></div>
+      <p id="homeGalleryStatus" style="text-align:center;color:var(--muted);margin-top:18px">Loading gallery…</p>
+      <div style="text-align:center;margin-top:28px">
+        <a href="gallery.html" class="btn btn-navy">View all gallery photos →</a>
       </div>
     </div>
   </div>
@@ -2175,6 +2169,7 @@ button,input,textarea,select{font:inherit;color:inherit}
           <li><a href="#apshule-project" data-nav>ApShule Project</a></li>
           <li><a href="#impact" data-nav>Impact</a></li>
           <li><a href="#our-team" data-nav>Our Team</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
           <li><a href="#contact" data-nav>Contact</a></li>
         </ul>
       </div>
@@ -2446,6 +2441,51 @@ button,input,textarea,select{font:inherit;color:inherit}
     initObservers();
   }
 
+})();
+</script>
+
+<script>
+(function () {
+  'use strict';
+  var gallery = document.getElementById('homeGallery');
+  var status = document.getElementById('homeGalleryStatus');
+  if (!gallery || !status) return;
+
+  var apiBase = 'https://sarangadonai-api.sarangadonairosete.workers.dev';
+  fetch(apiBase + '/gallery', { headers: { Accept: 'application/json' } })
+    .then(function (response) {
+      if (!response.ok) throw new Error('Gallery request failed');
+      return response.json();
+    })
+    .then(function (data) {
+      var photos = (data.groups || []).reduce(function (all, group) {
+        return all.concat(group.items || []);
+      }, []).slice(0, 8);
+
+      gallery.replaceChildren();
+      photos.forEach(function (photo) {
+        var link = document.createElement('a');
+        link.className = 'gallery-item';
+        link.href = 'gallery.html';
+        link.setAttribute('aria-label', photo.caption || photo.filename || 'View foundation gallery');
+        var image = document.createElement('img');
+        image.src = photo.public_url;
+        image.alt = photo.caption || photo.filename || 'Foundation gallery photo';
+        image.loading = 'lazy';
+        image.decoding = 'async';
+        var caption = document.createElement('span');
+        caption.textContent = photo.caption || photo.date || 'Rosete Foundation';
+        link.append(image, caption);
+        gallery.appendChild(link);
+      });
+
+      status.textContent = photos.length
+        ? 'Recent moments from our community.'
+        : 'Photos will appear here as they are added to the gallery.';
+    })
+    .catch(function () {
+      status.textContent = 'The gallery is temporarily unavailable. Visit the full gallery page to try again.';
+    });
 })();
 </script>
 
