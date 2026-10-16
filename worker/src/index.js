@@ -9,7 +9,7 @@ const ALLOWED_IMAGE_TYPES = new Set([
 
 function corsHeaders(request, env) {
   const headers = new Headers({
-    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, X-Admin-Password",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin",
@@ -200,6 +200,219 @@ async function deleteMedia(request, env, id) {
   return json(request, env, { deleted: id });
 }
 
+function staffObjectKey(publicUrl, env) {
+  let objectUrl;
+  let publicBase;
+  try {
+    objectUrl = new URL(publicUrl);
+    publicBase = new URL(env.R2_PUBLIC_BASE_URL);
+  } catch {
+    return null;
+  }
+  if (objectUrl.origin !== publicBase.origin) return null;
+
+  let key;
+  try {
+    key = decodeURIComponent(objectUrl.pathname.replace(/^\/+/, ""));
+  } catch {
+    return null;
+  }
+  return /^staff\/[0-9a-f-]{36}-[0-9a-f-]{36}-[A-Za-z0-9._-]+$/i.test(key)
+    ? key
+    : null;
+}
+
+function staffRecord(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    role: row.role,
+    photo_url: row.photo_url,
+    bio: row.bio || "",
+    created_at: row.created_at,
+  };
+}
+
+async function getStaff(request, env) {
+  const result = await env.DB.prepare(
+    "SELECT id, name, role, photo_url, bio, created_at FROM staff ORDER BY created_at ASC, name COLLATE NOCASE ASC",
+  ).all();
+  return json(request, env, { staff: (result.results || []).map(staffRecord) });
+}
+
+function validStaffPhoto(file) {
+  if (!(file instanceof File)) return "Choose a staff photo.";
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+    return "Use a JPEG, PNG, WebP, GIF, or AVIF image.";
+  }
+  if (file.size < 1 || file.size > MAX_UPLOAD_BYTES) {
+    return "Images must be smaller than 25 MB.";
+  }
+  return null;
+}
+
+async function readStaffForm(request, env) {
+  const password = request.headers.get("X-Admin-Password") || "";
+  if (!(await passwordMatches(password, env.ADMIN_PASSWORD))) {
+    return { response: json(request, env, { error: "Invalid admin password." }, 401) };
+  }
+
+  try {
+    return { form: await request.formData() };
+  } catch {
+    return { response: json(request, env, { error: "Submit the staff details as multipart form data." }, 400) };
+  }
+}
+
+function staffFields(form) {
+  const name = String(form.get("name") || "").trim().slice(0, 120);
+  const role = String(form.get("role") || "").trim().slice(0, 120);
+  const bio = String(form.get("bio") || "").trim().slice(0, 2000);
+  return { name, role, bio };
+}
+
+async function createStaff(request, env) {
+  const parsed = await readStaffForm(request, env);
+  if (parsed.response) return parsed.response;
+
+  const { form } = parsed;
+  const { name, role, bio } = staffFields(form);
+  const photo = form.get("photo");
+  const photoError = validStaffPhoto(photo);
+  if (photoError) return json(request, env, { error: photoError }, 400);
+  if (!name || !role) {
+    return json(request, env, { error: "Enter both a staff name and role." }, 400);
+  }
+
+  const id = crypto.randomUUID();
+  const filename = safeFilename(photo.name);
+  const key = `staff/${id}-${crypto.randomUUID()}-${filename}`;
+  const photoUrl = `${env.R2_PUBLIC_BASE_URL.replace(/\/+$/, "")}/${key}`;
+
+  try {
+    await env.MEDIA.put(key, photo.stream(), {
+      httpMetadata: {
+        contentType: photo.type,
+        cacheControl: "public, max-age=31536000, immutable",
+      },
+    });
+    await env.DB.prepare(
+      "INSERT INTO staff (id, name, role, photo_url, bio, created_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
+    ).bind(id, name, role, photoUrl, bio).run();
+  } catch {
+    await env.MEDIA.delete(key).catch(() => {});
+    return json(request, env, { error: "The staff profile could not be saved. Please retry." }, 500);
+  }
+
+  return json(request, env, {
+    staff: { id, name, role, photo_url: photoUrl, bio },
+  }, 201);
+}
+
+async function updateStaff(request, env, id) {
+  const password = request.headers.get("X-Admin-Password") || "";
+  if (!(await passwordMatches(password, env.ADMIN_PASSWORD))) {
+    return json(request, env, { error: "Invalid admin password." }, 401);
+  }
+  if (!/^[0-9a-f-]{36}$/i.test(id)) {
+    return json(request, env, { error: "Invalid staff ID." }, 400);
+  }
+
+  const existing = await env.DB.prepare(
+    "SELECT id, name, role, photo_url, bio, created_at FROM staff WHERE id = ?",
+  ).bind(id).first();
+  if (!existing) return json(request, env, { error: "Staff profile not found." }, 404);
+
+  let form;
+  try {
+    form = await request.formData();
+  } catch {
+    return json(request, env, { error: "Submit the staff details as multipart form data." }, 400);
+  }
+
+  const { name, role, bio } = staffFields(form);
+  if (!name || !role) {
+    return json(request, env, { error: "Enter both a staff name and role." }, 400);
+  }
+
+  const photo = form.get("photo");
+  const hasPhoto = photo instanceof File && photo.size > 0;
+  if (hasPhoto) {
+    const photoError = validStaffPhoto(photo);
+    if (photoError) return json(request, env, { error: photoError }, 400);
+  }
+
+  let photoUrl = existing.photo_url;
+  let newKey = null;
+  if (hasPhoto) {
+    const filename = safeFilename(photo.name);
+    newKey = `staff/${id}-${crypto.randomUUID()}-${filename}`;
+    photoUrl = `${env.R2_PUBLIC_BASE_URL.replace(/\/+$/, "")}/${newKey}`;
+    try {
+      await env.MEDIA.put(newKey, photo.stream(), {
+        httpMetadata: {
+          contentType: photo.type,
+          cacheControl: "public, max-age=31536000, immutable",
+        },
+      });
+    } catch {
+      return json(request, env, { error: "The replacement photo could not be uploaded." }, 500);
+    }
+  }
+
+  try {
+    await env.DB.prepare(
+      "UPDATE staff SET name = ?, role = ?, photo_url = ?, bio = ? WHERE id = ?",
+    ).bind(name, role, photoUrl, bio, id).run();
+  } catch {
+    if (newKey) await env.MEDIA.delete(newKey).catch(() => {});
+    return json(request, env, { error: "The staff profile could not be updated. Please retry." }, 500);
+  }
+
+  if (newKey) {
+    const oldKey = staffObjectKey(existing.photo_url, env);
+    if (oldKey) await env.MEDIA.delete(oldKey).catch(() => {});
+  }
+
+  return json(request, env, {
+    staff: {
+      id,
+      name,
+      role,
+      photo_url: photoUrl,
+      bio,
+      created_at: existing.created_at,
+    },
+  });
+}
+
+async function deleteStaff(request, env, id) {
+  const password = request.headers.get("X-Admin-Password") || "";
+  if (!(await passwordMatches(password, env.ADMIN_PASSWORD))) {
+    return json(request, env, { error: "Invalid admin password." }, 401);
+  }
+  if (!/^[0-9a-f-]{36}$/i.test(id)) {
+    return json(request, env, { error: "Invalid staff ID." }, 400);
+  }
+
+  const existing = await env.DB.prepare(
+    "SELECT id, photo_url FROM staff WHERE id = ?",
+  ).bind(id).first();
+  if (!existing) return json(request, env, { error: "Staff profile not found." }, 404);
+
+  const key = staffObjectKey(existing.photo_url, env);
+  if (!key) return json(request, env, { error: "Stored staff photo path is invalid." }, 500);
+
+  try {
+    await env.MEDIA.delete(key);
+    await env.DB.prepare("DELETE FROM staff WHERE id = ?").bind(id).run();
+  } catch {
+    return json(request, env, { error: "The staff profile could not be deleted." }, 500);
+  }
+
+  return json(request, env, { deleted: id });
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin");
@@ -224,8 +437,21 @@ export default {
       if (request.method === "GET" && path === "/gallery") {
         return await getGallery(request, env);
       }
+      if (request.method === "GET" && path === "/api/staff") {
+        return await getStaff(request, env);
+      }
+      if (request.method === "POST" && path === "/api/staff") {
+        return await createStaff(request, env);
+      }
       if (request.method === "POST" && path === "/upload") {
         return await uploadMedia(request, env);
+      }
+
+      const staffMatch = path.match(/^\/api\/staff\/([^/]+)$/);
+      if (staffMatch) {
+        const id = decodeURIComponent(staffMatch[1]);
+        if (request.method === "PUT") return await updateStaff(request, env, id);
+        if (request.method === "DELETE") return await deleteStaff(request, env, id);
       }
 
       const deleteMatch = path.match(/^\/media\/([^/]+)$/);

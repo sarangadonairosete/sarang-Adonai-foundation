@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Staff profiles | Sarang Adonai Rosete Foundation</title>
+  <link rel="icon" href="../images/badge.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--navy:#0a1931;--gold:#ffc947;--paper:#f5f7fb;--ink:#16233b;--muted:#6b7280;--line:#e5e9f0;--red:#a61b36;--green:#146c43}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 Inter,system-ui,sans-serif}
+    a{color:inherit;text-decoration:none}.container{width:min(820px,calc(100% - 36px));margin:auto}
+    header{background:#fff;border-bottom:1px solid var(--line)}.bar{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .brand{display:flex;align-items:center;gap:11px}.brand img{width:48px;height:48px;object-fit:contain}.brand strong{font:800 .98rem Poppins,sans-serif;color:var(--navy)}.brand span{display:block;color:#b38312;font-size:.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+    .navlinks{display:flex;gap:18px;flex-wrap:wrap;font-size:.92rem}
+    main{padding:42px 0 70px}.panel{background:#fff;border:1px solid var(--line);border-radius:20px;padding:clamp(23px,5vw,42px);box-shadow:0 18px 50px #0a19310d}
+    .eyebrow{color:#b38312;font-size:.73rem;font-weight:800;letter-spacing:2px;text-transform:uppercase}h1,h2{color:var(--navy);font-family:Poppins,sans-serif}h1{font-size:clamp(1.7rem,4vw,2.3rem);line-height:1.2;margin:9px 0 8px}.intro{color:var(--muted);margin:0 0 26px}
+    label{display:block;color:var(--navy);font-size:.9rem;font-weight:700;margin:18px 0 7px}
+    input,textarea{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px 13px;background:#fff;color:var(--ink);font:inherit}
+    input:focus,textarea:focus{outline:3px solid #ffc94766;border-color:#c49524}input[type=file]{padding:10px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:15px}.hint{font-size:.8rem;color:var(--muted);margin:6px 0 0}
+    button{border:0;border-radius:999px;padding:11px 19px;background:var(--gold);color:var(--navy);font:700 .9rem Poppins,sans-serif;cursor:pointer}
+    button:disabled{opacity:.6;cursor:wait}.primary{margin-top:22px;padding:13px 23px}.secondary{background:#eef2f7}.danger{background:#fff0f2;color:var(--red)}
+    .message{display:none;margin-top:16px;padding:12px 15px;border-radius:10px;font-size:.9rem}.message.visible{display:block}.message.error{background:#fff0f2;color:var(--red)}.message.success{background:#edf9f1;color:var(--green)}
+    .preview{display:none;align-items:center;gap:12px;margin-top:10px;color:var(--muted);font-size:.84rem}.preview.visible{display:flex}.preview img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
+    .list-section{margin-top:34px}.list-section h2{font-size:1.35rem;margin:0 0 14px}.staff-list{display:grid;gap:12px}.staff-card{display:grid;grid-template-columns:76px 1fr auto;align-items:center;gap:16px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff}
+    .staff-card img{width:76px;height:76px;object-fit:cover;border-radius:50%;background:#eef2f7}.staff-card h3{margin:0;color:var(--navy);font:700 1rem Poppins,sans-serif}.staff-card .role{color:#a87b10;font-size:.76rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin:2px 0 5px}.staff-card p{margin:0;color:var(--muted);font-size:.86rem;white-space:pre-wrap}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.actions button{padding:9px 14px}
+    #list-status{color:var(--muted);margin:12px 0}.footer-row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:20px 0;color:var(--muted);font-size:.84rem}
+    @media(max-width:620px){.row{grid-template-columns:1fr}.bar{min-height:68px;align-items:flex-start;padding:12px 0}.brand img{width:42px;height:42px}.brand strong{font-size:.87rem}.navlinks{flex-direction:column;gap:4px;text-align:right}.staff-card{grid-template-columns:58px 1fr}.staff-card img{width:58px;height:58px}.actions{grid-column:1/-1;justify-content:flex-start}}
+  </style>
+</head>
+<body>
+  <header><div class="container bar">
+    <a class="brand" href="../index.html"><img src="../images/badge.jpg" alt=""><div><strong>Sarang Adonai Rosete</strong><span>Foundation Uganda</span></div></a>
+    <nav class="navlinks" aria-label="Staff tools"><a href="upload.html">Gallery photo upload</a><a href="../index.html#our-team">View team page</a></nav>
+  </div></header>
+  <main class="container">
+    <section class="panel">
+      <span class="eyebrow">Staff access</span>
+      <h1>Manage staff profiles</h1>
+      <p class="intro">Add team members, update their details, or remove profiles from the foundation website.</p>
+
+      <form id="staff-form">
+        <label for="password">Admin password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <div class="row">
+          <div>
+            <label for="name">Staff name</label>
+            <input id="name" name="name" maxlength="120" autocomplete="name" required>
+          </div>
+          <div>
+            <label for="role">Role</label>
+            <input id="role" name="role" maxlength="120" placeholder="Director, Teacher, Caregiver" required>
+          </div>
+        </div>
+        <label for="photo">Photo file</label>
+        <input id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif">
+        <p class="hint" id="photo-hint">JPEG, PNG, WebP, GIF, or AVIF. Maximum 25 MB. Choose a photo when adding a profile; during edits, leave it empty to keep the current photo.</p>
+        <div class="preview" id="photo-preview"><img id="preview-image" alt="Staff photo preview"><span id="preview-label"></span></div>
+        <label for="bio">Bio / Description <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+        <textarea id="bio" name="bio" rows="4" maxlength="2000" placeholder="Share a short description of this person's work"></textarea>
+        <button class="primary" id="save-button" type="submit">Add staff member</button>
+        <button class="secondary" id="cancel-button" type="button" hidden>Cancel edit</button>
+        <div id="form-message" class="message" role="status" aria-live="polite"></div>
+      </form>
+
+      <section class="list-section" aria-labelledby="staff-list-title">
+        <h2 id="staff-list-title">Existing staff</h2>
+        <p id="list-status" role="status" aria-live="polite">Loading staff profiles…</p>
+        <div class="staff-list" id="staff-list"></div>
+      </section>
+    </section>
+    <footer><div class="footer-row"><span>Sarang Adonai Rosete Foundation Uganda</span><a href="../index.html">Return to website</a></div></footer>
+  </main>
+  <script>
+    const API_BASE = "https://sarangadonai-api.sarangadonairosete.workers.dev";
+    const form = document.getElementById("staff-form");
+    const passwordInput = document.getElementById("password");
+    const nameInput = document.getElementById("name");
+    const roleInput = document.getElementById("role");
+    const photoInput = document.getElementById("photo");
+    const bioInput = document.getElementById("bio");
+    const saveButton = document.getElementById("save-button");
+    const cancelButton = document.getElementById("cancel-button");
+    const formMessage = document.getElementById("form-message");
+    const listStatus = document.getElementById("list-status");
+    const staffList = document.getElementById("staff-list");
+    const photoPreview = document.getElementById("photo-preview");
+    const previewImage = document.getElementById("preview-image");
+    const previewLabel = document.getElementById("preview-label");
+    let editingId = null;
+    let previewObjectUrl = null;
+
+    function showFormMessage(text, type) {
+      formMessage.className = `message visible ${type}`;
+      formMessage.textContent = text;
+    }
+
+    function showPreview(url, label) {
+      if (!url) {
+        photoPreview.classList.remove("visible");
+        previewImage.removeAttribute("src");
+        return;
+      }
+      previewImage.src = url;
+      previewImage.alt = label || "Staff photo preview";
+      previewLabel.textContent = label || "Photo selected";
+      photoPreview.classList.add("visible");
+    }
+
+    function resetPreviewUrl() {
+      if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
+      previewObjectUrl = null;
+    }
+
+    function cancelEdit() {
+      editingId = null;
+      form.reset();
+      photoInput.required = true;
+      saveButton.textContent = "Add staff member";
+      cancelButton.hidden = true;
+      formMessage.className = "message";
+      resetPreviewUrl();
+      showPreview("", "");
+    }
+
+    function editStaff(person) {
+      editingId = person.id;
+      nameInput.value = person.name || "";
+      roleInput.value = person.role || "";
+      bioInput.value = person.bio || "";
+      photoInput.value = "";
+      photoInput.required = false;
+      saveButton.textContent = "Save changes";
+      cancelButton.hidden = false;
+      formMessage.className = "message";
+      resetPreviewUrl();
+      showPreview(person.photo_url, `${person.name || "Staff member"} — current photo`);
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+      nameInput.focus({ preventScroll: true });
+    }
+
+    function makeStaffCard(person) {
+      const card = document.createElement("article");
+      card.className = "staff-card";
+      const photo = document.createElement("img");
+      photo.src = person.photo_url || "";
+      photo.alt = person.name ? `${person.name} portrait` : "Staff portrait";
+      photo.loading = "lazy";
+      photo.onerror = () => { photo.hidden = true; };
+      const details = document.createElement("div");
+      const name = document.createElement("h3");
+      name.textContent = person.name || "";
+      const role = document.createElement("div");
+      role.className = "role";
+      role.textContent = person.role || "";
+      const bio = document.createElement("p");
+      bio.textContent = person.bio || "";
+      details.append(name, role, bio);
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+      const editButton = document.createElement("button");
+      editButton.className = "secondary";
+      editButton.type = "button";
+      editButton.textContent = "Edit";
+      editButton.addEventListener("click", () => editStaff(person));
+      const deleteButton = document.createElement("button");
+      deleteButton.className = "danger";
+      deleteButton.type = "button";
+      deleteButton.textContent = "Delete";
+      deleteButton.addEventListener("click", () => deleteStaff(person));
+      actions.append(editButton, deleteButton);
+      card.append(photo, details, actions);
+      return card;
+    }
+
+    async function loadStaff() {
+      listStatus.textContent = "Loading staff profiles…";
+      try {
+        const response = await fetch(`${API_BASE}/api/staff`, {
+          headers: { Accept: "application/json" }
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Could not load staff profiles.");
+        const people = Array.isArray(data.staff) ? data.staff : [];
+        staffList.replaceChildren(...people.map(makeStaffCard));
+        listStatus.textContent = people.length ? "" : "No staff profiles have been added yet.";
+      } catch (error) {
+        listStatus.textContent = error.message || "Staff profiles could not be loaded.";
+      }
+    }
+
+    async function deleteStaff(person) {
+      if (!confirm(`Delete ${person.name || "this staff profile"} and its photo?`)) return;
+      const password = passwordInput.value;
+      if (!password) {
+        showFormMessage("Enter the admin password before deleting a profile.", "error");
+        passwordInput.focus();
+        return;
+      }
+      try {
+        const response = await fetch(`${API_BASE}/api/staff/${encodeURIComponent(person.id)}`, {
+          method: "DELETE",
+          headers: { Accept: "application/json", "X-Admin-Password": password }
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Could not delete this profile.");
+        if (editingId === person.id) cancelEdit();
+        showFormMessage("Staff profile deleted.", "success");
+        await loadStaff();
+      } catch (error) {
+        showFormMessage(error.message || "Could not delete this profile.", "error");
+      }
+    }
+
+    photoInput.addEventListener("change", () => {
+      const file = photoInput.files[0];
+      resetPreviewUrl();
+      if (!file) {
+        if (!editingId) showPreview("", "");
+        return;
+      }
+      previewObjectUrl = URL.createObjectURL(file);
+      showPreview(previewObjectUrl, file.name);
+    });
+
+    cancelButton.addEventListener("click", cancelEdit);
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      formMessage.className = "message";
+      const file = photoInput.files[0];
+      if (file && file.size > 25 * 1024 * 1024) {
+        showFormMessage("Choose an image smaller than 25 MB.", "error");
+        return;
+      }
+
+      const payload = new FormData();
+      payload.append("name", nameInput.value);
+      payload.append("role", roleInput.value);
+      payload.append("bio", bioInput.value);
+      if (file) payload.append("photo", file, file.name);
+
+      saveButton.disabled = true;
+      try {
+        const method = editingId ? "PUT" : "POST";
+        const endpoint = editingId
+          ? `${API_BASE}/api/staff/${encodeURIComponent(editingId)}`
+          : `${API_BASE}/api/staff`;
+        const response = await fetch(endpoint, {
+          method,
+          headers: {
+            Accept: "application/json",
+            "X-Admin-Password": passwordInput.value
+          },
+          body: payload
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Could not save this staff profile.");
+        const wasEditing = Boolean(editingId);
+        const password = passwordInput.value;
+        cancelEdit();
+        passwordInput.value = password;
+        showFormMessage(wasEditing ? "Staff profile updated." : "Staff profile added.", "success");
+        await loadStaff();
+      } catch (error) {
+        showFormMessage(error.message || "Could not save this staff profile.", "error");
+      } finally {
+        saveButton.disabled = false;
+      }
+    });
+
+    loadStaff();
+  </script>
+</body>
+</html>

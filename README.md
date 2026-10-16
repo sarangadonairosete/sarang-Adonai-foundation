@@ -1,11 +1,12 @@
 # Sarang Adonai Rosete Foundation Uganda
 
-Static foundation website with a Cloudflare Worker-backed photo gallery.
+Static foundation website with a Cloudflare Worker-backed photo gallery and staff directory.
 
 ## Gallery backend
 
 - Public gallery: `gallery.html`
-- Staff upload page: `admin/upload.html`
+- Gallery photo upload page: `admin/upload.html`
+- Staff profile manager: `admin/staff.html`
 - Worker source and Wrangler configuration: `worker/`
 - R2 bucket: `sarangadonai-media`
 - D1 database: `sarangadonai-db`
@@ -29,5 +30,11 @@ If the Worker code changes after the secret is added, deploy it again with `npm 
 - `GET /gallery` — public media grouped by date
 - `POST /upload` — authenticated multipart upload (`X-Admin-Password`)
 - `DELETE /media/:id` — authenticated removal (`X-Admin-Password`)
+- `GET /api/staff` — public staff directory
+- `POST /api/staff` — authenticated staff profile creation and photo upload (`X-Admin-Password`)
+- `PUT /api/staff/:id` — authenticated staff profile update; photo replacement is optional (`X-Admin-Password`)
+- `DELETE /api/staff/:id` — authenticated staff profile and photo removal (`X-Admin-Password`)
 
-Uploads accept JPEG, PNG, WebP, GIF, or AVIF images up to 25 MB. R2 public access is enabled for media delivery; uploads and deletes are protected by the Worker password.
+Apply the database schema with `npx wrangler d1 execute sarangadonai-db --remote --file=worker/schema.sql --config=worker/wrangler.toml`. It creates missing tables without changing existing data.
+
+Gallery and staff photo uploads accept JPEG, PNG, WebP, GIF, or AVIF images up to 25 MB. R2 public access is enabled for image delivery; staff and gallery writes/deletes require the Worker password.

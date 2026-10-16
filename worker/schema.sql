@@ -9,3 +9,12 @@ CREATE TABLE IF NOT EXISTS media (
   caption TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS staff (
+  id TEXT PRIMARY KEY,
+  name TEXT,
+  role TEXT,
+  photo_url TEXT,
+  bio TEXT,
+  created_at DATETIME
+);

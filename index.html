@@ -555,6 +555,8 @@ button,input,textarea,select{font:inherit;color:inherit}
   box-shadow:0 8px 22px rgba(255,201,71,.4);
   border:3px solid #fff;
 }
+.avatar.staff-photo{display:block;object-fit:cover;background:var(--line);padding:0}
+.team-status{text-align:center;color:var(--muted);margin:18px 0 0}
 .team-card h4{font-size:1.06rem;margin-bottom:5px}
 .team-role{
   font-size:.72rem;font-weight:700;letter-spacing:1.6px;
@@ -1751,75 +1753,18 @@ button,input,textarea,select{font:inherit;color:inherit}
     <div class="container" style="text-align:center">
       <span class="eyebrow">Our Team</span>
       <h2 style="font-size:clamp(1.8rem,4vw,2.7rem);margin-bottom:14px">
-        Our Leadership — 7 People Building Mama Rose's Dream
+        Meet the People Behind Our Work
       </h2>
       <p style="max-width:720px;margin:0 auto;color:#a9b8cf">
-        Seven people. One vision. A foundation held together by faith, family and service.
+        Get to know the people serving our school and community.
       </p>
     </div>
   </div>
 
   <div class="section bg-white">
     <div class="container">
-      <div class="team-grid">
-
-        <div class="team-card fade-up d1">
-          <div class="avatar">F</div>
-          <h4>YOUR NAME</h4>
-          <div class="team-role">Founder &amp; Executive Director</div>
-          <p>CEO of the Foundation, Rosete Junior School and the ApShule Project. Last-born twin, athlete and teacher.</p>
-          <a href="tel:+256731038702" class="team-contact">📞 +256 731 038 702</a>
-        </div>
-
-        <div class="team-card fade-up d2">
-          <div class="avatar">C</div>
-          <h4>WIFE NAME</h4>
-          <div class="team-role">Co-Founder &amp; Administrator</div>
-          <p>Oversees administration, child welfare and safeguarding across Rosete and the Foundation.</p>
-          <a href="tel:+256731038702" class="team-contact">📞 +256 731 038 702</a>
-        </div>
-
-        <div class="team-card fade-up d3">
-          <div class="avatar">M</div>
-          <h4>Mama Rose Nalongo</h4>
-          <div class="team-role">Honorary Patron</div>
-          <p>The inspiration behind it all. The mother who dug the farm in Kiboga. ROSE + TE.</p>
-          <a href="#our-story" class="team-contact" data-nav>📖 Read Her Story</a>
-        </div>
-
-        <div class="team-card fade-up d1">
-          <div class="avatar">B</div>
-          <h4>CHAIR NAME</h4>
-          <div class="team-role">Board Chairperson</div>
-          <p>Provides governance, oversight and accountability for the Foundation's board.</p>
-          <a href="tel:+256731038702" class="team-contact">📞 +256 731 038 702</a>
-        </div>
-
-        <div class="team-card fade-up d2">
-          <div class="avatar">T</div>
-          <h4>TREASURER NAME</h4>
-          <div class="team-role">Treasurer &amp; Finance Officer</div>
-          <p>Manages all finances including MTN, Airtel and PayPal contributions and reporting.</p>
-          <a href="mailto:sarangadonairosete@gmail.com" class="team-contact">✉️ sarangadonairosete@gmail.com</a>
-        </div>
-
-        <div class="team-card fade-up d3">
-          <div class="avatar">H</div>
-          <h4>HEADTEACHER NAME</h4>
-          <div class="team-role">Headteacher, Rosete Junior School</div>
-          <p>Leads teaching and learning at Rosete Junior School, Kayunga-Wakiso.</p>
-          <a href="tel:+256731038702" class="team-contact">📞 +256 731 038 702</a>
-        </div>
-
-        <div class="team-card fade-up d1">
-          <div class="avatar">A</div>
-          <h4>YOUTH NAME</h4>
-          <div class="team-role">ApShule Tech Lead</div>
-          <p>Records and uploads all lessons to <a href="https://appshule.com" target="_blank" rel="noopener" style="color:#e0a92c;font-weight:700">appshule.com</a> and manages the digital classroom.</p>
-          <a href="https://appshule.com" target="_blank" rel="noopener" class="team-contact">🌐 appshule.com</a>
-        </div>
-
-      </div>
+      <div class="team-grid" id="staffGrid"></div>
+      <p class="team-status" id="staffStatus" role="status" aria-live="polite">Loading staff profiles…</p>
     </div>
   </div>
 
@@ -2485,6 +2430,69 @@ button,input,textarea,select{font:inherit;color:inherit}
     })
     .catch(function () {
       status.textContent = 'The gallery is temporarily unavailable. Visit the full gallery page to try again.';
+    });
+})();
+</script>
+
+<script>
+(function () {
+  var grid = document.getElementById('staffGrid');
+  var status = document.getElementById('staffStatus');
+  if (!grid || !status) return;
+
+  fetch('https://sarangadonai-api.sarangadonairosete.workers.dev/api/staff', {
+    headers: { Accept: 'application/json' }
+  })
+    .then(function (response) {
+      if (!response.ok) throw new Error('Staff request failed');
+      return response.json();
+    })
+    .then(function (data) {
+      var staff = Array.isArray(data.staff) ? data.staff : [];
+      grid.replaceChildren();
+      staff.forEach(function (person) {
+        var card = document.createElement('article');
+        card.className = 'team-card';
+
+        if (person.photo_url) {
+          var photo = document.createElement('img');
+          photo.className = 'avatar staff-photo';
+          photo.src = person.photo_url;
+          photo.alt = person.name ? person.name + ' portrait' : 'Staff portrait';
+          photo.loading = 'lazy';
+          photo.decoding = 'async';
+          card.appendChild(photo);
+        } else {
+          var initials = document.createElement('div');
+          initials.className = 'avatar';
+          initials.textContent = String(person.name || '?')
+            .trim().split(/\s+/).slice(0, 2).map(function (part) {
+              return part.charAt(0).toUpperCase();
+            }).join('');
+          card.appendChild(initials);
+        }
+
+        var name = document.createElement('h4');
+        name.textContent = person.name || '';
+        var role = document.createElement('div');
+        role.className = 'team-role';
+        role.textContent = person.role || '';
+        card.append(name, role);
+
+        if (person.bio) {
+          var bio = document.createElement('p');
+          bio.textContent = person.bio;
+          card.appendChild(bio);
+        }
+        grid.appendChild(card);
+      });
+
+      status.textContent = staff.length
+        ? ''
+        : 'Staff profiles will appear here as they are added.';
+    })
+    .catch(function () {
+      status.textContent = 'Staff profiles are temporarily unavailable.';
     });
 })();
 </script>
