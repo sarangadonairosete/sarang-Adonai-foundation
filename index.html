@@ -494,6 +494,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 }
 .video-modal-inner{width:100%;max-width:920px;position:relative}
 .video-modal video{width:100%;border-radius:var(--radius);display:block;background:#000}
+.video-modal iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:var(--radius);display:block;background:#000}
 .video-close{
   position:absolute;top:-52px;right:0;
   background:var(--gold);color:var(--navy);border:none;
@@ -2141,6 +2142,7 @@ button,input,textarea,select{font:inherit;color:inherit}
         <p>Kayunga-Wakiso, Uganda</p>
         <p><a href="tel:+256731038702">+256 731 038 702</a></p>
         <p><a href="mailto:sarangadonairosete@gmail.com" style="word-break:break-all">sarangadonairosete@gmail.com</a></p>
+        <p><a href="https://www.youtube.com/@sarangadonairosetefoundation" target="_blank" rel="noopener noreferrer">YouTube: @sarangadonairosetefoundation</a></p>
         <p><a href="https://appshule.com" target="_blank" rel="noopener">appshule.com</a></p>
         <p>Mon – Sat, 8:00am – 5:00pm</p>
       </div>
@@ -2358,10 +2360,7 @@ button,input,textarea,select{font:inherit;color:inherit}
     modal.innerHTML =
       '<div class="video-modal-inner">' +
         '<button class="video-close" aria-label="Close video">&times;</button>' +
-        '<video controls autoplay playsinline>' +
-          '<source src="assets/video-placeholder.mp4" type="video/mp4">' +
-          'Your browser does not support the video tag.' +
-        '</video>' +
+        '<iframe src="https://www.youtube.com/embed/l8n-W-Rutds?rel=0&modestbranding=1" title="Sarang Adonai Rosete Foundation video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>' +
       '</div>';
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
