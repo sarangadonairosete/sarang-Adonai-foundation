@@ -1,0 +1,68 @@
+In repo sarangadonairosiete/sarang-Adonai-foundation, Worker sarangadonai-api.sarangadonairosiete.workers.dev, D1 sarangadonai-db, R2 sarangadonai-media, Account ID 11ddfb70aee484e62f0ad6d5d4e4d6d5:
+
+Build COMPLETE Sarang Adonai Rosete Foundation Management System - FINAL VERSION.
+
+We already have Gallery live. Now build/verify ALL modules:
+
+=== 1. D1 DATABASE - Ensure 5 tables exist ===
+- media (id TEXT PK, public_url TEXT, filename TEXT, date TEXT, year TEXT, month TEXT, day TEXT, caption TEXT, created_at)
+- staff (id TEXT PK, name TEXT, role TEXT, photo_url TEXT, bio TEXT, created_at)
+- events (id TEXT PK, title TEXT, event_type TEXT, event_date TEXT, location TEXT, description TEXT, image_url TEXT, status TEXT, created_at)
+- students (id TEXT PK, name TEXT, class TEXT, age INT, photo_url TEXT, performance TEXT, term TEXT, year TEXT, subjects TEXT JSON {math, english, science...}, average_score REAL, story TEXT, created_at)
+- families (id TEXT PK, family_name TEXT, village TEXT, district TEXT, members_count INT, need_type TEXT, story TEXT, photo_url TEXT, support_status TEXT, contact_info TEXT, created_at)
+
+event_type: birthday, graduation, feeding_program, outreach, church_service, sports, education, health_camp, other
+need_type: orphaned_children, widowed, elderly, disabled, extreme_poverty, other
+support_status: urgent_need, partially_supported, fully_supported
+
+=== 2. WORKER API - Add all routes with ADMIN_PASSWORD auth ===
+GET/POST/PUT/DELETE for:
+- /api/media
+- /api/staff
+- /api/events?status=upcoming|past&type=birthday etc
+- /api/students?class=P5&year=2026&top=10
+- /api/families?village=Buwama&status=urgent_need
+
+All POST/PUT/DELETE check ADMIN_PASSWORD header. Upload images to R2: /gallery/, /staff/, /events/, /students/, /families/
+
+=== 3. ADMIN PAGES - Same clean style as screenshot (Admin password top) ===
+
+a) admin/upload.html (already exists - verify working)
+b) admin/staff.html (already exists - verify)
+c) admin/events.html (verify)
+d) admin/students.html NEW:
+   Fields: Student Name, Class (P1-S6), Age, Photo (Choose file), Term (Term1/2/3), Year, Subjects & Scores (Math, English, Science, SST) with inputs, Average auto-calc, Performance remark (Excellent, Good, Needs Support), Story/Background (textarea)
+   List below: Table of students with photo, name, class, average, edit/delete, filter by class and year
+
+e) admin/families.html NEW:
+   Fields: Family Name, Village (deep village name), District, Members Count, Need Type dropdown, Photo (Choose file), Story/Need Description (textarea), Support Status dropdown (Urgent Need/Partially Supported/Fully Supported), Contact/Location info
+   List below: Cards of families with photo, village, need type, status badge, edit/delete, filter by village and status
+
+=== 4. FRONTEND PUBLIC PAGES ===
+
+- gallery.html (exists - verify shows grouped by year/month/day)
+- events.html / activities.html: Upcoming Events (top, countdown) + Past Activities filter by type (Birthday, Graduation etc)
+- students.html NEW: Our Students Performance page:
+    * Top performers section (average >=80)
+    * Filter by Class, Year
+    * Each card: photo, name, class, scores, performance, story
+    * Stats: total students, average performance
+- families.html NEW: Needy Families Deep in Villages page:
+    * Map/filter by village
+    * Urgent Needs first (red badge)
+    * Each family card: photo, family name, village, members count, need type, story, support status, Donate/Support button linking to donation page
+    * Counter: Families supported vs urgent
+
+- index.html home: Update to include previews:
+    * Upcoming Events (3 cards)
+    * Top Students (3 cards)
+    * Urgent Families (3 cards)
+    * Gallery latest
+
+=== 5. DEPLOY ===
+- Deploy Worker, run D1 migrations if tables not exist
+- Commit all admin/*.html and new public pages
+- Push to main, ensure GitHub Pages builds
+- Give me final URLs list
+
+Use same ADMIN_PASSWORD from Secrets. Same R2 bucket sarangadonai-media with public access and CORS https://sarangadonairosiete.github.io
