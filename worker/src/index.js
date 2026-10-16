@@ -1,3 +1,5 @@
+import { handleManagementRequest } from "./management.js";
+
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set([
   "image/jpeg",
@@ -125,7 +127,7 @@ async function uploadMedia(request, env) {
   const [year, month, day] = date.split("-");
   const id = crypto.randomUUID();
   const filename = safeFilename(file.name);
-  const key = `${year}/${month}/${day}/${id}-${filename}`;
+  const key = `gallery/${id}-${crypto.randomUUID()}-${filename}`;
   const publicUrl = `${env.R2_PUBLIC_BASE_URL.replace(/\/+$/, "")}/${key}`;
 
   try {
@@ -186,7 +188,9 @@ async function deleteMedia(request, env, id) {
   }
 
   const key = decodeURIComponent(objectUrl.pathname.replace(/^\/+/, ""));
-  if (!/^\d{4}\/\d{2}\/\d{2}\/[0-9a-f-]{36}-[A-Za-z0-9._-]+$/i.test(key)) {
+  const legacyGalleryKey = /^\d{4}\/\d{2}\/\d{2}\/[0-9a-f-]{36}-[A-Za-z0-9._-]+$/i.test(key);
+  const currentGalleryKey = /^gallery\/[0-9a-f-]{36}-[0-9a-f-]{36}-[A-Za-z0-9._-]+$/i.test(key);
+  if (!legacyGalleryKey && !currentGalleryKey) {
     return json(request, env, { error: "Stored object path is invalid." }, 500);
   }
 
@@ -198,6 +202,79 @@ async function deleteMedia(request, env, id) {
   }
 
   return json(request, env, { deleted: id });
+}
+
+async function updateMedia(request, env, id) {
+  const password = request.headers.get("X-Admin-Password") || "";
+  if (!(await passwordMatches(password, env.ADMIN_PASSWORD))) {
+    return json(request, env, { error: "Invalid admin password." }, 401);
+  }
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return json(request, env, { error: "Invalid media ID." }, 400);
+  const existing = await env.DB.prepare(
+    "SELECT id, public_url, filename, date, year, month, day, caption, created_at FROM media WHERE id = ?",
+  ).bind(id).first();
+  if (!existing) return json(request, env, { error: "Media item not found." }, 404);
+
+  let form;
+  try {
+    form = await request.formData();
+  } catch {
+    return json(request, env, { error: "Submit the update as multipart form data." }, 400);
+  }
+  const date = String(form.get("date") || existing.date);
+  const caption = String(form.get("caption") ?? existing.caption ?? "").trim().slice(0, 500);
+  if (!validDate(date)) return json(request, env, { error: "Choose a valid date." }, 400);
+
+  const file = form.get("file");
+  const hasFile = file instanceof File && file.size > 0;
+  if (hasFile && !ALLOWED_IMAGE_TYPES.has(file.type)) {
+    return json(request, env, { error: "Use a JPEG, PNG, WebP, GIF, or AVIF image." }, 415);
+  }
+  if (hasFile && file.size > MAX_UPLOAD_BYTES) {
+    return json(request, env, { error: "Images must be smaller than 25 MB." }, 413);
+  }
+
+  const [year, month, day] = date.split("-");
+  let newKey = null;
+  let publicUrl = existing.public_url;
+  let filename = existing.filename;
+  try {
+    if (hasFile) {
+      filename = file.name.slice(0, 255);
+      newKey = `gallery/${id}-${crypto.randomUUID()}-${safeFilename(file.name)}`;
+      publicUrl = `${env.R2_PUBLIC_BASE_URL.replace(/\/+$/, "")}/${newKey}`;
+      await env.MEDIA.put(newKey, file.stream(), {
+        httpMetadata: {
+          contentType: file.type,
+          cacheControl: "public, max-age=31536000, immutable",
+        },
+        customMetadata: { date, caption },
+      });
+    }
+    await env.DB.prepare(
+      "UPDATE media SET public_url = ?, filename = ?, date = ?, year = ?, month = ?, day = ?, caption = ? WHERE id = ?",
+    ).bind(publicUrl, filename, date, year, month, day, caption, id).run();
+  } catch {
+    if (newKey) await env.MEDIA.delete(newKey).catch(() => {});
+    return json(request, env, { error: "The media item could not be updated." }, 500);
+  }
+
+  if (newKey) {
+    try {
+      const oldUrl = new URL(existing.public_url);
+      const baseUrl = new URL(env.R2_PUBLIC_BASE_URL);
+      const oldKey = decodeURIComponent(oldUrl.pathname.replace(/^\/+/, ""));
+      if (oldUrl.origin === baseUrl.origin) {
+        await env.MEDIA.delete(oldKey).catch(() => {});
+      }
+    } catch {}
+  }
+  return json(request, env, {
+    item: imageObject(request, env, {
+      id, public_url: publicUrl, filename, date, year, month, day, caption,
+      created_at: existing.created_at,
+    }),
+  });
 }
 
 function staffObjectKey(publicUrl, env) {
@@ -437,6 +514,15 @@ export default {
       if (request.method === "GET" && path === "/gallery") {
         return await getGallery(request, env);
       }
+      if (request.method === "GET" && path === "/api/media") {
+        const result = await env.DB.prepare(
+          "SELECT id, public_url, filename, date, year, month, day, caption, created_at FROM media ORDER BY date DESC, created_at DESC",
+        ).all();
+        return json(request, env, { media: (result.results || []).map(row => imageObject(request, env, row)) });
+      }
+      if (request.method === "POST" && path === "/api/media") {
+        return await uploadMedia(request, env);
+      }
       if (request.method === "GET" && path === "/api/staff") {
         return await getStaff(request, env);
       }
@@ -454,10 +540,15 @@ export default {
         if (request.method === "DELETE") return await deleteStaff(request, env, id);
       }
 
-      const deleteMatch = path.match(/^\/media\/([^/]+)$/);
-      if (request.method === "DELETE" && deleteMatch) {
-        return await deleteMedia(request, env, decodeURIComponent(deleteMatch[1]));
+      const mediaMatch = path.match(/^\/(?:api\/)?media\/([^/]+)$/);
+      if (mediaMatch) {
+        const id = decodeURIComponent(mediaMatch[1]);
+        if (request.method === "PUT") return await updateMedia(request, env, id);
+        if (request.method === "DELETE") return await deleteMedia(request, env, id);
       }
+
+      const managementResponse = await handleManagementRequest(request, env, path, url);
+      if (managementResponse) return managementResponse;
 
       return json(request, env, { error: "Route not found." }, 404);
     } catch {
