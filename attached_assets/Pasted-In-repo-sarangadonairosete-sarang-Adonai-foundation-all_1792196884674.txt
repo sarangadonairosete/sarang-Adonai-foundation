@@ -1,0 +1,36 @@
+In repo sarangadonairosete/sarang-Adonai-foundation, all public pages gallery.html, index.html, students.html, families.html:
+
+ADD AUTO TRANSCRIBE & TRANSLATION TO ENGLISH:
+
+1. YouTube embeds: Change all iframe src from:
+   https://www.youtube.com/embed/{ID}
+   To:
+   https://www.youtube.com/embed/{ID}?cc_load_policy=1&cc_lang_pref=en&hl=en&modestbranding=1&rel=0
+   This FORCES English captions ON by default when someone plays.
+
+2. Add caption controls UI above each video:
+   <div class="video-controls">
+     <button onclick="setCaption('lg')">Luganda</button>
+     <button onclick="setCaption('en')" class="active">🇬🇧 English (Auto Translate)</button>
+     <button onclick="setCaption('off')">No Subs</button>
+   </div>
+   JS function setCaption(lang) that postMessage to iframe to change captions.
+
+3. Add info text under videos:
+   "🌍 Auto-Translated: This video is in Luganda. English subtitles auto-generated. Click CC for other languages."
+
+4. Worker API: Add new endpoint GET /api/transcript/:youtube_id
+   - Try fetch YouTube timedtext: https://www.youtube.com/api/timedtext?lang=en&v={id} and https://www.youtube.com/api/timedtext?lang=lg&v={id}
+   - If available, return transcript
+   - Also add fallback using Cloudflare AI binding if available: Use @cf/openai/whisper for transcribe and @cf/meta/m2m100-1.2b for lg->en translation (free tier)
+   - Cache result in D1 table video_transcripts (youtube_id, lang, text, translated_en)
+
+5. Public pages: Add button "📄 Read Full English Transcript" below each video that calls /api/transcript/{id} and shows translated English text - good for Google SEO and donors who can't watch video (low data).
+
+6. Admin: In admin/upload.html, after YouTube link field, add checkbox "Auto-transcribe to English" checked by default, and show status "Transcript: Pending / Ready / Translated"
+
+7. Documentation: Add note in admin that YouTube will auto-generate Luganda captions within 2-12 hours after upload, and English auto-translate appears after that. No manual work needed.
+
+Deploy Worker + Pages.
+
+Test with l8n-W-Rutds: Embed should show CC on by default, and transcript endpoint should return captions if YouTube generated them.
