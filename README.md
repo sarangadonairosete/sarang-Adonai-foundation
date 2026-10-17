@@ -2,6 +2,20 @@
 
 Static foundation website with a Cloudflare Worker-backed gallery, staff directory, events, student highlights, and family support records.
 
+## Run the website
+
+In Replit, click **Run** to start the static website and open it in Preview. The
+configured workflow serves this project on port 5000, including `index.html`,
+`gallery.html`, and the `images/` directory.
+
+To run it locally with Python 3:
+
+```sh
+python3 -m http.server 5000
+```
+
+Then open `http://localhost:5000`.
+
 ## Gallery backend
 
 - Public gallery: `gallery.html`
