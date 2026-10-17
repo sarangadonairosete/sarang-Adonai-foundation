@@ -721,6 +721,11 @@ async function deleteStaff(request, env, id) {
 }
 
 export default {
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(syncYoutube(env).catch(error => {
+      console.error("[youtube-sync] scheduled run failed", String(error));
+    }));
+  },
   async fetch(request, env) {
     const origin = request.headers.get("Origin");
     if (origin && origin !== env.ALLOWED_ORIGIN) {
@@ -743,6 +748,9 @@ export default {
       }
       if (request.method === "GET" && path === "/gallery") {
         return await getGallery(request, env);
+      }
+      if (request.method === "GET" && path === "/api/sync-youtube") {
+        return await syncYoutubeRoute(request, env);
       }
       if (request.method === "GET" && path === "/api/videos") {
         return await getLatestVideos(request, env, url);

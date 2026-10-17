@@ -16,3 +16,6 @@ bucket_name = "sarangadonai-media"
 binding = "DB"
 database_name = "sarangadonai-db"
 database_id = "d2822682-1416-4171-b3b6-890545edc0e8"
+
+[triggers]
+crons = ["0 * * * *"]

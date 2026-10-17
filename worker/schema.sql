@@ -11,7 +11,19 @@ CREATE TABLE IF NOT EXISTS media (
   youtube_url TEXT,
   youtube_id TEXT,
   visibility TEXT DEFAULT 'unlisted',
-  media_type TEXT DEFAULT 'youtube'
+  media_type TEXT DEFAULT 'youtube',
+  status TEXT DEFAULT 'approved'
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS media_youtube_id_unique
+  ON media(youtube_id)
+  WHERE youtube_id IS NOT NULL AND TRIM(youtube_id) <> '';
+
+CREATE TABLE IF NOT EXISTS youtube_sync_state (
+  id TEXT PRIMARY KEY,
+  channel_id TEXT,
+  last_synced_at DATETIME,
+  synced INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS staff (
