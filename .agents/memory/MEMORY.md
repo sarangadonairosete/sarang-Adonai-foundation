@@ -1,2 +1,3 @@
 - [Public consent policy](public-consent.md) — Student and family names, photos, and stories require both consent and admin approval before public display.
 - [YouTube sync and captions](youtube-sync.md) — Discover the channel from its handle; Whisper requires audio bytes, not only a YouTube video ID.
+- [Cloudflare Worker smoke tests](cloudflare-worker-testing.md) — Use curl for production Worker tests here; Python urllib's default user agent was blocked by Cloudflare.
