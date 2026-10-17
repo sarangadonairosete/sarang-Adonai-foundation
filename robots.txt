@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://sarangadonairosete.github.io/sarang-Adonai-foundation/sitemap.xml
