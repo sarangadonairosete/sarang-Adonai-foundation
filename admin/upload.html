@@ -24,7 +24,8 @@
     button{margin-top:24px;border:0;border-radius:999px;padding:13px 23px;background:var(--gold);color:var(--navy);font:700 .95rem Poppins,sans-serif;cursor:pointer}
     button:disabled{opacity:.6;cursor:wait}.progress-wrap{display:none;margin-top:20px}.progress-wrap.visible{display:block}.progress-track{height:10px;background:#e8edf5;border-radius:999px;overflow:hidden}.progress-fill{height:100%;width:0;background:#d59c17;transition:width .15s}.progress-label{display:flex;justify-content:space-between;color:var(--muted);font-size:.82rem;margin-bottom:7px}
     .message{display:none;margin-top:18px;padding:13px 15px;border-radius:10px;font-size:.9rem}.message.visible{display:block}.message.error{background:#fff0f2;color:var(--red)}.message.success{background:#edf9f1;color:var(--green)}.message a{text-decoration:underline;font-weight:700}
-    .youtube-preview{margin:12px 0}.youtube-preview[hidden]{display:none}.youtube-preview iframe{display:block;max-width:100%;border:0;border-radius:12px}
+     .youtube-preview{margin:12px 0}.youtube-preview[hidden]{display:none}.youtube-preview iframe{display:block;max-width:100%;border:0;border-radius:12px}
+     .checkbox-option{display:flex;align-items:center;gap:10px;margin:18px 0 4px}.checkbox-option input{width:auto;margin:0;accent-color:#b38312}.transcript-status{font-weight:700;color:var(--navy)}
     footer{padding:20px 0;color:var(--muted);font-size:.84rem}.footer-row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
     @media(max-width:560px){.row{grid-template-columns:1fr}.bar{min-height:68px}.brand img{width:42px;height:42px}.brand strong{font-size:.87rem}}
   </style>
@@ -59,6 +60,12 @@
           <label for="youtube_url">YouTube link <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
           <input id="youtube_url" name="youtube_url" type="url" placeholder="https://youtu.be/l8n-W-Rutds">
           <p class="hint">1. Upload to YouTube app as UNLISTED 2. Add to Playlist 3. Copy link 4. Paste here</p>
+          <label class="checkbox-option" for="auto_transcribe">
+            <input id="auto_transcribe" type="checkbox" checked>
+            <span>Auto-transcribe to English</span>
+          </label>
+          <p id="transcript-status" class="hint transcript-status" role="status">Transcript: Pending</p>
+          <p class="hint">YouTube usually generates Luganda captions within 2–12 hours after upload. English auto-translation can appear after those captions are ready; no manual work is needed.</p>
           <label for="visibility">Visibility</label>
           <select id="visibility" name="visibility">
             <option value="unlisted" selected>Unlisted (Website Only - default)</option>
@@ -88,11 +95,46 @@
     const progressStatus = document.getElementById("progress-status");
     const message = document.getElementById("message");
     const dateInput = document.getElementById("date");
+    const youtubeInput = document.getElementById("youtube_url");
+    const autoTranscribeInput = document.getElementById("auto_transcribe");
+    const transcriptStatus = document.getElementById("transcript-status");
+    let transcriptPollTimer = null;
     function setToday() {
       const today = new Date();
       dateInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
     }
     setToday();
+
+    function updateTranscriptStatus() {
+      clearTimeout(transcriptPollTimer);
+      const hasVideo = Boolean(window.getYouTubeVideoId(youtubeInput.value));
+      transcriptStatus.textContent = !hasVideo
+        ? "Transcript: Not applicable"
+        : autoTranscribeInput.checked ? "Transcript: Pending" : "Transcript: Disabled";
+    }
+
+    async function refreshTranscriptStatus(youtubeId) {
+      try {
+        const response = await fetch(`${API_BASE}/api/transcript/${encodeURIComponent(youtubeId)}`, {
+          headers: { Accept: "application/json" },
+        });
+        const data = await response.json();
+        if (data.status === "translated") transcriptStatus.textContent = "Transcript: Translated";
+        else if (data.status === "ready") transcriptStatus.textContent = "Transcript: Ready";
+        else if (data.status === "disabled") transcriptStatus.textContent = "Transcript: Disabled";
+        else transcriptStatus.textContent = "Transcript: Pending";
+        if (data.status === "pending" || (data.status === "ready" && data.lang === "lg" && !data.translated_en)) {
+          transcriptPollTimer = setTimeout(() => refreshTranscriptStatus(youtubeId), 30 * 60 * 1000);
+        }
+      } catch {
+        transcriptStatus.textContent = "Transcript: Pending";
+        transcriptPollTimer = setTimeout(() => refreshTranscriptStatus(youtubeId), 30 * 60 * 1000);
+      }
+    }
+    youtubeInput.addEventListener("input", updateTranscriptStatus);
+    youtubeInput.addEventListener("change", updateTranscriptStatus);
+    autoTranscribeInput.addEventListener("change", updateTranscriptStatus);
+    updateTranscriptStatus();
 
     function showMessage(text, type, link, linkText) {
       message.className = `message visible ${type}`;
@@ -125,6 +167,7 @@
 
       const payload = new FormData(form);
       payload.delete("password");
+      payload.set("auto_transcribe", youtubeId && autoTranscribeInput.checked ? "1" : "0");
       const password = document.getElementById("password").value;
       const xhr = new XMLHttpRequest();
       xhr.open("POST", `${API_BASE}/upload`);
@@ -150,6 +193,11 @@
           progressFill.style.width = "100%";
           progressPercent.textContent = "100%";
           progressStatus.textContent = "Upload complete";
+          if (youtubeId) {
+            const status = data.item?.transcript_status === "disabled" ? "Disabled" : "Pending";
+            transcriptStatus.textContent = `Transcript: ${status}`;
+            if (data.item?.auto_transcribe) refreshTranscriptStatus(youtubeId);
+          }
           showMessage("Your media is now in the gallery.", "success",
             data.item?.public_url || data.item?.youtube_url,
             data.item?.youtube_url ? "View YouTube video" : "View photo");

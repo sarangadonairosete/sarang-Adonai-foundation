@@ -4,6 +4,8 @@ import { youtubeFields } from "./youtube.js";
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 const YOUTUBE_DEMO_ID = "l8n-W-Rutds";
 const YOUTUBE_SYNC_COOLDOWN_MS = 55 * 60 * 1000;
+const TRANSCRIPT_PENDING_COOLDOWN_MS = 30 * 60 * 1000;
+const YOUTUBE_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
 const ALLOWED_IMAGE_TYPES = new Set([
   "image/jpeg",
   "image/png",
@@ -80,6 +82,8 @@ function imageObject(request, env, item) {
     visibility: item.visibility || "unlisted",
     media_type: item.youtube_id ? "youtube" : (item.media_type || "photo"),
     status: item.status || "approved",
+    auto_transcribe: Number(item.auto_transcribe ?? 0),
+    transcript_status: item.transcript_status || "disabled",
     created_at: item.created_at,
   };
 }
@@ -112,7 +116,7 @@ async function getLatestVideos(request, env, url) {
     return json(request, env, { error: "Limit must be between 1 and 500." }, 400);
   }
   const result = await env.DB.prepare(
-    "SELECT id, COALESCE(NULLIF(caption, ''), NULLIF(filename, ''), 'Foundation video') AS title, caption, youtube_url, youtube_id, visibility, media_type, status, public_url AS thumbnail_url, date, created_at FROM media WHERE youtube_id IS NOT NULL AND TRIM(youtube_id) <> '' AND status = 'approved' ORDER BY created_at DESC, id DESC LIMIT ?",
+    "SELECT id, COALESCE(NULLIF(caption, ''), NULLIF(filename, ''), 'Foundation video') AS title, caption, youtube_url, youtube_id, visibility, media_type, status, auto_transcribe, transcript_status, public_url AS thumbnail_url, date, created_at FROM media WHERE youtube_id IS NOT NULL AND TRIM(youtube_id) <> '' AND status = 'approved' ORDER BY created_at DESC, id DESC LIMIT ?",
   ).bind(requested).all();
   return json(request, env, {
     videos: (result.results || []).map(item => ({
@@ -121,8 +125,171 @@ async function getLatestVideos(request, env, url) {
       visibility: item.visibility || "unlisted",
       media_type: "youtube",
       status: item.status || "approved",
+      auto_transcribe: Number(item.auto_transcribe ?? 1),
+      transcript_status: item.transcript_status || "pending",
     })),
   });
+}
+
+function parseTimedText(xml) {
+  const pieces = [...String(xml || "").matchAll(/<text\b[^>]*>([\s\S]*?)<\/text>/gi)]
+    .map(([, line]) => decodeXml(
+      line.replace(/<br\s*\/?>/gi, "\n").replace(/<\/?[^>]+>/g, ""),
+    ).replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+  return pieces.join("\n").trim();
+}
+
+async function fetchTimedText(youtubeId, language, translatedLanguage = "") {
+  const url = new URL("https://www.youtube.com/api/timedtext");
+  url.searchParams.set("v", youtubeId);
+  url.searchParams.set("lang", language);
+  url.searchParams.set("fmt", "srv3");
+  if (translatedLanguage) url.searchParams.set("tlang", translatedLanguage);
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Accept: "text/xml,application/xml,text/plain",
+        "Accept-Language": "en-US,en;q=0.9",
+        "User-Agent": "Mozilla/5.0 (compatible; SarangAdonaiTranscript/1.0)",
+      },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!response.ok) return "";
+    return parseTimedText(await response.text());
+  } catch {
+    return "";
+  }
+}
+
+async function translateLugandaToEnglish(env, text) {
+  if (!env.AI || !text) return "";
+  const chunks = [];
+  let offset = 0;
+  while (offset < text.length) {
+    let end = Math.min(offset + 900, text.length);
+    if (end < text.length) {
+      const boundary = text.lastIndexOf(" ", end);
+      if (boundary > offset + 300) end = boundary;
+    }
+    chunks.push(text.slice(offset, end).trim());
+    offset = end;
+  }
+  if (chunks.length > 40) return "";
+  try {
+    const translated = await Promise.all(chunks.map(async chunk => {
+      const result = await env.AI.run("@cf/meta/m2m100-1.2b", {
+        text: chunk.trim(),
+        source_lang: "lg",
+        target_lang: "en",
+      });
+      return String(result?.translated_text || result?.translation || result?.text || "").trim();
+    }));
+    return translated.every(Boolean) ? translated.join(" ") : "";
+  } catch (error) {
+    console.warn("[transcript] Cloudflare AI translation unavailable.", String(error));
+    return "";
+  }
+}
+
+async function getVideoTranscript(request, env, youtubeId) {
+  if (!YOUTUBE_ID_PATTERN.test(youtubeId)) {
+    return json(request, env, { error: "Invalid YouTube video ID." }, 400);
+  }
+
+  const publicVideo = await env.DB.prepare(
+    "SELECT 1 AS found WHERE EXISTS (SELECT 1 FROM media WHERE youtube_id = ? AND status = 'approved') OR EXISTS (SELECT 1 FROM events WHERE youtube_id = ? AND public_approved = 1) OR EXISTS (SELECT 1 FROM students WHERE youtube_id = ? AND public_approved = 1) OR EXISTS (SELECT 1 FROM families WHERE youtube_id = ? AND public_approved = 1) OR EXISTS (SELECT 1 FROM staff WHERE youtube_id = ?) LIMIT 1",
+  ).bind(youtubeId, youtubeId, youtubeId, youtubeId, youtubeId).first();
+  if (!publicVideo) {
+    return json(request, env, { error: "Transcript is not available for this public video." }, 404);
+  }
+
+  const mediaSettings = await env.DB.prepare(
+    "SELECT auto_transcribe FROM media WHERE youtube_id = ? AND status = 'approved' LIMIT 1",
+  ).bind(youtubeId).first();
+  if (mediaSettings && Number(mediaSettings.auto_transcribe) === 0) {
+    return json(request, env, {
+      youtube_id: youtubeId,
+      status: "disabled",
+      error: "Transcript generation is disabled for this video.",
+    }, 409);
+  }
+
+  const cached = await env.DB.prepare(
+    "SELECT youtube_id, lang, text, translated_en, status, updated_at FROM video_transcripts WHERE youtube_id = ?",
+  ).bind(youtubeId).first();
+  const cacheAge = Date.now() - Date.parse(cached?.updated_at || "");
+  if (cached?.status === "translated" || (cached?.status === "ready" && cached.translated_en)) {
+    return json(request, env, cached);
+  }
+  if (cached && Number.isFinite(cacheAge) && cacheAge < TRANSCRIPT_PENDING_COOLDOWN_MS) {
+    return json(request, env, cached, cached.status === "pending" ? 202 : 200);
+  }
+
+  const [englishText, lugandaText] = await Promise.all([
+    fetchTimedText(youtubeId, "en"),
+    fetchTimedText(youtubeId, "lg"),
+  ]);
+  let lang = "";
+  let text = "";
+  let translatedEn = "";
+  let status = "ready";
+
+  if (englishText) {
+    lang = "en";
+    text = englishText;
+    translatedEn = englishText;
+  } else if (lugandaText) {
+    lang = "lg";
+    text = lugandaText;
+    translatedEn = await fetchTimedText(youtubeId, "lg", "en");
+    if (!translatedEn) translatedEn = await translateLugandaToEnglish(env, lugandaText);
+    if (translatedEn) status = "translated";
+  }
+
+  if (!text) {
+    lang = "pending";
+    status = "pending";
+    await env.DB.prepare(
+      "INSERT INTO video_transcripts (youtube_id, lang, text, translated_en, status, updated_at) VALUES (?, ?, '', '', 'pending', CURRENT_TIMESTAMP) ON CONFLICT(youtube_id) DO UPDATE SET lang = excluded.lang, text = '', translated_en = '', status = 'pending', updated_at = CURRENT_TIMESTAMP",
+    ).bind(youtubeId, lang).run();
+    if (mediaSettings) {
+      await env.DB.prepare("UPDATE media SET transcript_status = 'pending' WHERE youtube_id = ?")
+        .bind(youtubeId).run();
+    }
+    return json(request, env, {
+      youtube_id: youtubeId,
+      lang,
+      text: "",
+      translated_en: "",
+      status,
+      message: "YouTube captions are not available yet. Try again after captions finish processing.",
+    }, 202);
+  }
+
+  await env.DB.prepare(
+    "INSERT INTO video_transcripts (youtube_id, lang, text, translated_en, status, updated_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP) ON CONFLICT(youtube_id) DO UPDATE SET lang = excluded.lang, text = excluded.text, translated_en = excluded.translated_en, status = excluded.status, updated_at = CURRENT_TIMESTAMP",
+  ).bind(youtubeId, lang, text, translatedEn, status).run();
+  if (mediaSettings) {
+    await env.DB.prepare("UPDATE media SET transcript_status = ? WHERE youtube_id = ?")
+      .bind(status, youtubeId).run();
+  }
+  return json(request, env, {
+    youtube_id: youtubeId,
+    lang,
+    text,
+    translated_en: translatedEn,
+    status,
+  });
+}
+
+async function processPendingTranscripts(env) {
+  const rows = await env.DB.prepare(
+    "SELECT candidates.youtube_id FROM (SELECT youtube_id FROM media WHERE youtube_id IS NOT NULL AND TRIM(youtube_id) <> '' AND status = 'approved' AND auto_transcribe = 1 UNION SELECT youtube_id FROM events WHERE youtube_id IS NOT NULL AND TRIM(youtube_id) <> '' AND public_approved = 1 UNION SELECT youtube_id FROM students WHERE youtube_id IS NOT NULL AND TRIM(youtube_id) <> '' AND public_approved = 1 UNION SELECT youtube_id FROM families WHERE youtube_id IS NOT NULL AND TRIM(youtube_id) <> '' AND public_approved = 1 UNION SELECT youtube_id FROM staff WHERE youtube_id IS NOT NULL AND TRIM(youtube_id) <> '') AS candidates LEFT JOIN video_transcripts ON video_transcripts.youtube_id = candidates.youtube_id WHERE video_transcripts.youtube_id IS NULL OR ((video_transcripts.status = 'pending' OR (video_transcripts.status = 'ready' AND video_transcripts.lang = 'lg' AND COALESCE(video_transcripts.translated_en, '') = '')) AND datetime(video_transcripts.updated_at) <= datetime('now', '-30 minutes')) ORDER BY candidates.youtube_id LIMIT 10",
+  ).all();
+  await Promise.all((rows.results || []).map(row =>
+    getVideoTranscript(new Request("https://sarangadonai-api.internal/api/transcript"), env, row.youtube_id),
+  ));
 }
 
 function decodeXml(value) {
@@ -309,6 +476,7 @@ async function uploadMedia(request, env) {
   const caption = String(form.get("caption") || "").trim().slice(0, 500);
   const date = String(form.get("date") || "");
   const videos = youtubeFields(form);
+  const autoTranscribe = videos.youtube_id && String(form.get("auto_transcribe") ?? "1") !== "0";
   if (videos.error) return json(request, env, { error: videos.error }, 400);
 
   const hasFile = file instanceof File && file.size > 0;
@@ -341,10 +509,11 @@ async function uploadMedia(request, env) {
     }
 
     await env.DB.prepare(
-      "INSERT INTO media (id, public_url, filename, date, year, month, day, caption, youtube_url, youtube_id, visibility, media_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO media (id, public_url, filename, date, year, month, day, caption, youtube_url, youtube_id, visibility, media_type, auto_transcribe, transcript_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     )
       .bind(id, publicUrl || null, hasFile ? file.name.slice(0, 255) : "", date, year, month, day, caption,
-        videos.youtube_url, videos.youtube_id, videos.visibility, videos.media_type)
+        videos.youtube_url, videos.youtube_id, videos.visibility, videos.media_type,
+        autoTranscribe ? 1 : 0, autoTranscribe ? "pending" : "disabled")
       .run();
   } catch {
     if (key) await env.MEDIA.delete(key).catch(() => {});
@@ -362,6 +531,8 @@ async function uploadMedia(request, env) {
       day,
       caption,
       ...videos,
+      auto_transcribe: autoTranscribe ? 1 : 0,
+      transcript_status: autoTranscribe ? "pending" : "disabled",
     },
   }, 201);
 }
@@ -722,7 +893,7 @@ async function deleteStaff(request, env, id) {
 
 export default {
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(syncYoutube(env).catch(error => {
+    ctx.waitUntil(Promise.all([syncYoutube(env), processPendingTranscripts(env)]).catch(error => {
       console.error("[youtube-sync] scheduled run failed", String(error));
     }));
   },
@@ -755,9 +926,13 @@ export default {
       if (request.method === "GET" && path === "/api/videos") {
         return await getLatestVideos(request, env, url);
       }
+      const transcriptMatch = path.match(/^\/api\/transcript\/([^/]+)$/);
+      if (request.method === "GET" && transcriptMatch) {
+        return await getVideoTranscript(request, env, decodeURIComponent(transcriptMatch[1]));
+      }
       if (request.method === "GET" && path === "/api/media") {
         const result = await env.DB.prepare(
-          "SELECT id, public_url, filename, date, year, month, day, caption, youtube_url, youtube_id, visibility, media_type, created_at FROM media ORDER BY date DESC, created_at DESC",
+          "SELECT id, public_url, filename, date, year, month, day, caption, youtube_url, youtube_id, visibility, media_type, auto_transcribe, transcript_status, status, created_at FROM media ORDER BY date DESC, created_at DESC",
         ).all();
         return json(request, env, { media: (result.results || []).map(row => imageObject(request, env, row)) });
       }

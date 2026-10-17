@@ -40,6 +40,7 @@ If the Worker code changes after the secret is added, deploy it again with `npm 
 - `POST /api/media`, `PUT /api/media/:id`, `DELETE /api/media/:id` — authenticated media management
 - `GET /api/videos?limit=6` — latest approved YouTube videos in the media table, sorted by creation time
 - `GET /api/sync-youtube` — discovers the channel ID, imports missing RSS videos, and ensures the demo video is available
+- `GET /api/transcript/:youtube_id` — returns cached captions or checks YouTube timedtext, translating Luganda captions to English when Workers AI is available
 - `GET /api/staff` — public staff directory
 - `POST /api/staff` — authenticated staff profile creation and photo upload (`X-Admin-Password`)
 - `PUT /api/staff/:id` — authenticated staff profile update; photo replacement is optional (`X-Admin-Password`)
@@ -51,8 +52,10 @@ If the Worker code changes after the secret is added, deploy it again with `npm 
 - `GET /api/families?village=Buwama&status=urgent_need` — consent-approved public family listings
 - `POST /api/families`, `PUT /api/families/:id`, `DELETE /api/families/:id` — authenticated family management
 
-Apply the database schema with `npx wrangler d1 execute sarangadonai-db --remote --file=worker/schema.sql --config=worker/wrangler.toml`. It creates missing tables without changing existing data. For an existing database, apply `worker/migrations/001_youtube_fields.sql`, `worker/migrations/002_seed_youtube_demo.sql`, and `worker/migrations/003_youtube_sync.sql` once, in order. The Worker also runs the channel sync hourly using its cron trigger.
+Apply the database schema with `npx wrangler d1 execute sarangadonai-db --remote --file=worker/schema.sql --config=worker/wrangler.toml`. It creates missing tables without changing existing data. For an existing database, apply `worker/migrations/001_youtube_fields.sql`, `worker/migrations/002_seed_youtube_demo.sql`, `worker/migrations/003_youtube_sync.sql`, and `worker/migrations/004_video_transcripts.sql` once, in order. The Worker syncs the YouTube channel and retries pending approved transcripts hourly.
 
 Image uploads accept JPEG, PNG, WebP, GIF, or AVIF images up to 25 MB and use the `gallery/`, `staff/`, `events/`, `students/`, or `families/` R2 prefixes. YouTube links accept youtu.be and youtube.com watch, embed, shorts, and live URLs; their IDs and visibility are saved on the related record. R2 is for thumbnail photos only. R2 public access is enabled for image delivery; all writes and deletes require the Worker password.
+
+YouTube timedtext captions are cached in D1. Public video cards show caption-language controls and an English transcript button; videos without generated captions remain pending and are checked again hourly. Luganda captions use YouTube's English translation track first, then the optional Workers AI `@cf/meta/m2m100-1.2b` binding when needed.
 
 Student, family, and event records are private by default. Public APIs return only records with `public_approved = 1`. Family `contact_info` is returned only to authenticated admin list requests and is never included in public responses.

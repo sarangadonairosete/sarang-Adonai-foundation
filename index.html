@@ -495,6 +495,16 @@ button,input,textarea,select{font:inherit;color:inherit}
 .video-modal-inner{width:100%;max-width:920px;position:relative}
 .video-modal video{width:100%;border-radius:var(--radius);display:block;background:#000}
 .video-modal iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:var(--radius);display:block;background:#000}
+.youtube-player{width:100%;min-width:0}.youtube-caption-controls{display:flex;flex-wrap:wrap;gap:7px;padding:10px 10px 9px}
+.youtube-caption-controls button,.youtube-transcript-button{border:1px solid #d7deea;border-radius:999px;padding:7px 11px;background:#fff;color:var(--navy);font:600 .76rem Inter,system-ui,sans-serif;cursor:pointer}
+.youtube-caption-controls button.active,.youtube-transcript-button{background:var(--navy);border-color:var(--navy);color:#fff}
+.youtube-caption-controls button:focus-visible,.youtube-transcript-button:focus-visible{outline:3px solid #ffc947;outline-offset:2px}
+.youtube-caption-controls button:disabled,.youtube-transcript-button:disabled{opacity:.6;cursor:wait}
+.youtube-embed{display:block;width:100%;aspect-ratio:16/9;border:0;background:#0a1931}
+.youtube-caption-info{margin:7px 11px 9px;color:var(--muted);font-size:.76rem;line-height:1.45}
+.youtube-transcript-button{margin:0 10px 10px}
+.youtube-transcript{margin:0 10px 12px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-size:.86rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.youtube-transcript[hidden]{display:none}
 .video-close{
   position:absolute;top:-52px;right:0;
   background:var(--gold);color:var(--navy);border:none;
@@ -540,7 +550,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 .home-preview-status{margin:8px 0 0;color:var(--muted);font-size:.85rem}
 .latest-videos-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
 .latest-video-card{overflow:hidden;background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
-.latest-video-card iframe{display:block;width:100%;aspect-ratio:16/9;border:0;background:#0a1931}
+.latest-video-card .youtube-embed{display:block;width:100%;aspect-ratio:16/9;border:0;background:#0a1931}
 .latest-video-card h3{margin:0;padding:14px 16px;color:var(--navy);font:700 .98rem 'Poppins',sans-serif}
 @media(max-width:760px){.latest-videos-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.latest-videos-grid{grid-template-columns:1fr}}
@@ -2380,8 +2390,9 @@ button,input,textarea,select{font:inherit;color:inherit}
     modal.innerHTML =
       '<div class="video-modal-inner">' +
         '<button class="video-close" aria-label="Close video">&times;</button>' +
-        '<iframe src="https://www.youtube.com/embed/l8n-W-Rutds?rel=0&modestbranding=1" title="Sarang Adonai Rosete Foundation video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>' +
       '</div>';
+    var modalPlayer = window.createYouTubeFrame('l8n-W-Rutds', 'Sarang Adonai Rosete Foundation video', 315);
+    if (modalPlayer) modal.querySelector('.video-modal-inner').appendChild(modalPlayer);
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
 
@@ -2513,7 +2524,9 @@ button,input,textarea,select{font:inherit;color:inherit}
   function render(video) {
     var card = document.createElement('article');
     card.className = 'latest-video-card';
-    var player = window.createYouTubeFrame(video.youtube_id, video.title || 'Foundation video', 315);
+    var player = window.createYouTubeFrame(video.youtube_id, video.title || 'Foundation video', 315, {
+      autoTranscribe: video.auto_transcribe
+    });
     if (player) card.appendChild(player);
     var title = document.createElement('h3');
     title.textContent = video.title || 'Sarang Adonai Rosete Foundation';

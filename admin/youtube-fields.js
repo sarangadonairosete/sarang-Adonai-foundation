@@ -28,7 +28,16 @@
       label.className = "hint";
       label.textContent = "Video preview";
       const frame = document.createElement("iframe");
-      frame.src = `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1`;
+      const params = new URLSearchParams({
+        cc_load_policy: "1",
+        cc_lang_pref: "en",
+        hl: "en",
+        modestbranding: "1",
+        rel: "0",
+        enablejsapi: "1",
+        origin: window.location.origin,
+      });
+      frame.src = `https://www.youtube.com/embed/${id}?${params}`;
       frame.title = "YouTube video preview";
       frame.width = "100%";
       frame.height = "200";

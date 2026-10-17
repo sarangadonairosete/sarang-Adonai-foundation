@@ -12,7 +12,9 @@ CREATE TABLE IF NOT EXISTS media (
   youtube_id TEXT,
   visibility TEXT DEFAULT 'unlisted',
   media_type TEXT DEFAULT 'youtube',
-  status TEXT DEFAULT 'approved'
+  status TEXT DEFAULT 'approved',
+  auto_transcribe INTEGER NOT NULL DEFAULT 1,
+  transcript_status TEXT NOT NULL DEFAULT 'pending'
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS media_youtube_id_unique
@@ -24,6 +26,15 @@ CREATE TABLE IF NOT EXISTS youtube_sync_state (
   channel_id TEXT,
   last_synced_at DATETIME,
   synced INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS video_transcripts (
+  youtube_id TEXT PRIMARY KEY,
+  lang TEXT NOT NULL,
+  text TEXT NOT NULL,
+  translated_en TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'pending',
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS staff (

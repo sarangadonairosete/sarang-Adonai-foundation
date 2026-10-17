@@ -19,7 +19,17 @@
     .hero{padding:64px 0 44px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff}.eyebrow{color:var(--gold);font-weight:800;letter-spacing:2px;text-transform:uppercase;font-size:.72rem}.hero h1{font:800 clamp(2rem,5vw,3.6rem)/1.12 Poppins,sans-serif;margin:12px 0}.hero p{color:#cbd5e1;max-width:650px;margin:0}
     main{padding:44px 0 80px}.date-group{margin:0 0 44px}.date-heading{display:flex;align-items:center;gap:12px;margin:0 0 18px;color:var(--navy);font:700 1.25rem Poppins,sans-serif}.folder{font-size:1.2rem}.date-heading small{font:500 .85rem Inter,sans-serif;color:var(--muted)}
     .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.card{background:#fff;border:1px solid var(--line);border-radius:15px;overflow:hidden;box-shadow:0 8px 24px #0a19310c}.card img{width:100%;aspect-ratio:1;object-fit:cover;background:#e8edf5}.caption{padding:13px 15px}.caption p{margin:0 0 5px;font-weight:600;color:var(--navy)}.caption small{color:var(--muted)}
-    .video-gallery{margin-bottom:48px}.video-card iframe{display:block;width:100%;aspect-ratio:16/9;border:0;background:#0a1931}.video-card .caption{min-height:62px}
+    .video-gallery{margin-bottom:48px}.video-card .youtube-embed{display:block;width:100%;aspect-ratio:16/9;border:0;background:#0a1931}.video-card .caption{min-height:62px}
+    .youtube-player{width:100%;min-width:0}.youtube-caption-controls{display:flex;flex-wrap:wrap;gap:7px;padding:10px 10px 9px}
+    .youtube-caption-controls button,.youtube-transcript-button{border:1px solid #d7deea;border-radius:999px;padding:7px 11px;background:#fff;color:var(--navy);font:600 .76rem Inter,system-ui,sans-serif;cursor:pointer}
+    .youtube-caption-controls button.active,.youtube-transcript-button{background:var(--navy);border-color:var(--navy);color:#fff}
+    .youtube-caption-controls button:focus-visible,.youtube-transcript-button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+    .youtube-caption-controls button:disabled,.youtube-transcript-button:disabled{opacity:.6;cursor:wait}
+    .youtube-embed{display:block;width:100%;aspect-ratio:16/9;border:0;background:#0a1931}
+    .youtube-caption-info{margin:7px 11px 9px;color:var(--muted);font-size:.76rem;line-height:1.45}
+    .youtube-transcript-button{margin:0 10px 10px}
+    .youtube-transcript{margin:0 10px 12px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-size:.86rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+    .youtube-transcript[hidden]{display:none}
     .state{padding:35px 22px;border:1px dashed #cbd5e1;border-radius:16px;background:#fff;color:var(--muted);text-align:center}.state.error{color:#9b1c31;border-color:#e3aab3}
     footer{background:var(--navy);color:#cbd5e1;padding:25px 0;font-size:.86rem}.footer-row{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
     @media(max-width:850px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
@@ -90,7 +100,9 @@
       videos.forEach(video => {
         const article = document.createElement("article");
         article.className = "card video-card";
-        const frame = window.createYouTubeFrame(video.youtube_id, video.title || "Foundation video", 315);
+        const frame = window.createYouTubeFrame(video.youtube_id, video.title || "Foundation video", 315, {
+          autoTranscribe: video.auto_transcribe,
+        });
         if (frame) article.appendChild(frame);
         const caption = document.createElement("div");
         caption.className = "caption";
