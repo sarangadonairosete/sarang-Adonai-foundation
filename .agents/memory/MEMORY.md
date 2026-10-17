@@ -1,2 +1,2 @@
 - [Public consent policy](public-consent.md) — Student and family names, photos, and stories require both consent and admin approval before public display.
-- [YouTube channel discovery](youtube-sync.md) — Resolve the channel ID from the video or @handle page; do not require a manually supplied UC ID.
+- [YouTube sync and captions](youtube-sync.md) — Discover the channel from its handle; Whisper requires audio bytes, not only a YouTube video ID.
