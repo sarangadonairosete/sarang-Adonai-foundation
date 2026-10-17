@@ -30,7 +30,7 @@
     nav{display:flex;gap:22px;align-items:center;font-weight:600;font-size:.9rem}nav a:hover{color:#b38312}
     .hero{padding:64px 0 44px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff}.eyebrow{color:var(--gold);font-weight:800;letter-spacing:2px;text-transform:uppercase;font-size:.72rem}.hero h1{font:800 clamp(2rem,5vw,3.6rem)/1.12 Poppins,sans-serif;margin:12px 0}.hero p{color:#cbd5e1;max-width:650px;margin:0}
     main{padding:44px 0 80px}.date-group{margin:0 0 44px}.date-heading{display:flex;align-items:center;gap:12px;margin:0 0 18px;color:var(--navy);font:700 1.25rem Poppins,sans-serif}.folder{font-size:1.2rem}.date-heading small{font:500 .85rem Inter,sans-serif;color:var(--muted)}
-    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.card{background:#fff;border:1px solid var(--line);border-radius:15px;overflow:hidden;box-shadow:0 8px 24px #0a19310c}.card img{width:100%;aspect-ratio:1;object-fit:cover;background:#e8edf5}.caption{padding:13px 15px}.caption p{margin:0 0 5px;font-weight:600;color:var(--navy)}.caption small{color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.card{background:#fff;border:1px solid var(--line);border-radius:15px;overflow:hidden;box-shadow:0 8px 24px #0a19310c}.card img{width:100%;aspect-ratio:1;object-fit:cover;background:#e8edf5}.caption{padding:13px 15px}.caption p{margin:0 0 5px;font-weight:600;color:var(--navy)}.caption small{color:var(--muted)}.caption .photo-desc{margin:7px 0 0;color:var(--muted);font-size:.88rem;font-weight:400;line-height:1.55}
     .video-gallery{margin-bottom:48px}.video-card .youtube-embed{display:block;width:100%;aspect-ratio:16/9;border:0;background:#0a1931}.video-card .caption{min-height:62px}
     .youtube-player{width:100%;min-width:0}.youtube-caption-controls{display:flex;flex-wrap:wrap;gap:7px;padding:10px 10px 9px}
     .youtube-caption-controls button,.youtube-transcript-button{border:1px solid #d7deea;border-radius:999px;padding:7px 11px;background:#fff;color:var(--navy);font:600 .76rem Inter,system-ui,sans-serif;cursor:pointer}
@@ -92,17 +92,24 @@
       article.className = "card";
       const image = document.createElement("img");
       image.src = item.public_url || "";
-      image.alt = item.caption || item.filename || "Foundation gallery media";
+      image.alt = item.alt_text || item.title || item.caption || item.filename || "Foundation gallery media";
       image.loading = "lazy";
       image.decoding = "async";
       article.appendChild(image);
       const details = document.createElement("div");
       details.className = "caption";
       const caption = document.createElement("p");
-      caption.textContent = item.caption || item.filename || "Foundation photo";
+      caption.textContent = item.title || item.caption || item.filename || "Foundation photo";
       const filename = document.createElement("small");
       filename.textContent = item.filename || "";
-      details.append(caption, filename);
+      details.append(caption);
+      if (item.description) {
+        const description = document.createElement("p");
+        description.className = "photo-desc";
+        description.textContent = item.description;
+        details.appendChild(description);
+      }
+      details.appendChild(filename);
       article.append(details);
       return article;
     }
