@@ -2,6 +2,8 @@ import { handleManagementRequest } from "./management.js";
 import { youtubeFields } from "./youtube.js";
 
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+const YOUTUBE_DEMO_ID = "l8n-W-Rutds";
+const YOUTUBE_SYNC_COOLDOWN_MS = 55 * 60 * 1000;
 const ALLOWED_IMAGE_TYPES = new Set([
   "image/jpeg",
   "image/png",
@@ -77,13 +79,14 @@ function imageObject(request, env, item) {
     youtube_id: item.youtube_id || "",
     visibility: item.visibility || "unlisted",
     media_type: item.youtube_id ? "youtube" : (item.media_type || "photo"),
+    status: item.status || "approved",
     created_at: item.created_at,
   };
 }
 
 async function getGallery(request, env) {
   const result = await env.DB.prepare(
-    "SELECT id, public_url, filename, date, year, month, day, caption, youtube_url, youtube_id, visibility, media_type, created_at FROM media ORDER BY date DESC, created_at DESC",
+    "SELECT id, public_url, filename, date, year, month, day, caption, youtube_url, youtube_id, visibility, media_type, status, created_at FROM media WHERE youtube_id IS NULL OR TRIM(youtube_id) = '' ORDER BY date DESC, created_at DESC",
   ).all();
   const groups = new Map();
 
@@ -104,34 +107,189 @@ async function getGallery(request, env) {
 }
 
 async function getLatestVideos(request, env, url) {
-  const requested = Number(url.searchParams.get("limit") || 6);
-  if (!Number.isInteger(requested) || requested < 1 || requested > 12) {
-    return json(request, env, { error: "Limit must be between 1 and 12." }, 400);
+  const requested = Number(url.searchParams.get("limit") || 500);
+  if (!Number.isInteger(requested) || requested < 1 || requested > 500) {
+    return json(request, env, { error: "Limit must be between 1 and 500." }, 400);
   }
-  const withVideos = "youtube_id IS NOT NULL AND TRIM(youtube_id) <> ''";
-  const [media, staff, events, students, families] = await Promise.all([
-    env.DB.prepare(`SELECT id, COALESCE(NULLIF(caption, ''), NULLIF(filename, ''), 'Foundation video') AS title, youtube_url, youtube_id, visibility, media_type, public_url AS thumbnail_url, created_at FROM media WHERE ${withVideos}`).all(),
-    env.DB.prepare(`SELECT id, name AS title, youtube_url, youtube_id, visibility, media_type, photo_url AS thumbnail_url, created_at FROM staff WHERE ${withVideos}`).all(),
-    env.DB.prepare(`SELECT id, title, youtube_url, youtube_id, visibility, media_type, image_url AS thumbnail_url, created_at FROM events WHERE public_approved = 1 AND ${withVideos}`).all(),
-    env.DB.prepare(`SELECT id, name AS title, youtube_url, youtube_id, visibility, media_type, photo_url AS thumbnail_url, created_at FROM students WHERE public_approved = 1 AND ${withVideos}`).all(),
-    env.DB.prepare(`SELECT id, family_name AS title, youtube_url, youtube_id, visibility, media_type, photo_url AS thumbnail_url, created_at FROM families WHERE public_approved = 1 AND ${withVideos}`).all(),
-  ]);
-  const videos = [
-    ...(media.results || []).map(item => ({ ...item, source_type: "media" })),
-    ...(staff.results || []).map(item => ({ ...item, source_type: "staff" })),
-    ...(events.results || []).map(item => ({ ...item, source_type: "event" })),
-    ...(students.results || []).map(item => ({ ...item, source_type: "student" })),
-    ...(families.results || []).map(item => ({ ...item, source_type: "family" })),
-  ];
-  videos.sort((left, right) => Date.parse(right.created_at || 0) - Date.parse(left.created_at || 0));
+  const result = await env.DB.prepare(
+    "SELECT id, COALESCE(NULLIF(caption, ''), NULLIF(filename, ''), 'Foundation video') AS title, caption, youtube_url, youtube_id, visibility, media_type, status, public_url AS thumbnail_url, date, created_at FROM media WHERE youtube_id IS NOT NULL AND TRIM(youtube_id) <> '' AND status = 'approved' ORDER BY created_at DESC, id DESC LIMIT ?",
+  ).bind(requested).all();
   return json(request, env, {
-    videos: videos.slice(0, requested).map(item => ({
+    videos: (result.results || []).map(item => ({
       ...item,
       youtube_url: item.youtube_url || `https://youtu.be/${item.youtube_id}`,
       visibility: item.visibility || "unlisted",
       media_type: "youtube",
+      status: item.status || "approved",
     })),
   });
+}
+
+function decodeXml(value) {
+  return String(value || "")
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)))
+    .replace(/&#([0-9]+);/g, (_, code) => String.fromCodePoint(Number(code)))
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, "&");
+}
+
+function xmlValue(entry, tagName) {
+  const escaped = tagName.replace(":", "\\:");
+  const match = entry.match(new RegExp(`<${escaped}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${escaped}>`, "i"));
+  return match ? decodeXml(match[1].trim()) : "";
+}
+
+function youtubeChannelIdFromHtml(html) {
+  const patterns = [
+    /"channelId":"(UC[a-zA-Z0-9_-]{22})"/,
+    /<meta\s+itemprop=["']channelId["']\s+content=["'](UC[^"']+)["']/i,
+    /"externalId":"(UC[a-zA-Z0-9_-]{22})"/,
+  ];
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
+async function discoverYoutubeChannelId() {
+  const pages = [
+    `https://www.youtube.com/watch?v=${YOUTUBE_DEMO_ID}`,
+    "https://www.youtube.com/@sarangadonairosetefoundation",
+  ];
+  for (const page of pages) {
+    try {
+      const response = await fetch(page, {
+        headers: {
+          Accept: "text/html,application/xhtml+xml",
+          "Accept-Language": "en-US,en;q=0.9",
+          "User-Agent": "Mozilla/5.0 (compatible; SarangAdonaiSync/1.0)",
+        },
+      });
+      if (!response.ok) continue;
+      const channelId = youtubeChannelIdFromHtml(await response.text());
+      if (channelId) return channelId;
+    } catch {
+      // Try the channel handle page if the video page is unavailable.
+    }
+  }
+  return null;
+}
+
+function parseYoutubeFeed(xml) {
+  const entries = [...xml.matchAll(/<entry\b[^>]*>([\s\S]*?)<\/entry>/gi)];
+  return entries.flatMap(([, entry]) => {
+    const youtubeId = xmlValue(entry, "yt:videoId");
+    if (!/^[A-Za-z0-9_-]{11}$/.test(youtubeId)) return [];
+    const published = xmlValue(entry, "published").slice(0, 10);
+    const date = validDate(published) ? published : new Date().toISOString().slice(0, 10);
+    const title = youtubeId === YOUTUBE_DEMO_ID
+      ? "Togetherness Creates Excitement"
+      : (xmlValue(entry, "title") || "Sarang Adonai video");
+    return [{ youtubeId, title, date }];
+  });
+}
+
+async function saveYoutubeMedia(env, video) {
+  const existing = await env.DB.prepare(
+    "SELECT id FROM media WHERE youtube_id = ? LIMIT 1",
+  ).bind(video.youtubeId).first();
+  if (existing) {
+    if (video.youtubeId === YOUTUBE_DEMO_ID) {
+      await env.DB.prepare(
+        "UPDATE media SET caption = ?, youtube_url = ?, visibility = 'unlisted', media_type = 'youtube', status = 'approved' WHERE youtube_id = ?",
+      ).bind("Togetherness Creates Excitement", `https://youtu.be/${YOUTUBE_DEMO_ID}`, video.youtubeId).run();
+    }
+    return 0;
+  }
+
+  const [year, month, day] = video.date.split("-");
+  const result = await env.DB.prepare(
+    "INSERT OR IGNORE INTO media (id, public_url, filename, date, year, month, day, caption, youtube_url, youtube_id, visibility, media_type, status) VALUES (?, NULL, '', ?, ?, ?, ?, ?, ?, ?, 'unlisted', 'youtube', 'approved')",
+  ).bind(
+    crypto.randomUUID(),
+    video.date,
+    year,
+    month,
+    day,
+    video.title,
+    `https://youtu.be/${video.youtubeId}`,
+    video.youtubeId,
+  ).run();
+  return Number(result.meta?.changes || 0);
+}
+
+async function syncYoutube(env) {
+  const previous = await env.DB.prepare(
+    "SELECT channel_id, last_synced_at FROM youtube_sync_state WHERE id = 'primary'",
+  ).first();
+  const lastSync = Date.parse(previous?.last_synced_at || "");
+  if (Number.isFinite(lastSync) && Date.now() - lastSync < YOUTUBE_SYNC_COOLDOWN_MS) {
+    const synced = await saveYoutubeMedia(env, {
+      youtubeId: YOUTUBE_DEMO_ID,
+      title: "Togetherness Creates Excitement",
+      date: new Date().toISOString().slice(0, 10),
+    });
+    return { channelId: previous.channel_id || null, synced, video: YOUTUBE_DEMO_ID };
+  }
+
+  const channelId = await discoverYoutubeChannelId();
+  console.log(`[youtube-sync] channelId=${channelId || "not-found"}`);
+  let synced = 0;
+  let rssSucceeded = false;
+  if (channelId) {
+    try {
+      const rss = await fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(channelId)}`, {
+        headers: {
+          Accept: "application/atom+xml,application/xml,text/xml",
+          "User-Agent": "Mozilla/5.0 (compatible; SarangAdonaiSync/1.0)",
+        },
+      });
+      if (!rss.ok) throw new Error(`YouTube RSS returned HTTP ${rss.status}`);
+      const feed = await rss.text();
+      rssSucceeded = true;
+      for (const video of parseYoutubeFeed(feed)) {
+        synced += await saveYoutubeMedia(env, video);
+      }
+    } catch (error) {
+      console.warn("[youtube-sync] RSS unavailable; using the configured demo video.", String(error));
+    }
+  } else {
+    console.warn("[youtube-sync] Channel ID could not be discovered; using the configured demo video.");
+  }
+
+  if (!rssSucceeded) {
+    synced += await saveYoutubeMedia(env, {
+      youtubeId: YOUTUBE_DEMO_ID,
+      title: "Togetherness Creates Excitement",
+      date: new Date().toISOString().slice(0, 10),
+    });
+  } else {
+    // The unlisted demo clip may not appear in channel RSS, so always keep it available.
+    synced += await saveYoutubeMedia(env, {
+      youtubeId: YOUTUBE_DEMO_ID,
+      title: "Togetherness Creates Excitement",
+      date: new Date().toISOString().slice(0, 10),
+    });
+  }
+
+  await env.DB.prepare(
+    "INSERT INTO youtube_sync_state (id, channel_id, last_synced_at, synced) VALUES ('primary', ?, CURRENT_TIMESTAMP, ?) ON CONFLICT(id) DO UPDATE SET channel_id = excluded.channel_id, last_synced_at = excluded.last_synced_at, synced = excluded.synced",
+  ).bind(channelId, synced).run();
+  console.log(`[youtube-sync] complete channelId=${channelId || "not-found"} rss=${rssSucceeded ? "ok" : "fallback"} synced=${synced}`);
+  return { channelId, synced, video: YOUTUBE_DEMO_ID };
+}
+
+async function syncYoutubeRoute(request, env) {
+  try {
+    return json(request, env, await syncYoutube(env));
+  } catch (error) {
+    console.error("[youtube-sync] failed", String(error));
+    return json(request, env, { error: "YouTube sync could not be completed." }, 500);
+  }
 }
 
 async function uploadMedia(request, env) {
