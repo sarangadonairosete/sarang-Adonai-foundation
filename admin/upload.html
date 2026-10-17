@@ -96,7 +96,7 @@
       </form>
       <section class="photo-batch" aria-labelledby="photo-batch-heading">
         <h2 id="photo-batch-heading">Upload gallery photos</h2>
-        <p class="hint">Each photo is added to the public gallery after you confirm consent. The photo date above applies to this batch. Upload in more batches of up to 100 whenever needed.</p>
+        <p class="hint">After upload, each photo stays hidden until a staff administrator approves it. Confirm consent for each photo before submitting. The photo date above applies to this batch.</p>
         <label for="photoFiles">Choose up to 100 photos</label>
         <input id="photoFiles" type="file" multiple accept="image/*" data-max-files="100">
         <div id="photo-dropzone" class="photo-dropzone" tabindex="0" role="button" aria-label="Drop photos here, click to choose, or focus and paste an image">
@@ -513,7 +513,7 @@
             if (!response.ok) throw new Error(data.error || `Upload failed (${response.status}).`);
             photo.uploaded = true;
             uploadedCount += 1;
-            photo.status.textContent = "Uploaded to the approved gallery.";
+            photo.status.textContent = "Uploaded and waiting for staff approval.";
             photo.status.className = "photo-card-status success";
           } catch (error) {
             const detail = error instanceof Error ? error.message : "Upload failed.";
@@ -537,8 +537,8 @@
         renderErrors(errors);
         setResult(
           errors.length
-            ? `Uploaded ${uploadedCount} of ${pending.length} photos. Failed photos remain selected so you can correct or retry them.`
-            : `Uploaded all ${uploadedCount} photos successfully.`,
+            ? `Submitted ${uploadedCount} of ${pending.length} photos for staff approval. Failed photos remain selected so you can correct or retry them.`
+            : `Submitted all ${uploadedCount} photos for staff approval.`,
           errors.length ? "error" : "success",
         );
         updateCount();

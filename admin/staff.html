@@ -27,10 +27,18 @@
     .message{display:none;margin-top:16px;padding:12px 15px;border-radius:10px;font-size:.9rem}.message.visible{display:block}.message.error{background:#fff0f2;color:var(--red)}.message.success{background:#edf9f1;color:var(--green)}
     .youtube-preview{margin:12px 0}.youtube-preview[hidden]{display:none}.youtube-preview iframe{display:block;max-width:100%;border:0;border-radius:12px}
     .preview{display:none;align-items:center;gap:12px;margin-top:10px;color:var(--muted);font-size:.84rem}.preview.visible{display:flex}.preview img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
+    .approval-section{margin:0 0 34px;padding:20px;border:1px solid #f1d98c;border-radius:14px;background:#fffbeb}
+    .approval-section h2{font-size:1.35rem;margin:0 0 5px}.approval-toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .pending-list{display:grid;gap:12px;margin-top:14px}.pending-card{display:grid;grid-template-columns:24px 140px minmax(0,1fr);align-items:start;gap:14px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff}
+    .pending-card>img{width:140px;height:110px;object-fit:cover;border-radius:10px;background:#eef2f7}.pending-card h3{margin:0;color:var(--navy);font:700 1rem Poppins,sans-serif}.pending-card p{margin:5px 0;color:var(--muted);font-size:.86rem;white-space:pre-wrap}.pending-card .pending-date{font-size:.76rem}.pending-card .pending-consent{font-size:.78rem;font-weight:700;color:var(--green)}
+    .pending-card .pending-consent.missing{color:var(--red)}.pending-card .actions{margin-top:10px;justify-content:flex-start}
+    .pending-select{width:20px;height:20px;margin:4px 0;accent-color:#b38312}
+    #pending-status{color:var(--muted);margin:10px 0 0}.approval-section .message{margin-top:12px}
     .list-section{margin-top:34px}.list-section h2{font-size:1.35rem;margin:0 0 14px}.staff-list{display:grid;gap:12px}.staff-card{display:grid;grid-template-columns:76px 1fr auto;align-items:center;gap:16px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff}
     .staff-card img{width:76px;height:76px;object-fit:cover;border-radius:50%;background:#eef2f7}.staff-card h3{margin:0;color:var(--navy);font:700 1rem Poppins,sans-serif}.staff-card .role{color:#a87b10;font-size:.76rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin:2px 0 5px}.staff-card p{margin:0;color:var(--muted);font-size:.86rem;white-space:pre-wrap}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.actions button{padding:9px 14px}
     #list-status{color:var(--muted);margin:12px 0}.footer-row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:20px 0;color:var(--muted);font-size:.84rem}
-    @media(max-width:620px){.row{grid-template-columns:1fr}.bar{min-height:68px;align-items:flex-start;padding:12px 0}.brand img{width:42px;height:42px}.brand strong{font-size:.87rem}.navlinks{flex-direction:column;gap:4px;text-align:right}.staff-card{grid-template-columns:58px 1fr}.staff-card img{width:58px;height:58px}.actions{grid-column:1/-1;justify-content:flex-start}}
+    @media(max-width:620px){.row{grid-template-columns:1fr}.bar{min-height:68px;align-items:flex-start;padding:12px 0}.brand img{width:42px;height:42px}.brand strong{font-size:.87rem}.navlinks{flex-direction:column;gap:4px;text-align:right}.staff-card{grid-template-columns:58px 1fr}.staff-card img{width:58px;height:58px}.actions{grid-column:1/-1;justify-content:flex-start}.approval-section{padding:15px}.pending-card{grid-template-columns:20px minmax(0,1fr);gap:10px}.pending-card>img{grid-column:2;width:100%;height:180px}.pending-card .pending-details{grid-column:2}.pending-card .actions{grid-column:1/-1}}
   </style>
 </head>
 <body>
@@ -44,9 +52,25 @@
       <h1>Manage staff profiles</h1>
       <p class="intro">Add team members, update their details, or remove profiles from the foundation website.</p>
 
+      <section id="pending-gallery" class="approval-section" aria-labelledby="pending-title">
+        <h2 id="pending-title">Pending Photos (Awaiting Your Approval)</h2>
+        <p class="hint">Photos stay out of the public gallery until you approve them. Use the admin password below to load and review pending uploads.</p>
+        <form id="approval-auth" novalidate>
+          <label for="password">Admin password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+          <button class="sr-only" type="submit">Load pending photos</button>
+        </form>
+        <div class="approval-toolbar">
+          <button class="secondary" id="load-pending" type="button">Load pending photos</button>
+          <button class="secondary" id="approve-selected" type="button" disabled>Approve selected</button>
+          <button id="approve-all" type="button" disabled>Approve All Pending</button>
+        </div>
+        <p id="pending-status" role="status" aria-live="polite">Enter the admin password and load pending photos.</p>
+        <div id="pending-list" class="pending-list" aria-live="polite">Enter the admin password to load pending photos.</div>
+        <div id="approval-message" class="message" role="status" aria-live="polite"></div>
+      </section>
+
       <form id="staff-form">
-        <label for="password">Admin password</label>
-        <input id="password" name="password" type="password" autocomplete="current-password" required>
         <div class="row">
           <div>
             <label for="name">Staff name</label>
@@ -92,6 +116,7 @@
   <script>
     const API_BASE = "https://sarangadonai-api.sarangadonairosete.workers.dev";
     const form = document.getElementById("staff-form");
+    const approvalAuthForm = document.getElementById("approval-auth");
     const passwordInput = document.getElementById("password");
     const nameInput = document.getElementById("name");
     const roleInput = document.getElementById("role");
@@ -104,15 +129,39 @@
     const formMessage = document.getElementById("form-message");
     const listStatus = document.getElementById("list-status");
     const staffList = document.getElementById("staff-list");
+    const pendingList = document.getElementById("pending-list");
+    const pendingStatus = document.getElementById("pending-status");
+    const approvalMessage = document.getElementById("approval-message");
+    const loadPendingButton = document.getElementById("load-pending");
+    const approveSelectedButton = document.getElementById("approve-selected");
+    const approveAllButton = document.getElementById("approve-all");
     const photoPreview = document.getElementById("photo-preview");
     const previewImage = document.getElementById("preview-image");
     const previewLabel = document.getElementById("preview-label");
     let editingId = null;
     let previewObjectUrl = null;
+    let pendingItems = [];
+    let pendingBusy = false;
 
     function showFormMessage(text, type) {
       formMessage.className = `message visible ${type}`;
       formMessage.textContent = text;
+    }
+
+    function showApprovalMessage(text, type) {
+      approvalMessage.className = `message visible ${type}`;
+      approvalMessage.textContent = text;
+    }
+
+    function updateApprovalButtons() {
+      const selected = pendingList.querySelectorAll(".pending-select:checked").length;
+      loadPendingButton.disabled = pendingBusy;
+      approveAllButton.disabled = pendingBusy || pendingItems.length === 0;
+      approveSelectedButton.disabled = pendingBusy || selected === 0;
+      pendingList.querySelectorAll(".pending-action").forEach(button => {
+        button.disabled = pendingBusy
+          || (button.classList.contains("pending-approve") && button.dataset.consentConfirmed !== "true");
+      });
     }
 
     function showPreview(url, label) {
@@ -198,6 +247,183 @@
       return card;
     }
 
+    function makePendingCard(item) {
+      const card = document.createElement("article");
+      card.className = "pending-card";
+      card.dataset.id = item.id;
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "pending-select";
+      checkbox.setAttribute("aria-label", `Select ${item.title || item.filename || "pending photo"}`);
+      checkbox.addEventListener("change", updateApprovalButtons);
+
+      const image = document.createElement("img");
+      image.src = item.public_url || "";
+      image.alt = item.alt_text || item.title || "Pending gallery photo preview";
+      image.loading = "lazy";
+      image.onerror = () => {
+        image.hidden = true;
+        image.alt = "";
+      };
+
+      const details = document.createElement("div");
+      details.className = "pending-details";
+      const title = document.createElement("h3");
+      title.textContent = item.title || item.caption || item.filename || "Untitled photo";
+      const description = document.createElement("p");
+      description.textContent = item.description || "No description provided.";
+      const alt = document.createElement("p");
+      alt.textContent = `Alt text: ${item.alt_text || "Not provided"}`;
+      const date = document.createElement("p");
+      date.className = "pending-date";
+      date.textContent = `Photo date: ${item.date || "Not specified"}`;
+      const consent = document.createElement("p");
+      consent.className = `pending-consent${item.consent_confirmed ? "" : " missing"}`;
+      consent.textContent = item.consent_confirmed
+        ? "Consent confirmed"
+        : "Consent not confirmed — this photo cannot be approved.";
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+      const approveButton = document.createElement("button");
+      approveButton.className = "pending-action pending-approve";
+      approveButton.type = "button";
+      approveButton.textContent = "Approve";
+      approveButton.dataset.consentConfirmed = String(Boolean(item.consent_confirmed));
+      approveButton.addEventListener("click", () => moderatePendingPhoto(item, "approve"));
+      const rejectButton = document.createElement("button");
+      rejectButton.className = "danger pending-action";
+      rejectButton.type = "button";
+      rejectButton.textContent = "Reject";
+      rejectButton.addEventListener("click", () => moderatePendingPhoto(item, "reject"));
+      actions.append(approveButton, rejectButton);
+      details.append(title, description, alt, date, consent, actions);
+      card.append(checkbox, image, details);
+      return card;
+    }
+
+    async function loadPendingPhotos() {
+      const password = passwordInput.value;
+      if (!password) {
+        pendingStatus.textContent = "Enter the admin password to load pending photos.";
+        passwordInput.focus();
+        return;
+      }
+
+      pendingBusy = true;
+      updateApprovalButtons();
+      pendingStatus.textContent = "Loading pending photos…";
+      approvalMessage.className = "message";
+      try {
+        const response = await fetch(`${API_BASE}/api/admin/media/pending`, {
+          headers: { Accept: "application/json", Authorization: `Bearer ${password}` }
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Could not load pending photos.");
+        pendingItems = Array.isArray(data.pending) ? data.pending : [];
+        pendingList.replaceChildren(...pendingItems.map(makePendingCard));
+        pendingStatus.textContent = pendingItems.length
+          ? `${pendingItems.length} photo${pendingItems.length === 1 ? "" : "s"} awaiting review.`
+          : "No photos are waiting for approval.";
+        if (!pendingItems.length) {
+          const empty = document.createElement("p");
+          empty.className = "hint";
+          empty.textContent = "New gallery uploads will appear here.";
+          pendingList.appendChild(empty);
+        }
+      } catch (error) {
+        pendingItems = [];
+        pendingList.replaceChildren();
+        pendingStatus.textContent = error.message || "Pending photos could not be loaded.";
+        if (error.message === "Invalid admin password.") {
+          pendingStatus.textContent = "Admin password was not accepted. Check it and load the queue again.";
+        }
+      } finally {
+        pendingBusy = false;
+        updateApprovalButtons();
+      }
+    }
+
+    async function moderatePendingPhoto(item, action) {
+      if (action === "reject" && !confirm(`Reject “${item.title || item.filename || "this photo"}”? Its image file will be removed.`)) return;
+      const password = passwordInput.value;
+      if (!password) {
+        showApprovalMessage("Enter the admin password before reviewing photos.", "error");
+        passwordInput.focus();
+        return;
+      }
+      pendingBusy = true;
+      updateApprovalButtons();
+      try {
+        const response = await fetch(`${API_BASE}/api/admin/media/${encodeURIComponent(item.id)}/${action}`, {
+          method: "POST",
+          headers: { Accept: "application/json", Authorization: `Bearer ${password}` }
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || `Could not ${action} this photo.`);
+        const successMessage = action === "approve"
+          ? "Photo approved and added to the public gallery."
+          : "Photo rejected and its image file removed.";
+        await loadPendingPhotos();
+        showApprovalMessage(successMessage, "success");
+      } catch (error) {
+        showApprovalMessage(error.message || `Could not ${action} this photo.`, "error");
+      } finally {
+        pendingBusy = false;
+        updateApprovalButtons();
+      }
+    }
+
+    async function approvePhotos(items) {
+      if (!items.length) {
+        showApprovalMessage("Select at least one photo to approve.", "error");
+        return;
+      }
+      const password = passwordInput.value;
+      if (!password) {
+        showApprovalMessage("Enter the admin password before approving photos.", "error");
+        passwordInput.focus();
+        return;
+      }
+
+      pendingBusy = true;
+      updateApprovalButtons();
+      let approvedCount = 0;
+      const errors = [];
+      for (const item of items) {
+        if (!item.consent_confirmed) {
+          errors.push(`${item.title || item.filename}: consent is not confirmed.`);
+          continue;
+        }
+        try {
+          const response = await fetch(`${API_BASE}/api/admin/media/${encodeURIComponent(item.id)}/approve`, {
+            method: "POST",
+            headers: { Accept: "application/json", Authorization: `Bearer ${password}` }
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || "approval failed");
+          approvedCount += 1;
+        } catch (error) {
+          errors.push(`${item.title || item.filename}: ${error.message || "approval failed"}`);
+        }
+      }
+      pendingBusy = false;
+      await loadPendingPhotos();
+      const message = errors.length
+        ? `Approved ${approvedCount} photo${approvedCount === 1 ? "" : "s"}; ${errors.length} need attention. ${errors.join(" ")}`
+        : `Approved ${approvedCount} photo${approvedCount === 1 ? "" : "s"}.`;
+      showApprovalMessage(message, errors.length ? "error" : "success");
+    }
+
+    async function approveAll() {
+      await approvePhotos([...pendingItems]);
+    }
+
+    async function approveSelected() {
+      const selectedIds = new Set([...pendingList.querySelectorAll(".pending-select:checked")].map(input => input.closest(".pending-card").dataset.id));
+      await approvePhotos(pendingItems.filter(item => selectedIds.has(item.id)));
+    }
+
     async function loadStaff() {
       listStatus.textContent = "Loading staff profiles…";
       try {
@@ -249,10 +475,23 @@
     });
 
     cancelButton.addEventListener("click", cancelEdit);
+    approvalAuthForm.addEventListener("submit", event => {
+      event.preventDefault();
+      loadPendingPhotos();
+    });
+    loadPendingButton.addEventListener("click", loadPendingPhotos);
+    approveAllButton.addEventListener("click", approveAll);
+    approveSelectedButton.addEventListener("click", approveSelected);
+    window.approveAll = approveAll;
 
     form.addEventListener("submit", async event => {
       event.preventDefault();
       formMessage.className = "message";
+      if (!passwordInput.value) {
+        showFormMessage("Enter the admin password before saving a staff profile.", "error");
+        passwordInput.focus();
+        return;
+      }
       const file = photoInput.files[0];
       const youtubeId = window.getYouTubeVideoId(youtubeInput.value);
       if (!file && !editingId && !youtubeId) {

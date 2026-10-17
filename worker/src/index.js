@@ -17,7 +17,7 @@ const ALLOWED_IMAGE_TYPES = new Set([
 function corsHeaders(request, env) {
   const headers = new Headers({
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, X-Admin-Password",
+    "Access-Control-Allow-Headers": "Content-Type, X-Admin-Password, Authorization",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin",
     "X-Content-Type-Options": "nosniff",
@@ -28,6 +28,11 @@ function corsHeaders(request, env) {
   }
 
   return headers;
+}
+
+function adminCredential(request) {
+  const bearer = request.headers.get("Authorization")?.match(/^Bearer\s+(.+)$/i)?.[1] || "";
+  return request.headers.get("X-Admin-Password") || bearer;
 }
 
 function json(request, env, data, status = 200, extraHeaders = {}) {
@@ -606,7 +611,7 @@ async function uploadGalleryImage(request, env) {
   if (!altText) return json(request, env, { error: "Add alt text for this photo." }, 400);
   if (!validDate(date)) return json(request, env, { error: "Choose a valid photo date." }, 400);
   if (body.consent_confirmed !== true) {
-    return json(request, env, { error: "Confirm that consent was granted before publishing this photo." }, 400);
+    return json(request, env, { error: "Confirm that consent was granted before submitting this photo for approval." }, 400);
   }
 
   const [year, month, day] = date.split("-");
@@ -623,7 +628,7 @@ async function uploadGalleryImage(request, env) {
       customMetadata: { date, title },
     });
     await env.DB.prepare(
-      "INSERT INTO media (id, public_url, filename, date, year, month, day, caption, title, description, alt_text, consent_confirmed, consent_confirmed_at, youtube_url, youtube_id, visibility, media_type, auto_transcribe, transcript_status, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP, NULL, NULL, 'public', 'photo', 0, 'disabled', 'approved')",
+      "INSERT INTO media (id, public_url, filename, date, year, month, day, caption, title, description, alt_text, consent_confirmed, consent_confirmed_at, youtube_url, youtube_id, visibility, media_type, auto_transcribe, transcript_status, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP, NULL, NULL, 'public', 'photo', 0, 'disabled', 'pending')",
     ).bind(id, publicUrl, filename, date, year, month, day, title, title, description, altText).run();
   } catch (error) {
     await env.MEDIA.delete(key).catch(() => {});
@@ -644,11 +649,88 @@ async function uploadGalleryImage(request, env) {
       title,
       description,
       alt_text: altText,
-      status: "approved",
-      approved: true,
+      status: "pending",
+      approved: false,
       media_type: "photo",
     },
   }, 201);
+}
+
+async function getPendingGalleryPhotos(request, env) {
+  const password = adminCredential(request);
+  if (!(await passwordMatches(password, env.ADMIN_PASSWORD))) {
+    return json(request, env, { error: "Invalid admin password." }, 401);
+  }
+
+  const result = await env.DB.prepare(
+    "SELECT id, public_url, filename, date, year, month, day, caption, title, description, alt_text, consent_confirmed, youtube_url, youtube_id, visibility, media_type, status, created_at FROM media WHERE COALESCE(status, 'approved') = 'pending' AND (youtube_id IS NULL OR TRIM(youtube_id) = '') AND COALESCE(media_type, 'photo') <> 'youtube' AND public_url IS NOT NULL AND TRIM(public_url) <> '' ORDER BY created_at ASC, id ASC",
+  ).all();
+
+  return json(request, env, {
+    pending: (result.results || []).map(item => ({
+      ...imageObject(request, env, item),
+      consent_confirmed: Number(item.consent_confirmed) === 1,
+    })),
+  });
+}
+
+async function moderatePendingGalleryPhoto(request, env, id, action) {
+  const password = adminCredential(request);
+  if (!(await passwordMatches(password, env.ADMIN_PASSWORD))) {
+    return json(request, env, { error: "Invalid admin password." }, 401);
+  }
+  if (!/^[0-9a-f-]{36}$/i.test(id)) {
+    return json(request, env, { error: "Invalid media ID." }, 400);
+  }
+
+  const existing = await env.DB.prepare(
+    "SELECT id, public_url, status, media_type, youtube_id, consent_confirmed FROM media WHERE id = ?",
+  ).bind(id).first();
+  if (!existing) return json(request, env, { error: "Pending photo not found." }, 404);
+  if (existing.status !== "pending" || existing.youtube_id || existing.media_type === "youtube") {
+    return json(request, env, { error: "This photo is no longer pending approval." }, 409);
+  }
+
+  if (action === "approve") {
+    if (Number(existing.consent_confirmed) !== 1) {
+      return json(request, env, { error: "Consent must be confirmed before this photo can be approved." }, 409);
+    }
+    await env.DB.prepare(
+      "UPDATE media SET status = 'approved' WHERE id = ? AND status = 'pending' AND consent_confirmed = 1",
+    ).bind(id).run();
+    const updated = await env.DB.prepare("SELECT status FROM media WHERE id = ?").bind(id).first();
+    if (updated?.status !== "approved") {
+      return json(request, env, { error: "This photo could not be approved; refresh the queue and try again." }, 409);
+    }
+    return json(request, env, { id, status: "approved", approved: true });
+  }
+
+  try {
+    const publicUrl = String(existing.public_url || "");
+    if (publicUrl) {
+      const objectUrl = new URL(publicUrl);
+      const publicBase = new URL(env.R2_PUBLIC_BASE_URL);
+      const key = decodeURIComponent(objectUrl.pathname.replace(/^\/+/, ""));
+      const validKey = /^\d{4}\/\d{2}\/\d{2}\/[0-9a-f-]{36}-[A-Za-z0-9._-]+$/i.test(key)
+        || /^gallery\/[0-9a-f-]{36}-[0-9a-f-]{36}-[A-Za-z0-9._-]+$/i.test(key)
+        || /^images\/gallery\/\d+-[0-9a-f-]{36}-[A-Za-z0-9._-]+$/i.test(key);
+      if (objectUrl.origin !== publicBase.origin || !validKey) {
+        return json(request, env, { error: "Stored photo path is invalid; the photo was not rejected." }, 500);
+      }
+      await env.MEDIA.delete(key);
+    }
+    await env.DB.prepare(
+      "UPDATE media SET status = 'rejected', public_url = NULL WHERE id = ? AND status = 'pending'",
+    ).bind(id).run();
+    const updated = await env.DB.prepare("SELECT status FROM media WHERE id = ?").bind(id).first();
+    if (updated?.status !== "rejected") {
+      return json(request, env, { error: "This photo could not be rejected; refresh the queue and try again." }, 409);
+    }
+    return json(request, env, { id, status: "rejected", rejected: true });
+  } catch (error) {
+    console.error("[gallery-approval] reject failed", String(error));
+    return json(request, env, { error: "The photo could not be rejected." }, 500);
+  }
 }
 
 async function deleteMedia(request, env, id) {
@@ -1056,9 +1138,12 @@ export default {
       }
       if (request.method === "GET" && path === "/api/media") {
         const result = await env.DB.prepare(
-          "SELECT id, public_url, filename, date, year, month, day, caption, title, description, alt_text, youtube_url, youtube_id, visibility, media_type, auto_transcribe, transcript_status, status, created_at FROM media ORDER BY date DESC, created_at DESC",
+          "SELECT id, public_url, filename, date, year, month, day, caption, title, description, alt_text, youtube_url, youtube_id, visibility, media_type, auto_transcribe, transcript_status, status, created_at FROM media WHERE COALESCE(status, 'approved') = 'approved' ORDER BY date DESC, created_at DESC",
         ).all();
         return json(request, env, { media: (result.results || []).map(row => imageObject(request, env, row)) });
+      }
+      if (request.method === "GET" && path === "/api/admin/media/pending") {
+        return await getPendingGalleryPhotos(request, env);
       }
       if (request.method === "POST" && path === "/api/media") {
         return await uploadMedia(request, env);
@@ -1078,6 +1163,16 @@ export default {
         const id = decodeURIComponent(staffMatch[1]);
         if (request.method === "PUT") return await updateStaff(request, env, id);
         if (request.method === "DELETE") return await deleteStaff(request, env, id);
+      }
+
+      const adminMediaAction = path.match(/^\/api\/admin\/media\/([^/]+)\/(approve|reject)$/);
+      if (request.method === "POST" && adminMediaAction) {
+        return await moderatePendingGalleryPhoto(
+          request,
+          env,
+          decodeURIComponent(adminMediaAction[1]),
+          adminMediaAction[2],
+        );
       }
 
       const mediaMatch = path.match(/^\/(?:api\/)?media\/([^/]+)$/);
