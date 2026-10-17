@@ -1,0 +1,50 @@
+In repo sarangadonairosete/sarang-Adonai-foundation admin/upload.html and admin/gallery-upload.html and Worker API:
+
+REMOVE 9 PHOTO LIMIT - ALLOW UNLIMITED WITH DESCRIPTION EACH:
+
+1. admin/upload.html - Photo upload section:
+
+Replace current <input type="file" multiple max 9> with:
+
+- Input: <input type="file" id="photoFiles" multiple accept="image/*" max="100">
+- On file select (JS): For EACH file selected, create a card:
+  <div class="photo-card">
+    <img preview src="">
+    <input class="photo-title" placeholder="Title e.g. Helping family in Kayunga">
+    <textarea class="photo-desc" placeholder="Describe this photo before uploading - e.g. We gave food to 5 children..."></textarea>
+    <input class="photo-alt" placeholder="Alt text for Google">
+    <button onclick="removeCard(this)">Remove</button>
+  </div>
+
+- Show count: "12 photos selected - add description for each"
+
+- Upload button: "Upload 12 Photos"
+
+2. JS upload logic:
+- Loop through each card one by one (not all at once to avoid GitHub rate limit)
+- For each: 
+  a) Read file as base64
+  b) Upload to GitHub via Worker API POST /api/upload-image with {filename, content, title, description, alt}
+  c) Worker saves to /images/gallery/ and creates entry in D1 gallery table: id, filename, title, description, alt, uploaded_at, approved=true
+  d) Show progress: "Uploading 3/12 - Helping family..."
+- If fails one, continue others, show error list at end
+
+3. Worker API /api/upload-image:
+- Currently limited? Remove limit check for 9
+- Accept single file per request, not batch
+- Save file to GitHub repo images/gallery/{timestamp}-{filename}
+- Insert into D1: INSERT INTO gallery (id, url, title, description, alt_text) VALUES
+- Return success
+
+4. Gallery page gallery.html:
+- Fetch from /api/gallery now returns title + description per photo
+- Show description under each photo: <p class="photo-desc">{description}</p>
+- Good for Google SEO and donors reading story per photo
+
+5. Increase limit from 9 to 100 per batch, unlimited total (user can do 100 + 100 again)
+
+6. Add drag & drop + paste support
+
+Deploy Worker + Pages.
+
+Test: Select 15 photos, add different description for each, upload - all should appear in gallery with descriptions.
