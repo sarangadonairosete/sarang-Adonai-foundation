@@ -1,0 +1,53 @@
+In repo sarangadonairosete/sarang-Adonai-foundation:
+
+MAKE SITE SEARCHABLE ON GOOGLE (SEO for GitHub Pages without custom domain):
+
+1. Root: Create robots.txt at /sarang-Adonai-foundation/robots.txt:
+   User-agent: *
+   Allow: /
+   Sitemap: https://sarangadonairosete.github.io/sarang-Adonai-foundation/sitemap.xml
+
+2. Root: Create sitemap.xml at /sarang-Adonai-foundation/sitemap.xml:
+   <?xml version="1.0" encoding="UTF-8"?>
+   <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+     <url><loc>https://sarangadonairosete.github.io/sarang-Adonai-foundation/</loc><priority>1.0</priority></url>
+     <url><loc>https://sarangadonairosete.github.io/sarang-Adonai-foundation/gallery.html</loc><priority>0.9</priority></url>
+     <url><loc>https://sarangadonairosete.github.io/sarang-Adonai-foundation/about.html</loc><priority>0.8</priority></url>
+     <url><loc>https://sarangadonairosete.github.io/sarang-Adonai-foundation/students.html</loc><priority>0.8</priority></url>
+     <url><loc>https://sarangadonairosete.github.io/sarang-Adonai-foundation/families.html</loc><priority>0.8</priority></url>
+     <url><loc>https://sarangadonairosete.github.io/sarang-Adonai-foundation/events.html</loc><priority>0.7</priority></url>
+     <url><loc>https://sarangadonairosete.github.io/sarang-Adonai-foundation/donate.html</loc><priority>0.9</priority></url>
+   </urlset>
+
+3. All HTML pages (index.html, gallery.html, about.html, etc): In <head> add:
+   <title>Sarang Adonai Foundation - Helping Orphans & Families in Kayunga, Uganda</title>
+   <meta name="description" content="Sarang Adonai Foundation is a Ugandan NGO in Kayunga helping orphans, vulnerable children and families. Donate, sponsor, volunteer. Togetherness Creates Excitement.">
+   <meta name="keywords" content="Sarang Adonai Foundation, Uganda NGO, Kayunga orphanage, help orphans Uganda, donate Uganda, Sarang Adonai Rosete">
+   <link rel="canonical" href="https://sarangadonairosete.github.io/sarang-Adonai-foundation/">
+   <meta property="og:title" content="Sarang Adonai Foundation - Kayunga Uganda">
+   <meta property="og:description" content="Helping orphans & families in Kayunga. Watch our videos, donate, make change.">
+   <meta property="og:image" content="https://sarangadonairosete.github.io/sarang-Adonai-foundation/assets/og-image.jpg">
+   <meta property="og:url" content="https://sarangadonairosete.github.io/sarang-Adonai-foundation/">
+   <meta property="og:type" content="website">
+   <meta name="google-site-verification" content="PLACEHOLDER_WE_WILL_REPLACE_AFTER_SEARCH_CONSOLE">
+   <script type="application/ld+json">
+   {
+     "@context":"https://schema.org",
+     "@type":"NGO",
+     "name":"Sarang Adonai Foundation",
+     "alternateName":"Sarang Adonai Rosete Foundation",
+     "url":"https://sarangadonairosete.github.io/sarang-Adonai-foundation/",
+     "logo":"https://sarangadonairosete.github.io/sarang-Adonai-foundation/assets/logo.png",
+     "description":"Ugandan NGO helping orphans and families in Kayunga",
+     "address":{"@type":"PostalAddress","addressLocality":"Kayunga","addressCountry":"UG"},
+     "sameAs":["https://www.youtube.com/channel/UC1YeiPkr7YVAdm6CG1gkDg"]
+   }
+   </script>
+
+4. index.html: Add <h1 style="display:none">Sarang Adonai Foundation Uganda Kayunga Orphanage NGO</h1> for Google keyword
+
+5. Create file google-site-verification.html empty for now, we will add verification file after Search Console setup.
+
+Deploy Pages.
+
+After deploy, tell user to go to https://search.google.com/search-console and add property https://sarangadonairosete.github.io/sarang-Adonai-foundation/ and submit sitemap.
